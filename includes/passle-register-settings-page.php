@@ -7,7 +7,12 @@
  */
 
 // Register the menu
-add_action("admin_menu", "passle_register_settings_menu");
+
+// TODO: This is commented out so it doesn't conflict with the new test page that was created.
+// In the long run, this, and the new test page, should both be deleted and replaced
+// with a React app.
+
+// add_action("admin_menu", "passle_register_settings_menu");
 function passle_register_settings_menu()
 {
     add_submenu_page(
