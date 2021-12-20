@@ -8,11 +8,10 @@
 
 // I guess we wouldn't want to do this by default
 // in case they had something else set
-add_action( 'pre_get_posts', 'passle_modify_home_page_query' );
-function passle_modify_home_page_query($query) {
-
-    if ( $query->is_home() && $query->is_main_query() ) {
-        $query->set( 'post_type', array( 'post', 'PasslePost' ) );
+add_action('pre_get_posts', 'passle_modify_home_page_query');
+function passle_modify_home_page_query($query)
+{
+    if ($query->is_home() && $query->is_main_query()) {
+        $query->set('post_type', array('post', 'PasslePost'));
     }
-
 }

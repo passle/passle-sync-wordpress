@@ -10,7 +10,7 @@
   Text Domain: passle
 */
 
-defined( 'ABSPATH' ) or die( 'No direct access, please' );
+defined('ABSPATH') or die('No direct access, please');
 
 // Include passle functions - use require_once to stop the script if they're not found
 require_once plugin_dir_path(__FILE__) . 'includes/passle-custom-post-type.php';
