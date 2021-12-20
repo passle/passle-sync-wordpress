@@ -13,18 +13,27 @@ function passle_register_rest_api() {
     register_rest_route( 'passlesync/v1', '/posts', array(
         'methods' => 'GET',
         'callback' => 'get_passle_posts',
+        'permission_callback' => function () {
+            return current_user_can( 'edit_others_posts' );
+        }
     ) );
 
     // http://wordpress.example.com/wp-json/passlesync/v1/post/0
     register_rest_route( 'passlesync/v1', '/post/(?P<id>\d+)', array(
         'methods' => 'GET',
         'callback' => 'get_passle_post_by_id',
+        'permission_callback' => function () {
+            return current_user_can( 'edit_others_posts' );
+        }
     ) );
 
     // http://wordpress.example.com/wp-json/passlesync/v1/post/update
     register_rest_route( 'passlesync/v1', '/post/update', array(
         'methods' => 'POST',
         'callback' => 'update_passle_post',
+        'permission_callback' => function () {
+            return current_user_can( 'edit_others_posts' );
+        }
     ) );
 
 }
@@ -91,18 +100,30 @@ function update_passle_post( $data ) {
         return new WP_Error( 'no_title', 'You must include a post title', array( 'status' => 400 ) );
     }
 
-    if ( empty( $post_data['PostContentHtml'] ) ) {
+    if ( empty( $post_data['ContentTextSnippet'] ) ) {
         return new WP_Error( 'no_content', 'You must include post content', array( 'status' => 400 ) );
     }
 
-    // TODO: Find if there's an existing post with this shortcode
+    // Find if there's an existing post with this shortcode
     // Update it, if so
+    $id = 0;
+    $posts = get_posts( array(
+        'numberposts'   => -1,
+        'post_type'     => array( 'PasslePost'),
+    ) );
+    $matching_posts = array_filter( $posts, function ( $p ) use ( $post_data ) {
+        return $p->post_shortcode === $post_data['PostShortcode'];
+    });
+    if ( count( $matching_posts ) > 0 ) {
+        $id = $matching_posts[0]->ID;
+    }
 
     $new_post = array(
+        'ID'                => $id,
         'post_title'        => $post_data['PostTitle'],
         'post_date'         => $post_data['PublishedDate'],
         'post_type'         => 'PasslePost',
-        'post_content'      => $post_data['PostContentHtml'],
+        'post_content'      => $post_data['ContentTextSnippet'],
         'post_status'       => 'publish',
         'comment_status'    => 'closed',
         'meta_input'    => array(
