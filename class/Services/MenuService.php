@@ -18,17 +18,9 @@ class MenuService
 
     public function render_settings_menu()
     {
-?>
+    ?>
+        <div id="passle-sync-settings-root"></div>
         <!-- TODO: This is temporary, and should be handled by a React app. -->
-        <div>Hello world</div>
-        <button id="call-service">Call service</button>
-        <script>
-            document.querySelector("#call-service").onclick = async () => {
-                const response = await fetch('http://wordpressdemo.test/wp-json/wp/v2/posts');
-                const result = await response.text();
-                console.log(result);
-            }
-        </script>
-<?php
+    <?php
     }
 }
