@@ -3,6 +3,7 @@
 namespace Passle\PassleSync\Services;
 
 use Passle\PassleSync\Utils\UrlFactory;
+use Passle\PassleSync\Utils\Utils;
 
 class ApiService
 {
@@ -122,15 +123,15 @@ class ApiService
         $post_data = $data->get_json_params();
 
         if (empty($post_data)) {
-            return new WP_Error('no_data', 'You must include data to create a post', array('status' => 400));
+            return new \WP_Error('no_data', 'You must include data to create a post', array('status' => 400));
         }
 
         if (empty($post_data['PostTitle'])) {
-            return new WP_Error('no_title', 'You must include a post title', array('status' => 400));
+            return new \WP_Error('no_title', 'You must include a post title', array('status' => 400));
         }
 
         if (empty($post_data['ContentTextSnippet'])) {
-            return new WP_Error('no_content', 'You must include post content', array('status' => 400));
+            return new \WP_Error('no_content', 'You must include post content', array('status' => 400));
         }
 
         return $this->content_service->update_passle_post($post_data);

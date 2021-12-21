@@ -45,7 +45,7 @@ class PasslePost
             'capability_type' => 'post',
             'capabilities' => array(
                 'create_posts' => 'do_not_allow',
-                'edit_posts' => 'do_not_allow',
+                // 'edit_posts' => 'do_not_allow',
             ),
             'hierarchical' => false,
             'supports' => array('title', 'custom-fields'),
@@ -55,6 +55,6 @@ class PasslePost
             'show_in_rest' => true
         );
 
-        register_post_type('passle_post', $args);
+        register_post_type(PASSLESYNC_POST_TYPE, $args);
     }
 }

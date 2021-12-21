@@ -10,13 +10,14 @@ class ContentService
     {
         $posts = get_posts(array(
             'numberposts'   => -1,
-            'post_type'     => array('PasslePost'),
+            'post_type'     => array(PASSLESYNC_POST_TYPE),
         ));
 
         if (empty($posts)) {
             return array();
         }
 
+        //TODO: INclude meta data
         return $posts;
     }
 
@@ -42,7 +43,7 @@ class ContentService
         // Find if there's an existing post with this shortcode
         // Update it, if so
         $id = 0;
-        $posts = get_passle_posts();
+        $posts = $this->get_passle_posts();
 
         $matching_posts = array_filter($posts, function ($p) use ($data) {
             return $p->post_shortcode === $data['PostShortcode'];
@@ -55,17 +56,19 @@ class ContentService
 
         $new_post = array(
             'ID'                => $id,
-            'post_title'        => $post_data['PostTitle'],
-            'post_date'         => $post_data['PublishedDate'],
-            'post_type'         => 'PasslePost',
-            'post_content'      => $post_data['ContentTextSnippet'],
+            'post_title'        => $data['PostTitle'],
+            'post_date'         => $data['PublishedDate'],
+            'post_type'         => PASSLESYNC_POST_TYPE,
+            'post_content'      => $data['ContentTextSnippet'],
             'post_status'       => 'publish',
             'comment_status'    => 'closed',
             'meta_input'    => array(
-                'post_shortcode'    => $post_data['PostShortcode'],
-                'passle_shortcode'  => $post_data['PassleShortcode']
+                'post_shortcode'    => $data['PostShortcode'],
+                'passle_shortcode'  => $data['PassleShortcode']
             )
         );
+
+        $pid = wp_insert_post($new_post, true);
 
         return $new_post;
     }

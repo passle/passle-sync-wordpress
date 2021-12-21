@@ -74,17 +74,15 @@ function SyncedPost({ post }) {
 
   return (
     <>
-      <a href={post.PostUrl} target="_blank">
-        <p>
-          {post.PostShortcode} - {post.PostTitle}
-        </p>
+      <a href={post.guid} target="_blank">
+        <p>{post.post_title}</p>
       </a>
     </>
   );
 }
 
 function UnsyncedPosts({ posts }) {
-  console.log("Posts:", posts);
+  // console.log("Posts:", posts);
 
   return (
     <>
@@ -97,6 +95,7 @@ function UnsyncedPosts({ posts }) {
 
 function UnsyncedPost({ post }) {
   const [loading, setLoading] = useState(false);
+  const [hasSynced, setHasSynced] = useState(false);
   console.log("Post:", post);
 
   const syncPost = async () => {
@@ -107,13 +106,17 @@ function UnsyncedPost({ post }) {
       "http://wordpressdemo.test/wp-json/passlesync/v1/post/update",
       {
         method: "POST",
-        data: post,
+        body: JSON.stringify(post),
+        headers: {
+          "Content-Type": "application/json",
+        },
       }
     );
     const result = await response.json();
 
     console.log("syncPost:", result);
     setLoading(false);
+    setHasSynced(true);
   };
 
   return (
@@ -123,8 +126,11 @@ function UnsyncedPost({ post }) {
           {post.PostShortcode} - {post.PostTitle}
         </p>
       </a>
-      {!loading && <button onClick={() => syncPost()}>Sync post</button>}
-      {loading && <p>Syncing...</p>}
+      {!loading && !hasSynced && (
+        <button onClick={() => syncPost()}>Sync post</button>
+      )}
+      {loading && !hasSynced && <p>Syncing...</p>}
+      {hasSynced && <p>Synced</p>}
     </>
   );
 }
