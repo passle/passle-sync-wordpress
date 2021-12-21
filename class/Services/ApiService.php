@@ -23,7 +23,7 @@ class ApiService
         ));
     }
 
-    public function get($url)
+    public function get(string $url)
     {
         $request = wp_remote_get($url, array(
             'sslverify' => false,
@@ -38,7 +38,7 @@ class ApiService
         return $data;
     }
 
-    public function get_all_paginated($url, $page_number = 1)
+    public function get_all_paginated(string $url, int $page_number = 1)
     {
         $result = [];
         $next_url = $this->get_next_url($url, $page_number);
@@ -59,7 +59,7 @@ class ApiService
         return $result;
     }
 
-    private function get_next_url($url, $page_number)
+    private function get_next_url(string $url, int $page_number)
     {
         $parsed_url = wp_parse_url($url);
         wp_parse_str($parsed_url['query'], $query);

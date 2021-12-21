@@ -25,7 +25,7 @@ class UrlFactory
 
     public function path($path)
     {
-        $this->path = "/{$path}";
+        $this->path = $path;
         return $this;
     }
 

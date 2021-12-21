@@ -4,6 +4,11 @@ namespace Passle\PassleSync\PostTypes;
 
 class PasslePost
 {
+    public function __construct()
+    {
+        add_action("init", array($this, "create_post_type"));
+    }
+
     function create_post_type()
     {
         // TODO: Create any/all custom taxonomies in another method.
