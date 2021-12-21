@@ -2,6 +2,7 @@
 
 namespace Passle\PassleSync;
 
+use Passle\PassleSync\PostTypes\PasslePost;
 use Passle\PassleSync\Services\ApiService;
 use Passle\PassleSync\Services\MenuService;
 
@@ -23,5 +24,8 @@ class PassleSync
 
         // Register settings menu
         add_action("admin_menu", array($this->menu_service, "register_menus"));
+
+        // Register post types
+        add_action("init", array(new PasslePost, "create_post_type"));
     }
 }
