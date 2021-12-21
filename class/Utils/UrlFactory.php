@@ -6,7 +6,7 @@ use InvalidArgumentException;
 
 class UrlFactory
 {
-    private $protocol = "https";
+    private $protocol = "http";
     private $root = "clientwebapi.passle.localhost/api"; // TODO: Don't harcode this URL
     private $path = "/";
     private $parameters = [];
@@ -25,7 +25,7 @@ class UrlFactory
 
     public function path($path)
     {
-        $this->path = $path;
+        $this->path = "/{$path}";
         return $this;
     }
 
