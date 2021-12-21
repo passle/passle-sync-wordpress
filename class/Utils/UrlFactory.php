@@ -7,7 +7,7 @@ use InvalidArgumentException;
 class UrlFactory
 {
     private $protocol = "http";
-    private $root = "clientwebapi.passle.localhost/api"; // TODO: Don't harcode this URL
+    private $root = PASSLESYNC_CLIENT_API_BASE;
     private $path = "/";
     private $parameters = [];
 

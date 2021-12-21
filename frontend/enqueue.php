@@ -11,18 +11,23 @@ add_action( 'init', function() {
   }, 10, 2 );
 
   add_action( 'admin_enqueue_scripts', function() {
-      $asset_manifest = json_decode( file_get_contents( PASSLE_SYNC_ASSET_MANIFEST ), true )['files'];
+      $asset_manifest = json_decode( file_get_contents( PASSLE_SYNC_ASSET_MANIFEST ), true );
 
-      if ( isset( $asset_manifest[ 'main.css' ] ) ) {
-        wp_enqueue_style( 'passle', get_site_url() . $asset_manifest[ 'main.css' ] );
+      if (!isset($asset_manifest['files'])) {
+          return;
       }
-  if ( isset( $asset_manifest[ 'runtime~main.js' ] ) ) {
-    wp_enqueue_script( 'passle-runtime', get_site_url() . $asset_manifest[ 'runtime~main.js' ], array(), null, true );
+      $asset_manifest_files = $asset_manifest['files'];
+
+      if ( isset( $asset_manifest_files[ 'main.css' ] ) ) {
+        wp_enqueue_style( 'passle', get_site_url() . $asset_manifest_files[ 'main.css' ] );
+      }
+  if ( isset( $asset_manifest_files[ 'runtime~main.js' ] ) ) {
+    wp_enqueue_script( 'passle-runtime', get_site_url() . $asset_manifest_files[ 'runtime~main.js' ], array(), null, true );
   }
 
-      wp_enqueue_script( 'passle-main', get_site_url() . $asset_manifest[ 'main.js' ], array(), null, true );
+      wp_enqueue_script( 'passle-main', get_site_url() . $asset_manifest_files[ 'main.js' ], array(), null, true );
 
-      foreach ( $asset_manifest as $key => $value ) {
+      foreach ( $asset_manifest_files as $key => $value ) {
         if ( preg_match( '@static/js/(.*)\.chunk\.js@', $key, $matches ) ) {
           if ( $matches && is_array( $matches ) && count( $matches ) === 2 ) {
             $name = "passle-" . preg_replace( '/[^A-Za-z0-9_]/', '-', $matches[1] );

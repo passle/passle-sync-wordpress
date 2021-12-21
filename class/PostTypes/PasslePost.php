@@ -44,13 +44,15 @@ class PasslePost
             'menu_icon' => 'dashicons-admin-appearance',
             'capability_type' => 'post',
             'capabilities' => array(
-                'create_posts' => 'do_not_allow'
+                'create_posts' => 'do_not_allow',
+                'edit_posts' => 'do_not_allow',
             ),
             'hierarchical' => false,
-            'supports' => array('title'),
+            'supports' => array('title', 'custom-fields'),
             'has_archive' => true,
             'rewrite' => array('slug' => 'passle-posts'),
-            'query_var' => true
+            'query_var' => true,
+            'show_in_rest' => true
         );
 
         register_post_type('passle_post', $args);

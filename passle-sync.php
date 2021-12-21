@@ -21,7 +21,6 @@ require_once $passle_base_path . '/vendor/autoload.php';
 require_once $passle_base_path . '/includes/passle-modify-home-query.php';
 require_once $passle_base_path . '/includes/passle-register-settings-page.php';
 require_once $passle_base_path . '/frontend/enqueue.php';
-require_once $passle_base_path . '/includes/passle-rest-api.php';
 require_once $passle_base_path . '/constants.php';
 require_once $passle_base_path . '/initialize.php';
 
@@ -29,3 +28,6 @@ require_once $passle_base_path . '/initialize.php';
 foreach (glob($passle_base_path . "/class/SyncHandlers/Handlers/*.php") as $filename) {
   require_once $filename;
 }
+
+update_option(PASSLESYNC_API_KEY, 'vp3a42-SPE9WT3-DDCTXGQ', true);
+update_option(PASSLESYNC_SHORTCODE, 'vp3a43', true);

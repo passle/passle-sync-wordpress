@@ -18,9 +18,9 @@ class MenuService
 
     public function render_settings_menu()
     {
-    ?>
-        <div id="passle-sync-settings-root"></div>
-        <!-- TODO: This is temporary, and should be handled by a React app. -->
-    <?php
+        ?>
+            <div id="passle-sync-settings-root"></div>
+            <!-- TODO: This is temporary, and should be handled by a React app. -->
+        <?php
     }
 }

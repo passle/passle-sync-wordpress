@@ -25,19 +25,6 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
 
     protected function get_passle_content(string $passle_shortcode)
     {
-        $factory = new UrlFactory();
-        $url = $factory
-            ->path('/posts')
-            ->parameters(array(
-                'PassleShortcode' => $passle_shortcode,
-                'ItemsPerPage' => '100'
-            ))
-            ->build();
-
-        $responses = $this->api_service->get_all_paginated($url);
-        $result = Utils::array_select_multiple($responses, 'Posts');
-
-        return $result;
     }
 
     protected function sync_all_impl()
