@@ -18,7 +18,6 @@ $passle_base_path = plugin_dir_path(__FILE__);
 define( 'PASSLE_SYNC_ASSET_MANIFEST', $passle_base_path . '/frontend/build/asset-manifest.json' );
 
 require_once $passle_base_path . '/vendor/autoload.php';
-require_once $passle_base_path . '/includes/passle-custom-post-type.php';
 require_once $passle_base_path . '/includes/passle-modify-home-query.php';
 require_once $passle_base_path . '/includes/passle-register-settings-page.php';
 require_once $passle_base_path . '/frontend/enqueue.php';

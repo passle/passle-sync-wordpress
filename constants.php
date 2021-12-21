@@ -9,3 +9,5 @@ function passle_constants($constant_name, $value)
 }
 
 passle_constants('REST_API_BASE', 'passlesync/v1');
+passle_constants('API_KEY', 'passle_api_key');
+passle_constants('SHORTCODE', 'passle_shortcode');
