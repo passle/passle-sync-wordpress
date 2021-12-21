@@ -7,19 +7,19 @@ use Passle\PassleSync\Services\ApiService;
 abstract class SyncHandlerBase
 {
     protected $api_service;
-    
+
     protected $existing_content;
     protected $passle_content;
 
     protected abstract function get_existing_content();
-    protected abstract function get_passle_content($passle_shortcode);
-    
+    protected abstract function get_passle_content(string $passle_shortcode);
+
     protected abstract function sync_all_impl();
-    protected abstract function sync_one_impl();
-    protected abstract function delete_one_impl();
-    protected abstract function sync();
-    protected abstract function delete();
-    
+    protected abstract function sync_one_impl(array $data);
+    protected abstract function delete_one_impl(array $data);
+    protected abstract function sync(int $entity_id, array $data);
+    protected abstract function delete(int $entity_id);
+
     private $passle_shortcode;
 
     public function __construct(ApiService $api_service)
@@ -39,7 +39,7 @@ abstract class SyncHandlerBase
         }
     }
 
-    public function sync_one($data)
+    public function sync_one(array $data)
     {
         try {
             $this->existing_content = $this->get_existing_content();
@@ -49,7 +49,7 @@ abstract class SyncHandlerBase
         }
     }
 
-    public function delete_one($data)
+    public function delete_one(array $data)
     {
         try {
             $this->existing_content = $this->get_existing_content();

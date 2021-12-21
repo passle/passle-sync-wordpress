@@ -23,13 +23,6 @@ class SyncService
 
     private function get_sync_handlers()
     {
-        $result = [];
-        foreach (get_declared_classes() as $class_name) {
-            if (in_array('Passle\PassleSync\SyncHandlers\ISyncHandler', class_implements($class_name))) {
-                array_push($result, $class_name);
-            }
-        }
-
-        return $result;
+        return array_filter(get_declared_classes(), fn ($x) => in_array('Passle\PassleSync\SyncHandlers\ISyncHandler', class_implements($x)));
     }
 }

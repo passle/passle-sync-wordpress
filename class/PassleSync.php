@@ -23,9 +23,9 @@ class PassleSync
         add_action("rest_api_init", array($this->api_service, "register_api_routes"));
 
         // Register settings menu
-        add_action("admin_menu", array($this->menu_service, "register_menus"));
+        // add_action("admin_menu", array($this->menu_service, "register_menus"));
 
-        // Register post types
-        add_action("init", array(new PasslePost, "create_post_type"));
+        // Register post types and additional fields
+        new PasslePost();
     }
 }
