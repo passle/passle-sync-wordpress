@@ -28,18 +28,25 @@ function UnsyncedPost({ post, syncPost, syncState }) {
           {RenderDate(post.PublishedDate)}
         </div>
         <div className="post-authors">
-          By{' '}
-          {post.Authors.map((author) => {
-            return <a href={author.profileLink} target="_blank" rel="nofollow noopener">{author.name}</a>
-          }).join(", ")}
+          <span>
+            By{' '}
+            {post.Authors.map((author, ii) => (
+              <>
+                <a href={author.ProfileUrl} target="_blank" rel="nofollow noopener">{author.Name}</a>
+                {ii < post.Authors.length - 1 ? ', ' : ''}
+              </>
+            ))}
+          </span>
         </div>
-      {/* <img src={post.imageUrl} /> */}
+        <div className="post-image">
+          <img src={post.ImageUrl} />
+        </div>
         <div className="post-title">
           <a className="post-link" href={post.PostUrl} target="_blank" rel="noreferrer">
             {post.PostTitle}
           </a>
         </div>
-        <div className="post-excerpt" dangerouslySetInnerHTML={{__html: post.PostContent}}></div>
+        <div className="post-excerpt" dangerouslySetInnerHTML={{__html: post.ContentTextSnippet}}></div>
       </div>
     </div>
   );

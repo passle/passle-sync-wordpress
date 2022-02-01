@@ -8,8 +8,23 @@
     margin: 10px 0;
 }
 
+.synced-post > .post-image {
+    min-width: 90px;
+    height: 80px;
+    margin: 3px 0 0 0px;
+}
+
+.synced-post > .post-image > img {
+    width: auto;
+    height: auto;
+    max-width: 100%;
+    max-height: 100%;
+}
+
 .synced-post > .post-body {
     position: relative;
+    width: max(calc(100% - 90px), 630px);
+    min-height: 100px;
 }
 
 .synced-post > .post-body > .post-title > a {
@@ -27,7 +42,7 @@
 
 .synced-post > .post-body > .post-date {
     position: absolute;
-    right: 10px;
+    right: 0px;
 }
 
 a {

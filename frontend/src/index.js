@@ -9,11 +9,9 @@ const passleSyncSettingsPageRoot = document.getElementById(
 );
 
 if (passleSyncSettingsPageRoot) {
-  const settings = window.passleSyncSettings;
-
   ReactDOM.render(
     <React.StrictMode>
-      <App settings={settings} />
+      <App {...passleSyncSettingsPageRoot.dataset} />
     </React.StrictMode>,
     passleSyncSettingsPageRoot
   );

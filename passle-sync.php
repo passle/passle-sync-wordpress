@@ -29,5 +29,8 @@ foreach (glob($passle_base_path . "/class/SyncHandlers/Handlers/*.php") as $file
   require_once $filename;
 }
 
+// API auth for communicating with the Passle API
 update_option(PASSLESYNC_API_KEY, 'vp3a42-SPE9WT3-DDCTXGQ', true);
 update_option(PASSLESYNC_SHORTCODE, 'vp3a43', true);
+// Verification key for the React settings page
+update_option(PASSLESYNC_REACT_API_KEY, "61f92f86c50aa", true);

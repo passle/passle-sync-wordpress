@@ -2,25 +2,30 @@ import {RenderDate} from "../../../../_utils/date";
 import "./SyncedPost.css";
 
 function SyncedPost({ post }) {
+
+  const authorString = Object.prototype.toString.call(post.post_authors) === '[object Array]'
+    ? post.post_authors.join(", ")
+    : post.post_authors;
+
   return (
     <div className="synced-post">
+      <div className="post-image">
+        <img src={post.post_image} />
+      </div>
       <div className="post-body">
         <div className="post-date">
           {RenderDate(post.post_date_gmt)}
         </div>
         <div className="post-authors">
           By{' '}
-          {/* {post.post_authors.map((author) => {
-            return <a href={author.profileLink} target="_blank" rel="nofollow noopener">{author.name}</a>
-          }).join(", ")} */}
+          {authorString}
         </div>
-      {/* <img src={post.imageUrl} /> */}
         <div className="post-title">
           <a className="post-link" href={post.guid} target="_blank" rel="noreferrer">
             {post.post_title}
           </a>
         </div>
-        <div className="post-excerpt" dangerouslySetInnerHTML={{__html: post.post_content}}></div>
+        <div className="post-excerpt" dangerouslySetInnerHTML={{__html: post.post_content || post.post_preview}}></div>
       </div>
     </div>
   );

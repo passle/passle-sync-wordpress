@@ -10,18 +10,26 @@ class ApiService
     private $sync_service;
     private $content_service;
     private $api_key;
+    private $react_api_key;
 
     public function __construct(SyncService $sync_service, ContentService $content_service)
     {
         $this->sync_service = $sync_service;
         $this->content_service = $content_service;
         $this->api_key = get_option(PASSLESYNC_API_KEY);
+        $this->react_api_key = get_option(PASSLESYNC_REACT_API_KEY);
+    }
+
+    public function verify_header_api_key($request)
+    {
+        if ($request->get_header('APIKey') == $this->react_api_key) {
+            return true;
+        }
+        return true;
     }
 
     public function register_api_routes()
     {
-        // TODO: Validate API Key
-
         register_rest_route('passlesync/v1', '/sync-all', array(
             'methods' => 'POST',
             'callback' => array($this->sync_service, "sync_all"),
@@ -30,6 +38,9 @@ class ApiService
         register_rest_route('passlesync/v1', '/posts', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_all_passle_posts'),
+            'validate_callback' => function($request) {
+                return $this->verify_header_api_key($request);
+            }
         ));
 
         register_rest_route('passlesync/v1', '/post/(?P<id>\d+)', array(
@@ -40,21 +51,33 @@ class ApiService
         register_rest_route('passlesync/v1', '/post/update', array(
             'methods' => 'POST',
             'callback' => array($this, 'update_passle_post'),
+            'validate_callback' => function($request) {
+                return $this->verify_header_api_key($request);
+            }
         ));
 
         register_rest_route('passlesync/v1', '/posts/delete', array(
             'methods' => 'GET',
             'callback' => array($this, 'delete_existing_passle_posts'),
+            'validate_callback' => function($request) {
+                return $this->verify_header_api_key($request);
+            }
         ));
 
         register_rest_route('passlesync/v1', '/posts/api', array(
             'methods' => 'GET',
             'callback' => array($this, 'get_stored_passle_posts_from_api'),
+            'validate_callback' => function($request) {
+                return $this->verify_header_api_key($request);
+            }
         ));
 
         register_rest_route('passlesync/v1', '/posts/api/update', array(
             'methods' => 'GET',
             'callback' => array($this, 'update_passle_posts_from_api'),
+            'validate_callback' => function($request) {
+                return $this->verify_header_api_key($request);
+            }
         ));
     }
 
@@ -141,7 +164,7 @@ class ApiService
             return new \WP_Error('no_title', 'You must include a post title', array('status' => 400));
         }
 
-        if (!isset($post_data['ContentTextSnippet'])) {
+        if (!isset($post_data['ContentTextSnippet']) && !isset($post_data['PostContentHtml'])) {
             return new \WP_Error('no_content', 'You must include post content', array('status' => 400));
         }
 

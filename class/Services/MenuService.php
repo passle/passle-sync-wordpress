@@ -19,12 +19,8 @@ class MenuService
     public function render_settings_menu()
     {
         ?>
-            <script>
-                window.passleSyncSettings = {};
-                window.passleSyncSettings['api_key'] = PASSLESYNC_API_KEY;
-                window.passleSyncSettings['passle_shortcode'] = PASSLESYNC_SHORTCODE;
-            </script>
-            <div id="passle-sync-settings-root"></div>
+            <div id="passle-sync-settings-root"
+                data-api-key="<?php echo get_option(PASSLESYNC_REACT_API_KEY) ?>"></div>
         <?php
     }
 }

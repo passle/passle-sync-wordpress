@@ -3,6 +3,7 @@
 namespace Passle\PassleSync\Services;
 
 use Passle\PassleSync\Utils\UrlFactory;
+use Passle\PassleSync\Utils\Utils;
 
 class ContentService
 {
@@ -18,18 +19,7 @@ class ContentService
         }
 
         array_walk($posts, function($p) {
-            $meta = get_post_meta($p->ID);
-            if (!empty($meta['post_shortcode'])) {
-                // I don't know why it's an array, but it is
-                $p->post_shortcode = $meta['post_shortcode'][0];
-            } else {
-                $p->post_shortcode = '';
-            }
-            if (!empty($meta['passle_shortcode'])) {
-                $p->passle_shortcode = $meta['passle_shortcode'][0];
-            } else {
-                $p->passle_shortcode = '';
-            }
+            $p = $this->apply_meta_data_to_post($p);
         });
 
         return $posts;
@@ -50,19 +40,7 @@ class ContentService
         }
 
         $post = $posts[0];
-        $meta = get_post_meta($post->ID);
-        if (!empty($meta['post_shortcode'])) {
-            // I don't know why it's an array, but it is
-            $post->post_shortcode = $meta['post_shortcode'][0];
-        } else {
-            $post->post_shortcode = '';
-        }
-        if (!empty($meta['passle_shortcode'])) {
-            $post->passle_shortcode = $meta['passle_shortcode'][0];
-        } else {
-            $post->passle_shortcode = '';
-        }
-
+        $post = $this->apply_meta_data_to_post($post);
         return $post;
     }
 
@@ -87,17 +65,47 @@ class ContentService
             'post_title'        => $data['PostTitle'],
             'post_date'         => $data['PublishedDate'],
             'post_type'         => PASSLESYNC_POST_TYPE,
-            'post_content'      => $data['ContentTextSnippet'],
+            'post_content'      => $data['PostContentHtml'],
             'post_status'       => 'publish',
             'comment_status'    => 'closed',
             'meta_input'    => array(
                 'post_shortcode'    => $data['PostShortcode'],
-                'passle_shortcode'  => $data['PassleShortcode']
+                'passle_shortcode'  => $data['PassleShortcode'],
+                'post_authors'      => implode(", ", Utils::array_select($data['Authors'], "Name")),
+                'post_is_repost'    => $data['IsRepost'],
+                'post_read_time'    => $data['EstimatedReadTimeInSeconds'],
+                'post_tags'         => implode(", ", $data['Tags']),
+                'post_image'        => $data["ImageUrl"],
+                'post_preview'      => $data['ContentTextSnippet'],
             )
         );
 
         $pid = wp_insert_post($new_post, true);
 
         return $new_post;
+    }
+
+    public function apply_meta_data_to_post($post)
+    {    
+        $meta = get_post_meta($post->ID);
+        $post = $this->apply_individual_meta_data_to_post($post, $meta, 'post_shortcode', "");
+        $post = $this->apply_individual_meta_data_to_post($post, $meta, 'passle_shortcode', "default");
+        $post = $this->apply_individual_meta_data_to_post($post, $meta, 'post_authors', "");
+        $post = $this->apply_individual_meta_data_to_post($post, $meta, 'post_is_repost', "");
+        $post = $this->apply_individual_meta_data_to_post($post, $meta, 'post_read_time', 0);
+        $post = $this->apply_individual_meta_data_to_post($post, $meta, 'post_tags', "");
+        $post = $this->apply_individual_meta_data_to_post($post, $meta, 'post_image', "");
+        $post = $this->apply_individual_meta_data_to_post($post, $meta, 'post_preview', "");
+        return $post;
+    }
+
+    public function apply_individual_meta_data_to_post($post, $meta, $propName, $default)
+    {
+        if (!empty($meta[$propName])) {
+            $post->{$propName} = $meta[$propName][0];
+        } else {
+            $post->{$propName} = $default;
+        }
+        return $post;
     }
 }
