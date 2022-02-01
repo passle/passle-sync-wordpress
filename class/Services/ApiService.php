@@ -42,9 +42,19 @@ class ApiService
             'callback' => array($this, 'update_passle_post'),
         ));
 
+        register_rest_route('passlesync/v1', '/posts/delete', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'delete_existing_passle_posts'),
+        ));
+
         register_rest_route('passlesync/v1', '/posts/api', array(
             'methods' => 'GET',
-            'callback' => array($this, 'get_passle_posts_from_api'),
+            'callback' => array($this, 'get_stored_passle_posts_from_api'),
+        ));
+
+        register_rest_route('passlesync/v1', '/posts/api/update', array(
+            'methods' => 'GET',
+            'callback' => array($this, 'update_passle_posts_from_api'),
         ));
     }
 
@@ -106,6 +116,7 @@ class ApiService
         return $next_url;
     }
 
+    // TODO: Create a PassleAPIService?
     public function get_all_passle_posts($data)
     {
         return $this->content_service->get_passle_posts();
@@ -122,22 +133,52 @@ class ApiService
     {
         $post_data = $data->get_json_params();
 
-        if (empty($post_data)) {
+        if (!isset($post_data)) {
             return new \WP_Error('no_data', 'You must include data to create a post', array('status' => 400));
         }
 
-        if (empty($post_data['PostTitle'])) {
+        if (!isset($post_data['PostTitle'])) {
             return new \WP_Error('no_title', 'You must include a post title', array('status' => 400));
         }
 
-        if (empty($post_data['ContentTextSnippet'])) {
+        if (!isset($post_data['ContentTextSnippet'])) {
             return new \WP_Error('no_content', 'You must include post content', array('status' => 400));
         }
 
         return $this->content_service->update_passle_post($post_data);
     }
 
-    public function get_passle_posts_from_api($data)
+    public function get_stored_passle_posts_from_api($data)
+    {
+        $posts = get_option('passle_posts_from_api');
+
+        return $posts;
+    }
+
+    public function delete_existing_passle_posts($data)
+    {
+        $posts = $this->content_service->get_passle_posts();
+
+        $result = array(
+            'success' => array(),
+            'failed' => array()
+        );
+
+        foreach($posts as $post) {
+            $id = $post->ID;
+            $delete = wp_delete_post($id, false);
+
+            if ($delete) {
+                array_push($result['success'], $id);
+            } else {
+                array_push($result['failed'], $id);
+            }
+        }
+
+        return $result;
+    }
+
+    public function update_passle_posts_from_api($data)
     {
         $passle_shortcode = get_option(PASSLESYNC_SHORTCODE);
         $factory = new UrlFactory();
@@ -162,6 +203,8 @@ class ApiService
         //         return $error;
         //     }
         // }
+
+        update_option('passle_posts_from_api', $result, false);
 
         return $result;
     }

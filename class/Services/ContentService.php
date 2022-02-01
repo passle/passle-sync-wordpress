@@ -17,7 +17,21 @@ class ContentService
             return array();
         }
 
-        //TODO: INclude meta data
+        array_walk($posts, function($p) {
+            $meta = get_post_meta($p->ID);
+            if (!empty($meta['post_shortcode'])) {
+                // I don't know why it's an array, but it is
+                $p->post_shortcode = $meta['post_shortcode'][0];
+            } else {
+                $p->post_shortcode = '';
+            }
+            if (!empty($meta['passle_shortcode'])) {
+                $p->passle_shortcode = $meta['passle_shortcode'][0];
+            } else {
+                $p->passle_shortcode = '';
+            }
+        });
+
         return $posts;
     }
 
@@ -26,7 +40,7 @@ class ContentService
         $posts = get_posts(array(
             'ID'            => $data['id'],
             'numberposts'   => 1,
-            'post_type'     => array('PasslePost'),
+            'post_type'     => array(PASSLESYNC_POST_TYPE),
         ));
 
         if (empty($posts)) {
@@ -35,7 +49,21 @@ class ContentService
             return $error;
         }
 
-        return $posts[0];
+        $post = $posts[0];
+        $meta = get_post_meta($post->ID);
+        if (!empty($meta['post_shortcode'])) {
+            // I don't know why it's an array, but it is
+            $post->post_shortcode = $meta['post_shortcode'][0];
+        } else {
+            $post->post_shortcode = '';
+        }
+        if (!empty($meta['passle_shortcode'])) {
+            $post->passle_shortcode = $meta['passle_shortcode'][0];
+        } else {
+            $post->passle_shortcode = '';
+        }
+
+        return $post;
     }
 
     public function update_passle_post($data)

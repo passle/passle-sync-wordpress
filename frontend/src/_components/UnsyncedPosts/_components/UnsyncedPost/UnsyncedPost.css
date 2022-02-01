@@ -1,0 +1,44 @@
+.unsynced-post {
+    display: flex;
+    background: white;
+    padding: 10px;
+    border-radius: 5px;
+    border: 1px solid;
+    width: max(80%, 720px);
+    margin: 10px 0;
+}
+
+.unsynced-post > .sync-status {
+    width: 100px;
+}
+
+.unsynced-post > .sync-status > button {
+    margin: 3px 0 0 5px;
+}
+
+.unsynced-post > .post-body {
+    position: relative;
+    width: max(calc(100% - 100px),620px);
+}
+
+.unsynced-post > .post-body > .post-title > a {
+    text-decoration: none;
+    color: #333;
+    font-weight: 700;
+    line-height: 1.4;
+    font-size: 19px;
+}
+
+.unsynced-post > .post-body > .post-title > a:hover {
+    text-decoration: underline;
+    color: #f9653b;
+}
+
+.unsynced-post > .post-body > .post-date {
+    position: absolute;
+    right: 10px;
+}
+
+a {
+    color: #f9653b; 
+}

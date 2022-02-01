@@ -1,137 +1,54 @@
 import "./App.css";
 import { useState, useEffect } from "react";
+import {
+  getWordPressPosts,
+  deleteWordPressPosts,
+  setAPIKey,
+  setPassleShortcode,
+} from "./_services/APIService";
+import UnsyncedPosts from "./_components/UnsyncedPosts/UnsyncedPosts";
+import SyncedPosts from "./_components/SyncedPosts/SyncedPosts";
+import LoadingButton from "./_components/LoadingButton";
 
 function App({ settings }) {
-  const [unsyncedPosts, setUnsyncedPosts] = useState([]);
-  const [loadingUnsyncedPosts, setLoadingUnsyncedPosts] = useState(false);
-
   const [syncedPosts, setSyncedPosts] = useState([]);
-  const [loadingSyncedPosts, setLoadingSyncedPosts] = useState(true);
 
-  const fetchUnsyncedPosts = async () => {
-    console.log("fetchUnsyncedPosts");
-    setLoadingUnsyncedPosts(true);
+  // TODO: think about this - React doesn't load data, so doesn't need the Passle API Key
+  // But it does need to communicate securely with WP, so it needs to validate there
+  // TODO: Support multiple passles
+  setAPIKey(settings["api_key"]);
+  setPassleShortcode(settings["passle_shortcode"]);
 
-    const response = await fetch(
-      "http://wordpressdemo.test/wp-json/passlesync/v1/posts/api"
-    );
-    const result = await response.json();
+  useEffect(() => {
+    async function initialFetch() {
+      await fetchSyncedPosts(null);
+    }
+    initialFetch();
+  }, []);
 
-    console.log("fetchUnsyncedPosts:", result);
-    setLoadingUnsyncedPosts(false);
-    setUnsyncedPosts(result);
-  };
-
-  const fetchSyncedPosts = async () => {
-    console.log("fetchSyncedPosts");
-    setLoadingSyncedPosts(true);
-
-    const response = await fetch(
-      "http://wordpressdemo.test/wp-json/passlesync/v1/posts"
-    );
-    const result = await response.json();
-
-    console.log("fetchSyncedPosts:", result);
-    setLoadingSyncedPosts(false);
+  const fetchSyncedPosts = async (finishLoadingCallback) => {
+    const result = await getWordPressPosts();
+    if (finishLoadingCallback) finishLoadingCallback();
     setSyncedPosts(result);
   };
 
-  useEffect(async () => {
-    await fetchSyncedPosts();
-  }, []);
+  const deleteSyncedPosts = async (finishLoadingCallback) => {
+    const result = await deleteWordPressPosts();
+    await fetchSyncedPosts(finishLoadingCallback);
+  };
 
   return (
     <div className="App">
       <h1>Passle Sync - Settings</h1>
-      <SyncedPosts posts={syncedPosts} />
-      {loadingSyncedPosts && <p>Loading posts...</p>}
+      <SyncedPosts posts={syncedPosts} deleteSyncedPosts={deleteSyncedPosts} />
 
-      <UnsyncedPosts posts={unsyncedPosts} />
-      {!loadingUnsyncedPosts && (
-        <button id="call-service" onClick={() => fetchUnsyncedPosts()}>
-          Fetch Posts from Passle
-        </button>
-      )}
-      {loadingUnsyncedPosts && <p>Fetching posts...</p>}
+      <hr />
+      
+      <UnsyncedPosts
+        syncCallback={() => fetchSyncedPosts(null)}
+        syncedPosts={syncedPosts}
+      />
     </div>
-  );
-}
-
-function SyncedPosts({ posts }) {
-  console.log("SyncedPosts:", posts);
-
-  return (
-    <>
-      <h2>Passle Posts in WordPress:</h2>
-      {posts && posts.map((post) => <SyncedPost post={post} />)}
-      {!posts && <h3>No posts exist</h3>}
-    </>
-  );
-}
-
-function SyncedPost({ post }) {
-  console.log("SyncedPost:", post);
-
-  return (
-    <>
-      <a href={post.guid} target="_blank">
-        <p>{post.post_title}</p>
-      </a>
-    </>
-  );
-}
-
-function UnsyncedPosts({ posts }) {
-  // console.log("Posts:", posts);
-
-  return (
-    <>
-      <h2>Passle Posts from API:</h2>
-      {posts && posts.map((post) => <UnsyncedPost post={post} />)}
-      {!posts && <h3>No posts fetched yet</h3>}
-    </>
-  );
-}
-
-function UnsyncedPost({ post }) {
-  const [loading, setLoading] = useState(false);
-  const [hasSynced, setHasSynced] = useState(false);
-  console.log("Post:", post);
-
-  const syncPost = async () => {
-    console.log("syncPost");
-    setLoading(true);
-
-    const response = await fetch(
-      "http://wordpressdemo.test/wp-json/passlesync/v1/post/update",
-      {
-        method: "POST",
-        body: JSON.stringify(post),
-        headers: {
-          "Content-Type": "application/json",
-        },
-      }
-    );
-    const result = await response.json();
-
-    console.log("syncPost:", result);
-    setLoading(false);
-    setHasSynced(true);
-  };
-
-  return (
-    <>
-      <a href={post.PostUrl} target="_blank">
-        <p>
-          {post.PostShortcode} - {post.PostTitle}
-        </p>
-      </a>
-      {!loading && !hasSynced && (
-        <button onClick={() => syncPost()}>Sync post</button>
-      )}
-      {loading && !hasSynced && <p>Syncing...</p>}
-      {hasSynced && <p>Synced</p>}
-    </>
   );
 }
 
