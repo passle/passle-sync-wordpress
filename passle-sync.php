@@ -33,4 +33,4 @@ foreach (glob($passle_base_path . "/class/SyncHandlers/Handlers/*.php") as $file
 update_option(PASSLESYNC_API_KEY, 'vp3a42-SPE9WT3-DDCTXGQ', true);
 update_option(PASSLESYNC_SHORTCODE, 'vp3a43', true);
 // Verification key for the React settings page
-update_option(PASSLESYNC_REACT_API_KEY, "61f92f86c50aa", true);
+update_option(PASSLESYNC_REACT_API_KEY, "5bdb11be-1097-46b2-88cc-817878f3bcd6", true);

@@ -57,31 +57,47 @@ class ContentService
 
         // If there's a matching post, get its ID to ensure we update it
         if (count($matching_posts) > 0) {
-            $id = $matching_posts[0]->ID;
+            $id = reset($matching_posts)->ID;
         }
+
+        $post_title = isset($data['PostTitle']) ? $data['PostTitle'] : '';
+        $post_date = isset($data['PublishedDate']) ? $data['PublishedDate'] : '';
+        $post_content = isset($data['PostContentHtml']) ? $data['PostContentHtml'] : '';
+        $post_shortcode = isset($data['PostShortcode']) ? $data['PostShortcode'] : '';
+        $passle_shortcode = isset($data['PassleShortcode']) ? $data['PassleShortcode'] : '';
+        $post_authors = isset($data['Authors']) ? implode(", ", Utils::array_select($data['Authors'], "Name")) : '';
+        $post_is_repost = isset($data['IsRepost']) ? $data['IsRepost'] : false;
+        $post_read_time = isset($data['EstimatedReadTimeInSeconds']) ? $data['EstimatedReadTimeInSeconds'] : 0;
+        $post_tags = isset($data['Tags']) ? implode(", ", $data['Tags']) : '';
+        $post_image = isset($data['ImageUrl']) ? $data['ImageUrl'] : '';
+        $post_preview = isset($data['ContentTextSnippet']) ? $data['ContentTextSnippet'] : '';
 
         $new_post = array(
             'ID'                => $id,
-            'post_title'        => $data['PostTitle'],
-            'post_date'         => $data['PublishedDate'],
+            'post_title'        => $post_title,
+            'post_date'         => $post_date,
             'post_type'         => PASSLESYNC_POST_TYPE,
-            'post_content'      => $data['PostContentHtml'],
+            'post_content'      => $post_content,
             'post_status'       => 'publish',
             'comment_status'    => 'closed',
             'meta_input'    => array(
-                'post_shortcode'    => $data['PostShortcode'],
-                'passle_shortcode'  => $data['PassleShortcode'],
-                'post_authors'      => implode(", ", Utils::array_select($data['Authors'], "Name")),
-                'post_is_repost'    => $data['IsRepost'],
-                'post_read_time'    => $data['EstimatedReadTimeInSeconds'],
-                'post_tags'         => implode(", ", $data['Tags']),
-                'post_image'        => $data["ImageUrl"],
-                'post_preview'      => $data['ContentTextSnippet'],
+                'post_shortcode'    => $post_shortcode,
+                'passle_shortcode'  => $passle_shortcode,
+                'post_authors'      => $post_authors,
+                'post_is_repost'    => $post_is_repost,
+                'post_read_time'    => $post_read_time,
+                'post_tags'         => $post_tags,
+                'post_image'        => $post_image,
+                'post_preview'      => $post_preview,
             )
         );
 
         $pid = wp_insert_post($new_post, true);
-
+        if ($pid != $id)
+        {
+            $new_post->ID = $pid;
+        }
+        
         return $new_post;
     }
 
