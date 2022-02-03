@@ -9,8 +9,15 @@ export const get = async (path) => {
       "APIKey": API_KEY
     }
   });
-  const result = await response.json();
-  return result;
+
+  let text = '';
+  try {
+    text = await response.text();
+    return JSON.parse(text);
+  } catch (err) {
+    console.error(err);
+    return text;
+  }
 };
 
 export const post = async (path, data) => {
@@ -23,12 +30,19 @@ export const post = async (path, data) => {
       "APIKey": API_KEY
     },
   });
-  const result = await response.json();
-  return result;
+
+  let text = '';
+  try {
+    text = await response.text();
+    return JSON.parse(text);
+  } catch (err) {
+    console.error(err);
+    return text;
+  }
 };
 
 export const getWordPressPosts = async () => await get("/posts");
-export const deleteWordPressPosts = async () => await get("/posts/delete");
+export const deleteWordPressPosts = async () => await post("/posts/delete");
 export const getPostsFromPassleApi = async () => await get("/posts/api");
 export const refreshPostsFromPassleApi = async () =>
   await get("/posts/api/update");

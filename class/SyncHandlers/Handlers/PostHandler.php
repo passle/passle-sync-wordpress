@@ -6,106 +6,73 @@ use Passle\PassleSync\SyncHandlers\SyncHandlerBase;
 use Passle\PassleSync\SyncHandlers\ISyncHandler;
 use Passle\PassleSync\Utils\UrlFactory;
 use Passle\PassleSync\Utils\Utils;
+use Passle\PassleSync\Services\WordpressContentService;
+use Passle\PassleSync\Services\PassleContentService;
+
 
 class PostHandler extends SyncHandlerBase implements ISyncHandler
 {
-    private $fields = array(
-        'PostShortcode',
-    );
+    private $shortcodeKey = "PostShortcode";
 
-    protected function get_existing_content()
+    public function __construct(
+        WordpressContentService $wordpress_content_service,
+        PassleContentService $passle_content_service)
     {
-        $posts = get_posts(array(
-            'numberposts'   => -1,
-            'post_type'     => [PASSLESYNC_POST_TYPE],
-        ));
-
-        return $posts;
+        parent::__construct($wordpress_content_service, $passle_content_service);
     }
 
-    protected function get_passle_content(string $passle_shortcode)
+    protected function create_blank_item()
     {
+        return $this->wordpress_content_service->create_new_blank_post();
     }
 
     protected function sync_all_impl()
     {
-        $passle_shortcodes = Utils::array_select($this->passle_content, "PostShortcode");
+        $passle_posts = $this->passle_content_service->get_stored_passle_posts_from_api();
+        $existing_posts = $this->wordpress_content_service->get_passle_posts();
 
-        $existing_shortcodes = [];
-        $existing_posts_by_shortcode = [];
-        $existing_post_shortcodes_by_id = [];
-
-        foreach ($this->existing_content as $post) {
-            $post_shortcode = get_metadata('post', $post->ID, 'PASSLESYNC_PostShortcode', true);
-
-            array_push($existing_shortcodes, $post_shortcode);
-            $existing_posts_by_shortcode[$post_shortcode] = $post;
-            $existing_post_shortcodes_by_id[$post->ID] = $post_shortcode;
-        }
-
-        $all_shortcodes = array_unique(array_merge($passle_shortcodes, $existing_shortcodes));
-
-        $shortcodes_to_add = array_filter($passle_shortcodes, fn ($shortcode) => !in_array($shortcode, $existing_shortcodes));
-        $shortcodes_to_remove = array_filter($existing_shortcodes, fn ($shortcode) => !in_array($shortcode, $passle_shortcodes));
-        $shortcodes_to_update = array_filter($all_shortcodes, fn ($shortcode) => !in_array($shortcode, $shortcodes_to_add) && !in_array($shortcode, $shortcodes_to_remove));
-
-        // Add posts
-        $posts_to_add = array_filter($this->passle_content, fn ($post) => in_array($post['PostShortcode'], $shortcodes_to_add));
-        foreach ($posts_to_add as $post) {
-            $new_post = array(
-                'post_type' => PASSLESYNC_POST_TYPE,
-                'post_status'   => 'publish',
-                'post_author'   => 1
-            );
-
-            $post_id = wp_insert_post($new_post);
-            $this->sync($post_id, $post);
-        }
-
-        // Update posts
-        $posts_to_update = array_filter($this->passle_content, fn ($post) => in_array($post['PostShortcode'], $shortcodes_to_update));
-        foreach ($posts_to_update as $post) {
-            $existing_post = $existing_posts_by_shortcode[$post['PostShortcode']];
-            $post_id = $existing_post->ID;
-            $this->sync($post_id, $post);
-        }
-
-        // Remove posts
-        $posts_to_remove = array_filter($this->existing_content, fn ($post) => in_array($existing_post_shortcodes_by_id[$post->ID], $shortcodes_to_remove));
-        foreach ($posts_to_remove as $post) {
-            $post_id = $post->ID;
-            $this->delete($post_id);
-        }
-
-        return;
+        return $this->compare_items($passle_posts, $existing_posts, $shortcodeKey, 'post_shortcode');
     }
 
     protected function sync_one_impl(array $data)
     {
+        $existing_post = $this->wordpress_content_service->get_passle_post_by_shortcode($data[$shortcodeKey]);
+
+        if ($existing_post == null) {
+            $new_post = $this->create_blank_item();
+            $this->sync($new_post, $data);
+        } else {
+            $this->sync($existing_post, $data);
+        }
+    }
+
+    protected function delete_all_impl()
+    {
+        $existing_posts = $this->wordpress_content_service->get_passle_posts();
+
+        $response = true;
+        foreach ($existing_posts as $post) {
+            $response |= $this->delete($post);
+        }
+        return $response;
     }
 
     protected function delete_one_impl(array $data)
     {
-    }
+        $existing_post = $this->wordpress_content_service->get_passle_post_by_shortcode($data[$shortcodeKey]);
 
-    protected function sync(int $post_id, array $data)
-    {
-        $post = array(
-            'ID' => $post_id,
-            'post_title' => wp_strip_all_tags($data['PostTitle']),
-            'post_content' => array_key_exists('PostContentHTML', $data) ? $data['PostContentHTML'] : '',
-            'post_date' => $data['PublishedDate']
-        );
-
-        wp_update_post($post);
-
-        foreach ($this->fields as $field) {
-            add_metadata('post', $post_id, "PASSLESYNC_{$field}", $data[$field]);
+        if ($existing_post != null) {
+            $this->delete($existing_post);
         }
     }
 
-    protected function delete(int $post_id)
+    protected function sync(object $post, array $data)
     {
-        wp_delete_post($post_id, true);
+        $this->wordpress_content_service->update_post_data($post, $data);
+    }
+
+    protected function delete(object $post)
+    {
+        $this->wordpress_content_service->delete_post($post->ID);
     }
 }

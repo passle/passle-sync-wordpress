@@ -20,7 +20,7 @@ class MenuService
     {
         ?>
             <div id="passle-sync-settings-root"
-                data-api-key="<?php echo get_option(PASSLESYNC_REACT_API_KEY) ?>"></div>
+                data-api-key="<?php echo get_option(PASSLESYNC_PLUGIN_API_KEY) ?>"></div>
         <?php
     }
 }
