@@ -10,9 +10,8 @@ Made using Create React App and the WordPress REST API.
 
 ## TODO
 
-- Add a WordPress section to the client module for CMS Integrations
-- Sort out API keys
-- Support multiple passles
-- Pagination
 - Tidy up code structure?
 - Typescript? Webpack directly?
+- Flag if the sync's failed - allow it to stop
+- Key error
+- Note permalink type required for API

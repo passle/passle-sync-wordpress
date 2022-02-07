@@ -21,10 +21,15 @@ class MenuService
     public function render_settings_menu()
     {
         $shortcodes = get_option(PASSLESYNC_SHORTCODE);
+        $shortcodes_string = "";
+        if (gettype($shortcodes) == "array") {
+            $shortcodes_string = implode(",", $shortcodes);
+        }
+        
         ?>
             <div id="passle-sync-settings-root"
                 data-api-key="<?php echo get_option(PASSLESYNC_PLUGIN_API_KEY) ?>"
-                data-passle-shortcodes="<?php echo implode(",", $shortcodes) ?>">
+                data-passle-shortcodes="<?php echo $shortcodes_string ?>">
             </div>
         <?php
     }

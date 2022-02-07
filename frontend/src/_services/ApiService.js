@@ -14,7 +14,7 @@ export const get = async (path) => {
     text = await response.text();
     return JSON.parse(text);
   } catch (err) {
-    console.error(err);
+    console.log(err);
     return text;
   }
 };
@@ -35,7 +35,7 @@ export const post = async (path, data) => {
     text = await response.text();
     return JSON.parse(text);
   } catch (err) {
-    console.error(err);
+    console.log(err);
     return text;
   }
 };

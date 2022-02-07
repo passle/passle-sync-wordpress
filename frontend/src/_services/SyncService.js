@@ -10,6 +10,8 @@ export const fetchSyncedPosts = async (finishLoadingCallback) => {
 };
 
 export const deleteSyncedPosts = async (finishLoadingCallback) => {
-    const result = await deleteWordPressPosts();
-    await fetchSyncedPosts(finishLoadingCallback);
+    await deleteWordPressPosts();
+    let result = await fetchSyncedPosts(finishLoadingCallback);
+    if (finishLoadingCallback) finishLoadingCallback();
+    return result;
 };

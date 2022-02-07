@@ -18,7 +18,7 @@ function SyncedPosts({ posts, deleteSyncedPosts }) {
       {posts && posts.length > 0 && 
         <PaginatedItems 
           items={posts} 
-          renderItem={(post) => <SyncedPost post={post} key={post.guid}/>}
+          renderItem={(post) => <SyncedPost post={post} key={post.ID}/>}
         />}
       {!(posts && posts.length > 0) && <NoPostsMessage/>}
     </>

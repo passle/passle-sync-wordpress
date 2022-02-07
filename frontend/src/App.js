@@ -15,7 +15,8 @@ function App({ apiKey, passleShortcodes }) {
 
   useEffect(() => {
     async function initialFetch() {
-      await fetchSyncedPosts(null);
+      let results = await fetchSyncedPosts(null);
+      setSyncedPosts(results);
     }
     initialFetch();
   }, []);
@@ -27,12 +28,12 @@ function App({ apiKey, passleShortcodes }) {
 
       <hr />
 
-      <SyncedPosts posts={syncedPosts} deleteSyncedPosts={deleteSyncedPosts} />
+      <SyncedPosts posts={syncedPosts} deleteSyncedPosts={(callback) => deleteSyncedPosts(callback).then(result => setSyncedPosts(result))} />
 
       <hr />
       
       <UnsyncedPosts
-        syncCallback={() => fetchSyncedPosts(null).then(results => setSyncedPosts(results))}
+        syncCallback={() => fetchSyncedPosts(null).then(result => setSyncedPosts(result))}
         syncedPosts={syncedPosts}
       />
     </div>

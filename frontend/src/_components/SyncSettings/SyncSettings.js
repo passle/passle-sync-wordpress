@@ -1,6 +1,7 @@
-import { useState, useRef } from "react";
+import { useState } from "react";
 import { updateSettings } from "../../_services/APIService";
 import LoadingButton from "../LoadingButton";
+import "./SyncSettings.css";
 
 function SyncSettings({ apiKey, passleShortcodes }) {
   const [bannerText, setBannerText] = useState('');
@@ -36,16 +37,21 @@ function SyncSettings({ apiKey, passleShortcodes }) {
         {bannerText && 
             <h2>{bannerText}</h2>
         }
+        <div className="settings-container">
+            <div className="setting">
+                <span>
+                    API Key:
+                    <input type="text" value={savedApiKey} onChange={updateAPIKey} />
+                </span>
+            </div>
+            <div className="setting">
+                <span>
+                    Passle Shortcodes:
+                    <input type="text" value={savedShortcodes} onChange={updateShortcodes} />
+                </span>
+            </div>
+        </div>
 
-        <span>
-            API Key:
-            <input type="text" value={savedApiKey} onChange={updateAPIKey} />
-        </span>
-
-        <span>
-            Passle Shortcodes:
-            <input type="text" value={savedShortcodes} onChange={updateShortcodes} />
-        </span>
 
         <LoadingButton
           text={"Save"}
