@@ -6,12 +6,12 @@ import UnsyncedPosts from "./_components/UnsyncedPosts/UnsyncedPosts";
 import SyncedPosts from "./_components/SyncedPosts/SyncedPosts";
 import SyncSettings from "./_components/SyncSettings/SyncSettings";
 
-function App({ apiKey, passleShortcodes }) {
+function App({ pluginApiKey, clientApiKey, passleShortcodes }) {
   const [syncedPosts, setSyncedPosts] = useState([]);
 
   // React doesn't load data from Passle, so doesn't need the Passle API Key
   // But it does need to communicate securely with WP, so it needs to validate there
-  setAPIKey(apiKey);
+  setAPIKey(pluginApiKey);
 
   useEffect(() => {
     async function initialFetch() {
@@ -24,7 +24,7 @@ function App({ apiKey, passleShortcodes }) {
   return (
     <div className="App">
       <h1>Passle Sync - Settings</h1>
-      <SyncSettings apiKey={apiKey} passleShortcodes={passleShortcodes} />
+      <SyncSettings pluginApiKey={pluginApiKey} clientApiKey={clientApiKey} passleShortcodes={passleShortcodes} />
 
       <hr />
 

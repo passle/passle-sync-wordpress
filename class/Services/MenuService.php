@@ -25,10 +25,11 @@ class MenuService
         if (gettype($shortcodes) == "array") {
             $shortcodes_string = implode(",", $shortcodes);
         }
-        
+
         ?>
             <div id="passle-sync-settings-root"
-                data-api-key="<?php echo get_option(PASSLESYNC_PLUGIN_API_KEY) ?>"
+                data-plugin-api-key="<?php echo get_option(PASSLESYNC_PLUGIN_API_KEY) ?>"
+                data-client-api-key="<?php echo get_option(PASSLESYNC_CLIENT_API_KEY) ?>"
                 data-passle-shortcodes="<?php echo $shortcodes_string ?>">
             </div>
         <?php

@@ -34,4 +34,4 @@ foreach (glob($passle_base_path . "/class/SyncHandlers/Handlers/*.php") as $file
 // update_option(PASSLESYNC_SHORTCODE, array('vp3a43', 'vp3tlg', 'vp3z1e'), true);
 // Verification key that Passle will send when syncing data
 // Also used for the React settings page
-update_option(PASSLESYNC_PLUGIN_API_KEY, "5bdb11be-1097-46b2-88cc-817878f3bcd6", true);
+// update_option(PASSLESYNC_PLUGIN_API_KEY, "5bdb11be-1097-46b2-88cc-817878f3bcd6", true);

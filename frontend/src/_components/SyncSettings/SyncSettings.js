@@ -1,20 +1,23 @@
 import { useState } from "react";
-import { updateSettings } from "../../_services/APIService";
+import { setAPIKey, updateSettings } from "../../_services/APIService";
 import LoadingButton from "../LoadingButton";
 import "./SyncSettings.css";
 
-function SyncSettings({ apiKey, passleShortcodes }) {
+function SyncSettings({ pluginApiKey, clientApiKey, passleShortcodes }) {
   const [bannerText, setBannerText] = useState('');
-  const [savedApiKey, setApiKey] = useState(apiKey);
+  const [savedPluginApiKey, setPluginApiKey] = useState(pluginApiKey);
+  const [savedClientApiKey, setClientApiKey] = useState(clientApiKey);
   const [savedShortcodes, setPassleShortcodes] = useState(passleShortcodes);
  
     const saveSettings = (finishLoadingCallback) => {
         updateSettings({
-            apiKey: savedApiKey,
+            pluginApiKey: savedPluginApiKey,
+            clientApiKey: savedClientApiKey,
             passleShortcodes: savedShortcodes.replace(/\s/g, "").split(",")
         }).then((success) => {
             if (success) {
                 setBannerText('Successfully updated settings');
+                setAPIKey(savedPluginApiKey);
             } else {
                 setBannerText('Failed to update settings');
             }
@@ -22,8 +25,12 @@ function SyncSettings({ apiKey, passleShortcodes }) {
         });
     }
 
-    const updateAPIKey = (ev) => {
-        setApiKey(ev.target.value);
+    const updatePluginAPIKey = (ev) => {
+        setPluginApiKey(ev.target.value);
+    }
+
+    const updateClientAPIKey = (ev) => {
+        setClientApiKey(ev.target.value);
     }
 
     const updateShortcodes = (ev) => {
@@ -40,8 +47,14 @@ function SyncSettings({ apiKey, passleShortcodes }) {
         <div className="settings-container">
             <div className="setting">
                 <span>
-                    API Key:
-                    <input type="text" value={savedApiKey} onChange={updateAPIKey} />
+                    Sync API Key:
+                    <input type="text" value={savedPluginApiKey} onChange={updatePluginAPIKey} />
+                </span>
+            </div>
+            <div className="setting">
+                <span>
+                    Passle API Key:
+                    <input type="text" value={savedClientApiKey} onChange={updateClientAPIKey} />
                 </span>
             </div>
             <div className="setting">

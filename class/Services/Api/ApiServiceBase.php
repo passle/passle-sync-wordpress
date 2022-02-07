@@ -31,7 +31,7 @@ class ApiServiceBase
         if ($request->get_header('APIKey') == $this->plugin_api_key) {
             return true;
         }
-        return true;
+        return false;
     }
 
     public function register_route(string $path, string $method, string $func_name)
@@ -210,7 +210,8 @@ class ApiServiceBase
             return new \WP_Error('no_data', 'You must include data to update settings', array('status' => 400));
         }
 
-        update_option(PASSLESYNC_PLUGIN_API_KEY, $json_params['apiKey'], true);
+        update_option(PASSLESYNC_PLUGIN_API_KEY, $json_params['pluginApiKey'], true);
+        update_option(PASSLESYNC_CLIENT_API_KEY, $json_params['clientApiKey'], true);
         update_option(PASSLESYNC_SHORTCODE, $json_params['passleShortcodes'], true);
         return true;
     }
