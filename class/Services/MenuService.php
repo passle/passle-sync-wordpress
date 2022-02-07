@@ -2,6 +2,8 @@
 
 namespace Passle\PassleSync\Services;
 
+use Passle\PassleSync\Services\Api\ApiServiceBase;
+
 class MenuService
 {
     public function register_menus()
@@ -18,9 +20,12 @@ class MenuService
 
     public function render_settings_menu()
     {
+        $shortcodes = get_option(PASSLESYNC_SHORTCODE);
         ?>
             <div id="passle-sync-settings-root"
-                data-api-key="<?php echo get_option(PASSLESYNC_PLUGIN_API_KEY) ?>"></div>
+                data-api-key="<?php echo get_option(PASSLESYNC_PLUGIN_API_KEY) ?>"
+                data-passle-shortcodes="<?php echo implode(",", $shortcodes) ?>">
+            </div>
         <?php
     }
 }

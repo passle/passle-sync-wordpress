@@ -13,7 +13,9 @@ class ApiServiceBase
     protected $sync_handler;
     private $plugin_api_key;
     private $api_key;
+    private $queue;
     protected $fields = array();
+    public $items_being_synced = 0;
 
     public function __construct(
         WordpressContentService $wordpress_content_service)
@@ -21,6 +23,7 @@ class ApiServiceBase
         $this->wordpress_content_service = $wordpress_content_service;
         $this->plugin_api_key = get_option(PASSLESYNC_PLUGIN_API_KEY);
         $this->api_key = get_option(PASSLESYNC_CLIENT_API_KEY);
+        $this->queue = new \SplQueue();
     }
 
     public function verify_header_api_key($request)
@@ -42,6 +45,11 @@ class ApiServiceBase
             'permission_callback' => '__return_true',
         ));
     }    
+
+    public function register_api_settings_routes()
+    {
+        $this->register_route('/settings/update', 'POST', 'update_api_settings');
+    }
 
     public function get(string $url)
     {
@@ -109,6 +117,12 @@ class ApiServiceBase
            return $this->get_items_for_passle_from_api($passle_shortcode, $response_key, $path);
         }, $passle_shortcodes);
 
+        if (in_array(true, array_map(function($r) {
+            return is_wp_error($r);
+        }, $results))) {
+            return new \WP_Error('no_response', 'Failed to get data from the API', array('status' => 500));
+        }
+
         $result = array_merge(...$results);
         
         usort($result, function($a, $b) {
@@ -133,8 +147,71 @@ class ApiServiceBase
 
         $responses = $this->get_all_paginated($url);
 
+        if (in_array(null, $responses)) {
+            return new \WP_Error('no_response', 'Failed to get data from the API', array('status' => 500));
+        }
+
         $result = Utils::array_select_multiple($responses, $response_key);
 
         return $result;
+    }
+
+    public function queue_all_items_for_update_from_api(array $items, string $passle_shortcode, string $response_key, string $path, $callback)
+    {
+        // Get more detailed info for each item
+        foreach ($items as $item) {
+            $this->queue->enqueue($item['PostShortcode']);
+        }
+
+        update_option('item_queue_length', $this->queue->count(), false);
+        $this->start_queue_handler($callback);
+        update_option('item_queue_length', 0, false);
+        update_option('item_queue_remaining', 0, false);
+    }
+
+    public function start_queue_handler($callback)
+    {
+        if ($this->queue->count() > 0) {
+            update_option('item_queue_remaining', $this->queue->count(), false);
+            $this->process_queue($this->queue->dequeue(), $callback);
+        }
+    }
+
+    public function process_queue($shortcode, $callback)
+    {
+        $factory = new UrlFactory();
+        $url = $factory
+            ->path('/posts/'.$shortcode)
+            ->build();
+
+        $data = $this->get($url);
+        $callback($data);
+        $this->start_queue_handler($callback);
+    }
+
+    public function check_queue_progress() 
+    {
+        // update_option('item_queue_length', 0, false);
+        // update_option('item_queue_remaining', 0, false);
+        $total = get_option('item_queue_length');
+        $remaining = get_option('item_queue_remaining');
+
+        return array(
+            'total'     => $total ? intval($total) : 0,
+            'remaining' => $remaining ? intval($remaining) : 0
+        );
+    }
+
+    public function update_api_settings($data)
+    {
+        $json_params = $data->get_json_params();
+
+        if (!isset($json_params)) {
+            return new \WP_Error('no_data', 'You must include data to update settings', array('status' => 400));
+        }
+
+        update_option(PASSLESYNC_PLUGIN_API_KEY, $json_params['apiKey'], true);
+        update_option(PASSLESYNC_SHORTCODE, $json_params['passleShortcodes'], true);
+        return true;
     }
 }

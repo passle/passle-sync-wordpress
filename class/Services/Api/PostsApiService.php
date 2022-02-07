@@ -30,6 +30,8 @@ class PostsApiService extends ApiServiceBase implements IApiService
         $this->register_route('/posts', 'GET', 'get_all_items');
         $this->register_route('/posts/api', 'GET', 'get_stored_items_from_api');
         $this->register_route('/posts/api/update', 'GET', 'update_items');
+        $this->register_route('/posts/api/sync', 'POST', 'sync_items');
+        $this->register_route('/posts/api/sync/progress', 'GET', 'check_sync_items_progress');
         $this->register_route('/post/update', 'POST', 'update_item');
         $this->register_route('/posts/delete', 'POST', 'delete_existing_items');
         $this->register_route('/post/delete', 'POST', 'delete_existing_item');
@@ -48,6 +50,17 @@ class PostsApiService extends ApiServiceBase implements IApiService
     public function update_items()
     {
         return $this->passle_content_service->update_all_passle_posts_from_api();
+    }
+
+    public function sync_items($data)
+    {
+        $items = $data->get_json_params();;
+        return $this->passle_content_service->sync_all_passle_posts_from_api($items);
+    }
+
+    public function check_sync_items_progress()
+    {
+        return $this->check_queue_progress();
     }
 
     public function update_item($data)

@@ -1,6 +1,5 @@
 const BASE_URL = "http://wordpressdemo.test/wp-json/passlesync/v1";
 let API_KEY = "";
-// let PASSLE_SHORTCODE = "";
 
 export const get = async (path) => {
   const url = BASE_URL + path;
@@ -47,8 +46,9 @@ export const getPostsFromPassleApi = async () => await get("/posts/api");
 export const refreshPostsFromPassleApi = async () =>
   await get("/posts/api/update");
 export const updatePost = async (data) => await post("/post/update", data);
+export const syncAllPosts = async (data) => await post("/posts/api/sync", data);
+export const checkSyncProgress = async () => await get("/posts/api/sync/progress");
 
 export const setAPIKey = (apiKey) => (API_KEY = apiKey);
 export const getAPIKey = () => API_KEY;
-// export const setPassleShortcode = (passleShortcode) => (PASSLE_SHORTCODE = passleShortcode);
-// export const getPassleShortcode = () => PASSLE_SHORTCODE;
+export const updateSettings = async (data) => await post("/settings/update", data);

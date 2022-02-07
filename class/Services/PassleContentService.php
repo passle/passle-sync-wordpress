@@ -29,6 +29,11 @@ class PassleContentService
         return $this->api_service_base->get_all_items_from_api('passle_posts_from_api', 'Posts', '/posts');
     }
 
+    public function sync_all_passle_posts_from_api($data)
+    {
+        return $this->api_service_base->queue_all_items_for_update_from_api($data, 'passle_posts_from_api', 'Posts', '/posts', array($this->wordpress_content_service, 'update_passle_post'));
+    }
+
     public function get_stored_passle_authors_from_api()
     {
         return $this->wordpress_content_service->get_or_update_items('passle_authors_from_api', array($this, 'update_all_passle_authors_from_api'));

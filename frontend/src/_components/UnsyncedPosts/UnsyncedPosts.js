@@ -1,8 +1,10 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import {
   getPostsFromPassleApi,
   refreshPostsFromPassleApi,
   updatePost,
+  syncAllPosts,
+  checkSyncProgress
 } from "../../_services/APIService";
 import UnsyncedPost from "./_components/UnsyncedPost/UnsyncedPost";
 import LoadingButton from "../LoadingButton";
@@ -12,12 +14,26 @@ import "./UnsyncedPosts.css";
 function UnsyncedPosts({ syncCallback, syncedPosts }) {
   const [posts, setPosts] = useState([]);
   const [unsyncedPosts, setUnsyncedPosts] = useState([]);
+  const [totalSyncItems, setTotalSyncItems] = useState(0);
+  const [completedSyncItems, setCompletedSyncItems] = useState(0);
+  let pollInterval = useRef();
 
   useEffect(() => {
     async function initialFetch() {
       await fetchUnsyncedPosts(null);
     }
+    async function fetchSyncProgress() {
+      let syncDetails = await checkSyncProgress();
+      setTotalSyncItems(parseInt(syncDetails.total));
+      setCompletedSyncItems(parseInt(syncDetails.total - syncDetails.remaining));
+      if (syncDetails.remaining > 0) {
+        pollInterval.current = setInterval(() => {
+          checkProgress(null);
+        }, 250);
+      }
+    }
     initialFetch();
+    fetchSyncProgress();
   }, []);
 
   useEffect(() => {
@@ -43,23 +59,35 @@ function UnsyncedPosts({ syncCallback, syncedPosts }) {
   };
 
   const dedupePosts = (unsyncedPosts) => {
-    const syncedShortcodes = syncedPosts.map((p) => p["post_shortcode"]);
-    return unsyncedPosts.filter(
+    
+    const syncedShortcodes = Array.isArray(syncedPosts) ? syncedPosts.map((p) => p["post_shortcode"]) : [];
+    console.log(syncedPosts, unsyncedPosts);
+    return (Array.isArray(unsyncedPosts)) ? unsyncedPosts.filter(
       (p) => !syncedShortcodes.includes(p["PostShortcode"])
-    );
+    ) : [];
   };
 
   const syncAll = async (finishLoadingCallback) => {
-    let promises = [];
-    unsyncedPosts.forEach((post, i) => {
-      promises.push(syncPost(post, null));
-    });
-
-    Promise.all(promises).then(() => {
-      if (finishLoadingCallback) finishLoadingCallback();
-      syncCallback();
-    });
+    syncAllPosts(unsyncedPosts);
+    setTotalSyncItems(unsyncedPosts.length);
+    pollInterval.current = setInterval(() => {
+      checkProgress(finishLoadingCallback)
+    }, 250);
   };
+
+  const checkProgress = async (finishLoadingCallback) => {
+    checkSyncProgress().then(({total, remaining}) => {
+      if (remaining === 0) {
+        if (finishLoadingCallback) finishLoadingCallback();
+        clearInterval(pollInterval.current);
+        syncCallback();
+        setCompletedSyncItems(0);
+        setTotalSyncItems(0);
+      } else {
+        setCompletedSyncItems(total - remaining);
+      }
+    });
+  }
 
   const syncPost = async (post, finishLoadingCallback) => {
     post = { ...post, syncState: "syncing" };
@@ -82,7 +110,7 @@ function UnsyncedPosts({ syncCallback, syncedPosts }) {
         loadingText={"Fetching posts..."}
       />
 
-      {unsyncedPosts && unsyncedPosts.length > 0 && (
+      {unsyncedPosts && unsyncedPosts.length > 0 && totalSyncItems === 0 && (
         <LoadingButton
           className="sync-all"
           text={"Sync all"}
@@ -90,6 +118,9 @@ function UnsyncedPosts({ syncCallback, syncedPosts }) {
           loadingText={"Syncing posts..."}
         />
       )}
+      {totalSyncItems > 0 && 
+        <span>Synced {completedSyncItems} / {totalSyncItems}</span>
+      }
 
       {unsyncedPosts &&
         unsyncedPosts.length > 0 &&

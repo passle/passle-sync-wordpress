@@ -25,7 +25,7 @@ function SyncedPost({ post }) {
             {post.post_title}
           </a>
         </div>
-        <div className="post-excerpt" dangerouslySetInnerHTML={{__html: post.post_content || post.post_preview}}></div>
+        <div className="post-excerpt" dangerouslySetInnerHTML={{__html: post.post_preview}}></div>
       </div>
     </div>
   );
