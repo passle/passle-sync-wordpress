@@ -1,28 +1,30 @@
 <?php
 
-namespace Passle\PassleSync\Services\Api;
+namespace Passle\PassleSync\Controllers;
 
 use Passle\PassleSync\Utils\UrlFactory;
 use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\SyncHandlers\Handlers\AuthorHandler;
-use Passle\PassleSync\Services\WordpressContentService;
+use Passle\PassleSync\Services\Content\PeopleWordpressContentService;
 use Passle\PassleSync\Services\PassleContentService;
 
-class PeopleApiService extends ApiServiceBase implements IApiService
+class PeopleApiController extends ApiControllerBase implements IApiController
 {
     protected $fields = array(
         'Shortcode',
     );
     protected $passle_content_service;
+    protected $wordpress_content_service;
 
     public function __construct(
-        WordpressContentService $wordpress_content_service,
+        PeopleWordpressContentService $wordpress_content_service,
         PassleContentService $passle_content_service,
         AuthorHandler $sync_handler)
     {
-        parent::__construct($wordpress_content_service);
+        parent::__construct();
         $this->sync_handler = $sync_handler;
         $this->passle_content_service = $passle_content_service;
+        $this->wordpress_content_service = $wordpress_content_service;
     }
 
     public function register_api_routes()
@@ -37,7 +39,7 @@ class PeopleApiService extends ApiServiceBase implements IApiService
 
     public function get_all_items($data)
     {
-        return $this->wordpress_content_service->get_passle_authors();
+        return $this->wordpress_content_service->get_items();
     }
 
     public function get_stored_items_from_api()
@@ -62,7 +64,7 @@ class PeopleApiService extends ApiServiceBase implements IApiService
             return new \WP_Error('no_name', 'You must include a author name', array('status' => 400));
         }
 
-        return $this->wordpress_content_service->update_passle_author($author_data);
+        return $this->wordpress_content_service->update_item($author_data);
         // TODO: Use this
         // return $this->sync_handler->sync_one($data);
     }
@@ -74,7 +76,7 @@ class PeopleApiService extends ApiServiceBase implements IApiService
 
     public function delete_existing_item($data)
     {
-        $author = $this->wordpress_content_service->get_passle_author_by_shortcode($data['Shortcode']);
+        $author = $this->wordpress_content_service->get_item_by_shortcode($data['Shortcode']);
         return $this->sync_handler->delete($author);
     }
 }

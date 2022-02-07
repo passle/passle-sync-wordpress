@@ -2,20 +2,15 @@
 
 namespace Passle\PassleSync\SyncHandlers;
 
-use Passle\PassleSync\Services\WordpressContentService;
 use Passle\PassleSync\Services\PassleContentService;
 
 abstract class SyncHandlerBase
 {
-    protected $wordpress_content_service;
     protected $passle_content_service;
     private $passle_shortcode;
 
-    public function __construct(
-        WordpressContentService $wordpress_content_service,
-        PassleContentService $passle_content_service)
+    public function __construct(PassleContentService $passle_content_service)
     {
-        $this->wordpress_content_service = $wordpress_content_service;
         $this->passle_content_service = $passle_content_service;
         $this->passle_shortcode = get_option(PASSLESYNC_SHORTCODE);
     }

@@ -13,4 +13,5 @@ passle_constants('CLIENT_API_KEY', 'passle_api_key');
 passle_constants('PLUGIN_API_KEY', 'passle_sync_api_key');
 passle_constants('SHORTCODE', 'passle_shortcode');
 passle_constants('POST_TYPE', 'passle_post');
+passle_constants('AUTHOR_TYPE', 'passle_author');
 passle_constants('CLIENT_API_BASE', 'clientwebapi.passle.it/api');

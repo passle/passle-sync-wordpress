@@ -10,7 +10,9 @@ function SyncedPost({ post }) {
   return (
     <div className="synced-post">
       <div className="post-image">
-        <img src={post.post_image} />
+        {post.post_image_html && 
+          <div className="featured-image" dangerouslySetInnerHTML={{__html: post.post_image_html}}></div>}
+        {!post.post_image_html && <img src={post.post_image} />}
       </div>
       <div className="post-body">
         <div className="post-date">

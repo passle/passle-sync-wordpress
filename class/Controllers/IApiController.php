@@ -1,8 +1,8 @@
 <?php
 
-namespace Passle\PassleSync\Services\Api;
+namespace Passle\PassleSync\Controllers;
 
-interface IApiService
+interface IApiController
 {
     public function register_api_routes();
     public function get_all_items($data);

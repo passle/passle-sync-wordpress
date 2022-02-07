@@ -2,8 +2,6 @@
 
 namespace Passle\PassleSync\Services;
 
-use Passle\PassleSync\Services\Api\ApiServiceBase;
-
 class MenuService
 {
     public function register_menus()

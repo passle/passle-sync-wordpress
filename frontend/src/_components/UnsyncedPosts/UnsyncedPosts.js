@@ -25,11 +25,11 @@ function UnsyncedPosts({ syncCallback, syncedPosts }) {
     async function fetchSyncProgress() {
       let syncDetails = await checkSyncProgress();
       setTotalSyncItems(parseInt(syncDetails.total));
-      setCompletedSyncItems(parseInt(syncDetails.total - syncDetails.remaining));
-      if (syncDetails.remaining > 0) {
+      setCompletedSyncItems(parseInt(syncDetails.done));
+      if (parseInt(syncDetails.total) > parseInt(syncDetails.done)) {
         pollInterval.current = setInterval(() => {
           checkProgress(null);
-        }, 250);
+        }, 1000);
       }
     }
     initialFetch();
@@ -72,19 +72,19 @@ function UnsyncedPosts({ syncCallback, syncedPosts }) {
     setTotalSyncItems(unsyncedPosts.length);
     pollInterval.current = setInterval(() => {
       checkProgress(finishLoadingCallback)
-    }, 250);
+    }, 1000);
   };
 
   const checkProgress = async (finishLoadingCallback) => {
-    checkSyncProgress().then(({total, remaining}) => {
-      if (remaining === 0) {
+    checkSyncProgress().then(({total, done}) => {
+      if (done === total ) {
         if (finishLoadingCallback) finishLoadingCallback();
         clearInterval(pollInterval.current);
         syncCallback();
         setCompletedSyncItems(0);
         setTotalSyncItems(0);
       } else {
-        setCompletedSyncItems(total - remaining);
+        setCompletedSyncItems(done);
       }
     });
   }
