@@ -11,7 +11,7 @@ add_action( 'init', function() {
   }, 10, 2 );
 
   add_action( 'admin_enqueue_scripts', function() {
-      $asset_manifest = json_decode( file_get_contents( PASSLE_SYNC_ASSET_MANIFEST ), true );
+      $asset_manifest = json_decode( file_get_contents( PASSLESYNC_ASSET_MANIFEST ), true );
 
       if (!isset($asset_manifest['files'])) {
           return;
@@ -21,9 +21,10 @@ add_action( 'init', function() {
       if ( isset( $asset_manifest_files[ 'main.css' ] ) ) {
         wp_enqueue_style( 'passle', get_site_url() . $asset_manifest_files[ 'main.css' ] );
       }
-  if ( isset( $asset_manifest_files[ 'runtime~main.js' ] ) ) {
-    wp_enqueue_script( 'passle-runtime', get_site_url() . $asset_manifest_files[ 'runtime~main.js' ], array(), null, true );
-  }
+        
+      if ( isset( $asset_manifest_files[ 'runtime~main.js' ] ) ) {
+        wp_enqueue_script( 'passle-runtime', get_site_url() . $asset_manifest_files[ 'runtime~main.js' ], array(), null, true );
+      }
 
       wp_enqueue_script( 'passle-main', get_site_url() . $asset_manifest_files[ 'main.js' ], array(), null, true );
 

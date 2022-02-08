@@ -1,15 +1,17 @@
-const BASE_URL = "http://wordpressdemo.test/wp-json/passlesync/v1";
-let API_KEY = "";
+import { PasslePost } from "__services/SyncService";
 
-export const get = async (path) => {
+const BASE_URL: string = "http://wordpressdemo.test/wp-json/passlesync/v1";
+let API_KEY: string = "";
+
+export const get = async (path: string) => {
   const url = BASE_URL + path;
   const response = await fetch(url, {
     headers: {
-      "APIKey": API_KEY
-    }
+      APIKey: API_KEY,
+    },
   });
 
-  let text = '';
+  let text = "";
   try {
     text = await response.text();
     return JSON.parse(text);
@@ -19,18 +21,18 @@ export const get = async (path) => {
   }
 };
 
-export const post = async (path, data) => {
+export const post = async (path: string, data?: object) => {
   const url = BASE_URL + path;
   const response = await fetch(url, {
     method: "POST",
     body: JSON.stringify(data),
     headers: {
       "Content-Type": "application/json",
-      "APIKey": API_KEY
+      APIKey: API_KEY,
     },
   });
 
-  let text = '';
+  let text = "";
   try {
     text = await response.text();
     return JSON.parse(text);
@@ -45,10 +47,14 @@ export const deleteWordPressPosts = async () => await post("/posts/delete");
 export const getPostsFromPassleApi = async () => await get("/posts/api");
 export const refreshPostsFromPassleApi = async () =>
   await get("/posts/api/update");
-export const updatePost = async (data) => await post("/post/update", data);
-export const syncAllPosts = async (data) => await post("/posts/api/sync", data);
-export const checkSyncProgress = async () => await get("/posts/api/sync/progress");
+export const updatePost = async (data: PasslePost) =>
+  await post("/post/update", data);
+export const syncAllPosts = async (data: object) =>
+  await post("/posts/api/sync", data);
+export const checkSyncProgress = async () =>
+  await get("/posts/api/sync/progress");
 
-export const setAPIKey = (apiKey) => (API_KEY = apiKey);
+export const setAPIKey = (apiKey: string) => (API_KEY = apiKey);
 export const getAPIKey = () => API_KEY;
-export const updateSettings = async (data) => await post("/settings/update", data);
+export const updateSettings = async (data: object) =>
+  await post("/settings/update", data);

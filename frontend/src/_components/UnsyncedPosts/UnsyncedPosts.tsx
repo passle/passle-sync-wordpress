@@ -4,34 +4,52 @@ import {
   refreshPostsFromPassleApi,
   updatePost,
   syncAllPosts,
-  checkSyncProgress
+  checkSyncProgress,
 } from "../../_services/APIService";
 import UnsyncedPost from "./_components/UnsyncedPost/UnsyncedPost";
 import LoadingButton from "../LoadingButton";
 import PaginatedItems from "../Pagination/Pagination";
-import "./UnsyncedPosts.css";
+import "./UnsyncedPosts.scss";
+import {
+  fetchUnsyncedPosts,
+  PasslePost,
+  updateUnsyncedPosts,
+  WordpressPost,
+} from "__services/SyncService";
 
-function UnsyncedPosts({ syncCallback, syncedPosts }) {
+export type UnsyncedPostsProps = {
+  syncCallback: () => void;
+  syncedPosts: WordpressPost[];
+};
+
+const UnsyncedPosts = (props: UnsyncedPostsProps) => {
   const [posts, setPosts] = useState([]);
   const [unsyncedPosts, setUnsyncedPosts] = useState([]);
   const [totalSyncItems, setTotalSyncItems] = useState(0);
   const [completedSyncItems, setCompletedSyncItems] = useState(0);
-  let pollInterval = useRef();
+  let pollInterval = useRef(null);
 
   useEffect(() => {
-    async function initialFetch() {
-      await fetchUnsyncedPosts(null);
-    }
-    async function fetchSyncProgress() {
-      let syncDetails = await checkSyncProgress();
-      setTotalSyncItems(parseInt(syncDetails.total));
-      setCompletedSyncItems(parseInt(syncDetails.done));
-      if (parseInt(syncDetails.total) > parseInt(syncDetails.done)) {
+    const initialFetch = async () => {
+      let result = await fetchUnsyncedPosts(null);
+      setPosts(result);
+    };
+
+    const fetchSyncProgress = async () => {
+      const syncDetails = await checkSyncProgress();
+      const total = parseInt(syncDetails.total);
+      const done = parseInt(syncDetails.done);
+
+      setTotalSyncItems(total);
+      setCompletedSyncItems(done);
+
+      if (total > done) {
         pollInterval.current = setInterval(() => {
           checkProgress(null);
         }, 1000);
       }
-    }
+    };
+
     initialFetch();
     fetchSyncProgress();
   }, []);
@@ -42,61 +60,54 @@ function UnsyncedPosts({ syncCallback, syncedPosts }) {
     // where the synced and unsynced posts are loaded at the same time
     const unsynced = dedupePosts(posts);
     setUnsyncedPosts(unsynced);
-  }, [posts, syncedPosts]);
+  }, [posts, props.syncedPosts]);
 
-  const fetchUnsyncedPosts = async (finishLoadingCallback) => {
-    let result = await getPostsFromPassleApi();
+  const dedupePosts = (unsyncedPosts: PasslePost[]) => {
+    const syncedShortcodes = Array.isArray(props.syncedPosts)
+      ? props.syncedPosts.map((p) => p.post_shortcode)
+      : [];
 
-    if (finishLoadingCallback) finishLoadingCallback();
-    setPosts(result);
+    console.log(props.syncedPosts, unsyncedPosts);
+
+    return Array.isArray(unsyncedPosts)
+      ? unsyncedPosts.filter((p) => !syncedShortcodes.includes(p.PostShortcode))
+      : [];
   };
 
-  const updateUnsyncedPosts = async (finishLoadingCallback) => {
-    let result = await refreshPostsFromPassleApi();
-
-    if (finishLoadingCallback) finishLoadingCallback();
-    setPosts(result);
-  };
-
-  const dedupePosts = (unsyncedPosts) => {
-    
-    const syncedShortcodes = Array.isArray(syncedPosts) ? syncedPosts.map((p) => p["post_shortcode"]) : [];
-    console.log(syncedPosts, unsyncedPosts);
-    return (Array.isArray(unsyncedPosts)) ? unsyncedPosts.filter(
-      (p) => !syncedShortcodes.includes(p["PostShortcode"])
-    ) : [];
-  };
-
-  const syncAll = async (finishLoadingCallback) => {
+  const syncAll = async (finishLoadingCallback: () => void) => {
     syncAllPosts(unsyncedPosts);
     setTotalSyncItems(unsyncedPosts.length);
+
     pollInterval.current = setInterval(() => {
-      checkProgress(finishLoadingCallback)
+      checkProgress(finishLoadingCallback);
     }, 1000);
   };
 
-  const checkProgress = async (finishLoadingCallback) => {
-    checkSyncProgress().then(({total, done}) => {
-      if (done === total ) {
+  const checkProgress = async (finishLoadingCallback: () => void) => {
+    checkSyncProgress().then(({ total, done }) => {
+      if (done === total) {
         if (finishLoadingCallback) finishLoadingCallback();
         clearInterval(pollInterval.current);
-        syncCallback();
+        props.syncCallback();
         setCompletedSyncItems(0);
         setTotalSyncItems(0);
       } else {
-        setCompletedSyncItems(done);
+        setCompletedSyncItems(parseInt(done));
       }
     });
-  }
+  };
 
-  const syncPost = async (post, finishLoadingCallback) => {
+  const syncPost = async (
+    post: PasslePost,
+    finishLoadingCallback: () => void
+  ) => {
     post = { ...post, syncState: "syncing" };
 
     const result = await updatePost(post);
     if (finishLoadingCallback) finishLoadingCallback();
 
     post = { ...post, syncState: "synced" };
-    if (finishLoadingCallback) syncCallback();
+    if (props.syncCallback) props.syncCallback();
   };
 
   return (
@@ -106,7 +117,9 @@ function UnsyncedPosts({ syncCallback, syncedPosts }) {
       <LoadingButton
         className="update-list"
         text={"Update list"}
-        callback={updateUnsyncedPosts}
+        callback={(callback) =>
+          updateUnsyncedPosts(callback).then((result) => setPosts(result))
+        }
         loadingText={"Fetching posts..."}
       />
 
@@ -118,17 +131,25 @@ function UnsyncedPosts({ syncCallback, syncedPosts }) {
           loadingText={"Syncing posts..."}
         />
       )}
-      {totalSyncItems > 0 && 
-        <span>Synced {completedSyncItems} / {totalSyncItems}</span>
-      }
+      {totalSyncItems > 0 && (
+        <span>
+          Synced {completedSyncItems} / {totalSyncItems}
+        </span>
+      )}
 
-      {unsyncedPosts &&
-        unsyncedPosts.length > 0 &&
-        <PaginatedItems 
-          items={unsyncedPosts} 
-          renderItem={(post) => <UnsyncedPost post={post} key={post.PostShortcode} syncPost={syncPost} syncState={post.syncState}/>}
+      {unsyncedPosts && unsyncedPosts.length > 0 && (
+        <PaginatedItems
+          items={unsyncedPosts}
+          renderItem={(post: PasslePost) => (
+            <UnsyncedPost
+              post={post}
+              key={post.PostShortcode}
+              syncPost={syncPost}
+              syncState={post.syncState}
+            />
+          )}
         />
-        }
+      )}
 
       {(!posts || !posts.length) && <h3>No posts fetched</h3>}
       {posts &&
@@ -138,6 +159,6 @@ function UnsyncedPosts({ syncCallback, syncedPosts }) {
         )}
     </>
   );
-}
+};
 
 export default UnsyncedPosts;

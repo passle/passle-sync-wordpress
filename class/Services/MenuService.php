@@ -22,6 +22,8 @@ class MenuService
         $shortcodes_string = "";
         if (gettype($shortcodes) == "array") {
             $shortcodes_string = implode(",", $shortcodes);
+        } else {
+            $shortcodes_string = $shortcodes;
         }
 
         ?>
