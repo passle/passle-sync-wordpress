@@ -7,10 +7,12 @@
     "build": "webpack build --mode=production"
   },
   "devDependencies": {
+    "@prettier/plugin-php": "^0.18.0",
     "@types/react": "^17.0.39",
     "css-loader": "^6.5.1",
     "html-webpack-plugin": "^5.5.0",
     "mini-css-extract-plugin": "^2.4.5",
+    "prettier": "^2.5.1",
     "sass": "^1.49.7",
     "sass-loader": "^12.3.0",
     "style-loader": "^3.3.1",
