@@ -3,6 +3,7 @@
 namespace Passle\PassleSync\SyncHandlers;
 
 use Passle\PassleSync\Services\PassleContentService;
+use Passle\PassleSync\Utils\Utils;
 
 abstract class SyncHandlerBase
 {
@@ -15,18 +16,17 @@ abstract class SyncHandlerBase
         $this->passle_shortcode = get_option(PASSLESYNC_SHORTCODE);
     }
 
-    protected abstract function create_blank_item();
     protected abstract function sync_all_impl();
     protected abstract function sync_one_impl(array $data);
     protected abstract function delete_all_impl();
     protected abstract function delete_one_impl(array $data);
-    protected abstract function sync(object $entity, array $data);
+    protected abstract function sync(?object $entity, array $data);
     protected abstract function delete(object $entity);
 
     public function sync_all()
     {
         try {
-            $this->sync_all_impl();
+            return $this->sync_all_impl();
         } catch (\Exception $ex) {
             error_log("Failed to sync all items: {$ex->getMessage()}");
         }
@@ -35,7 +35,7 @@ abstract class SyncHandlerBase
     public function sync_one(array $data)
     {
         try {
-            $this->sync_one_impl($data);
+            return $this->sync_one_impl($data);
         } catch (\Exception $ex) {
             error_log("Failed to sync item: {$ex->getMessage()}");
         }
@@ -44,7 +44,7 @@ abstract class SyncHandlerBase
     public function delete_all()
     {
         try {
-            $this->delete_all_impl();
+            return $this->delete_all_impl();
         } catch (\Exception $ex) {
             error_log("Failed to delete all items: {$ex->getMessage()}");
         }
@@ -53,7 +53,7 @@ abstract class SyncHandlerBase
     public function delete_one(array $data)
     {
         try {
-            $this->delete_one_impl($data);
+            return $this->delete_one_impl($data);
         } catch (\Exception $ex) {
             error_log("Failed to delete item: {$ex->getMessage()}");
         }
@@ -78,26 +78,52 @@ abstract class SyncHandlerBase
         $shortcodes_to_remove = array_filter($existing_shortcodes, fn ($shortcode) => !in_array($shortcode, $passle_shortcodes));
         $shortcodes_to_update = array_filter($all_shortcodes, fn ($shortcode) => !in_array($shortcode, $shortcodes_to_add) && !in_array($shortcode, $shortcodes_to_remove));
 
+        $response = array(
+            "added" => [],
+            "updated" => [],
+            "removed" => [],
+        );
+
         // Add
         $items_to_add = array_filter($passle_items, fn ($item) => in_array($item[$passle_item_shortcode_property], $shortcodes_to_add));
         foreach ($items_to_add as $item) {
-            $new_item = $this->create_blank_item();
-            $this->sync($new_item, $item);
+            array_push($response["added"], $this->sync(null, $item));
         }
 
         // Update
         $items_to_update = array_filter($passle_items, fn ($item) => in_array($item[$passle_item_shortcode_property], $shortcodes_to_update));
         foreach ($items_to_update as $item) {
             $existing_item = $existing_items_by_shortcode[$item[$passle_item_shortcode_property]];
-            $this->sync($existing_item, $item);
+            array_push($response["updated"], $this->sync($existing_item, $item));
         }
 
         // Remove
         $items_to_remove = array_filter($existing_items, fn ($item) => in_array($item->{$existing_item_shortcode_property}, $shortcodes_to_remove));
         foreach ($items_to_remove as $item) {
-            $this->delete($item);
+            array_push($response["removed"], $this->delete($item));
         }
 
-        return;
+        var_dump($response);
+        die();
+        return $response;
+    }
+
+    /** @param string|callable $data_key */
+    protected function update_property(?object $item, string $item_key, array $data, $data_key, $default_value = "")
+    {
+        $value = $item->{$item_key} ?? $default_value;
+
+        if (is_callable($data_key)) {
+            $value = call_user_func($data_key, $data);
+        } else {
+            $value = $data[$data_key] ?? $value;
+        }
+        
+        return $value;
+    }
+
+    protected function delete_item(int $id)
+    {        
+        return wp_delete_post($id, true);
     }
 }

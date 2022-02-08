@@ -42,17 +42,14 @@ export const post = async (path: string, data?: object) => {
   }
 };
 
-export const getWordPressPosts = async () => await get("/posts");
+export const getAllPosts = async () => await get("/posts");
 export const deleteWordPressPosts = async () => await post("/posts/delete");
-export const getPostsFromPassleApi = async () => await get("/posts/api");
 export const refreshPostsFromPassleApi = async () =>
-  await get("/posts/api/update");
+  await get("/posts/refresh");
 export const updatePost = async (data: PasslePost) =>
   await post("/post/update", data);
-export const syncAllPosts = async (data: object) =>
-  await post("/posts/api/sync", data);
-export const checkSyncProgress = async () =>
-  await get("/posts/api/sync/progress");
+export const updateAllPosts = async (data: object) =>
+  await post("/posts/update", data);
 
 export const setAPIKey = (apiKey: string) => (API_KEY = apiKey);
 export const getAPIKey = () => API_KEY;

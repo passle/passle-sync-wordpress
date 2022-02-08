@@ -30,40 +30,29 @@ class PostsApiController extends ApiControllerBase implements IApiController
     public function register_api_routes()
     {
         $this->register_route('/posts', 'GET', 'get_all_items');
-        $this->register_route('/posts/api', 'GET', 'get_stored_items_from_api');
-        $this->register_route('/posts/api/update', 'GET', 'update_items');
-        $this->register_route('/posts/api/sync', 'POST', 'sync_items');
-        $this->register_route('/posts/api/sync/progress', 'GET', 'check_sync_items_progress');
+        $this->register_route('/posts/update', 'POST', 'update_items');
         $this->register_route('/post/update', 'POST', 'update_item');
         $this->register_route('/posts/delete', 'POST', 'delete_existing_items');
-        $this->register_route('/post/delete', 'POST', 'delete_existing_item');
+        $this->register_route('/posts/refresh', 'GET', 'refresh_items');
     }
 
     public function get_all_items($data)
     {
-        return $this->wordpress_content_service->get_items();
-    }
+        $wp_posts = $this->wordpress_content_service->get_items();
+        $api_posts = $this->passle_content_service->get_stored_passle_posts_from_api();
 
-    public function get_stored_items_from_api()
-    {
-        // return $this->passle_content_service->get_stored_passle_posts_from_api();
-        return $this->wordpress_content_service->get_or_update_items('passle_posts_from_api', array($this->passle_content_service, 'update_all_passle_posts_from_api'));
+        $wp_post_shortcodes = array_map(fn ($p) => $p->post_shortcode, $wp_posts);
+        $unsynced_api_posts = array_filter($api_posts, fn ($p) => !in_array($p['PostShortcode'], $wp_post_shortcodes));
+
+        return array(
+            "syncedPosts" => $wp_posts,
+            "unsyncedPosts" => array_values($unsynced_api_posts),   // Return the values as this is an associative array
+        );
     }
 
     public function update_items()
-    {
-        return $this->passle_content_service->update_all_passle_posts_from_api();
-    }
-
-    public function sync_items($data)
-    {
-        $items = $data->get_json_params();
-        return $this->passle_content_service->sync_all_passle_posts_from_api($items);
-    }
-
-    public function check_sync_items_progress()
-    {
-        return $this->passle_content_service->check_queue_progress();
+    {  
+        return $this->sync_handler->sync_all();
     }
 
     public function update_item($data)
@@ -82,9 +71,15 @@ class PostsApiController extends ApiControllerBase implements IApiController
             return new \WP_Error('no_content', 'You must include post content', array('status' => 400));
         }
 
-        return $this->wordpress_content_service->update_item($post_data);
-        // TODO: Use this
-        // return $this->sync_handler->sync_one($data);
+        // If the post isn't for this Passle, ignore it
+        // This is useful to prevent reposts being added when a post is saved
+        $passle_shortcodes = get_option(PASSLESYNC_SHORTCODE);
+        if (!in_array($post_data['PassleShortcode'], $passle_shortcodes))
+        {
+            return new \WP_Error('wrong_passle', "Passle shortcode (" . $post_data['PassleShortcode'] . ") is not in list (" . join(', ', $passle_shortcodes) . ")", array('status' => 400));
+        }
+
+        return $this->sync_handler->sync_one($post_data);
     }
 
     public function delete_existing_items()
@@ -92,9 +87,14 @@ class PostsApiController extends ApiControllerBase implements IApiController
         return $this->sync_handler->delete_all();
     }
 
-    public function delete_existing_item(object $data)
+    public function refresh_items()
     {
-        $post = $this->wordpress_content_service->get_item_by_shortcode($data['PostShortcode']);
-        return $this->sync_handler->delete();
+        $wp_posts = $this->wordpress_content_service->get_items();
+        $api_posts = $this->passle_content_service->update_all_passle_posts_from_api();
+
+        $wp_post_shortcodes = array_map(fn ($p) => $p->post_shortcode, $wp_posts);
+        $unsynced_api_posts = array_filter($api_posts, fn ($p) => !in_array($p['PostShortcode'], $wp_post_shortcodes));
+        
+        return array_values($unsynced_api_posts);
     }
 }

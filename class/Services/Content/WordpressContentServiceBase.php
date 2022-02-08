@@ -2,11 +2,15 @@
 
 namespace Passle\PassleSync\Services\Content;
 
-use Passle\PassleSync\Utils\UrlFactory;
-use Passle\PassleSync\Utils\Utils;
-
-class WordpressContentServiceBase
+abstract class WordpressContentServiceBase
 {
+    public abstract function get_items();
+
+    public function apply_meta_data_to_item(object $item) 
+    {
+        return $item;
+    }
+
     public function get_items_by_type(string $item_type)
     {
         $items = get_posts(array(
@@ -29,7 +33,7 @@ class WordpressContentServiceBase
     {
         $items = $this->get_items();
 
-        $matching_items = array_filter($items, function ($item) use ($data) {
+        $matching_items = array_filter($items, function ($item) use ($shortcode, $shortcode_property) {
             return $item->{$shortcode_property} === $shortcode;
         });
 
@@ -41,14 +45,14 @@ class WordpressContentServiceBase
         }
     }
 
-    public function apply_individual_meta_data_to_post(object $post, array $meta, string $propName, $default)
+    public function apply_individual_meta_data_to_item(object $item, array $meta, string $propName, $default)
     {
         if (!empty($meta[$propName])) {
-            $post->{$propName} = $meta[$propName][0];
+            $item->{$propName} = $meta[$propName][0];
         } else {
-            $post->{$propName} = $default;
+            $item->{$propName} = $default;
         }
-        return $post;
+        return $item;
     }
 
     public function get_or_update_items(string $storage_key, $callback)
@@ -60,23 +64,5 @@ class WordpressContentServiceBase
         }
 
         return $items;
-    }
-
-    public function create_new_blank_item(string $item_type)
-    {
-        $new_item = array(
-            'post_type'     => $item_type,
-            'post_status'   => 'publish',
-            'post_author'   => 1 //TODO: What's this value?
-        );
-
-        $id = wp_insert_post($new_item);
-        $new_item->ID = $id;
-        return $new_item;
-    }
-
-    public function delete_item(int $id)
-    {        
-        return wp_delete_post($id, true);
     }
 }

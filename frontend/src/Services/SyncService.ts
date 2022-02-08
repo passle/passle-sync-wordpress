@@ -1,7 +1,5 @@
 import {
-  getWordPressPosts,
-  deleteWordPressPosts,
-  getPostsFromPassleApi,
+  getAllPosts,
   refreshPostsFromPassleApi,
 } from "./APIService";
 import { SyncState } from "_API/Enums/SyncState";
@@ -14,7 +12,7 @@ export type PasslePost = {
   ImageUrl: string;
   PublishedDate: string;
   Authors: PassleAuthor[];
-  syncState: SyncState;
+  SyncState: SyncState;
 };
 
 export type PassleAuthor = {
@@ -34,15 +32,8 @@ export type WordpressPost = {
   post_authors: string;
 };
 
-export const fetchSyncedPosts = async (finishLoadingCallback: () => void) => {
-  const result = await getWordPressPosts();
-
-  if (finishLoadingCallback) finishLoadingCallback();
-  return result;
-};
-
-export const fetchUnsyncedPosts = async (finishLoadingCallback: () => void) => {
-  let result = await getPostsFromPassleApi();
+export const fetchPosts = async (finishLoadingCallback: () => void) => {
+  const result = await getAllPosts();
 
   if (finishLoadingCallback) finishLoadingCallback();
   return result;

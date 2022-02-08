@@ -1,6 +1,6 @@
 import { createContext, useState, ReactNode, useEffect } from "react";
 import {
-  fetchSyncedPosts,
+  fetchPosts,
   PasslePost,
   WordpressPost,
 } from "_Services/SyncService";
@@ -8,17 +8,17 @@ import {
 type PostDataContextType = {
   syncedPosts: WordpressPost[];
   unsyncedPosts: PasslePost[];
-  dedupePosts: (unsyncedPosts: PasslePost[]) => PasslePost[];
   setSyncedPosts: (posts: WordpressPost[]) => void;
   setUnsyncedPosts: (posts: PasslePost[]) => void;
+  refreshPostLists: () => Promise<void>;
 };
 
 export const PostDataContext = createContext<PostDataContextType>({
   unsyncedPosts: [],
   syncedPosts: [],
-  dedupePosts: () => [],
   setSyncedPosts: () => {},
   setUnsyncedPosts: () => {},
+  refreshPostLists: async () => {}
 });
 
 export type PostDataContextProviderProps = {
@@ -31,25 +31,18 @@ export const PostDataContextProvider = (
   const [syncedPosts, setSyncedPosts] = useState<WordpressPost[]>([]);
   const [unsyncedPosts, setUnsyncedPosts] = useState<PasslePost[]>([]);
 
+  const refreshPostLists = async () => {
+    let postData = await fetchPosts(null);
+    setSyncedPosts(postData.syncedPosts);
+    setUnsyncedPosts(postData.unsyncedPosts);
+    return Promise.resolve();
+  }
+
   useEffect(() => {
-    const initialFetch = async () => {
-      let results = await fetchSyncedPosts(null);
-      setSyncedPosts(results);
-    };
-    initialFetch();
+    (async () => {
+      await refreshPostLists();
+    })();
   }, []);
-
-  const dedupePosts = (unsyncedPosts: PasslePost[]) => {
-    const syncedShortcodes = Array.isArray(syncedPosts)
-      ? syncedPosts.map((p) => p.post_shortcode)
-      : [];
-
-    console.log(syncedPosts, unsyncedPosts);
-
-    return Array.isArray(unsyncedPosts)
-      ? unsyncedPosts.filter((p) => !syncedShortcodes.includes(p.PostShortcode))
-      : [];
-  };
 
   return (
     <PostDataContext.Provider
@@ -58,7 +51,7 @@ export const PostDataContextProvider = (
         setSyncedPosts,
         unsyncedPosts,
         setUnsyncedPosts,
-        dedupePosts,
+        refreshPostLists
       }}
     >
       {props.children}

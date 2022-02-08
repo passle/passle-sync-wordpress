@@ -19,12 +19,11 @@ export type PostProps = {
 };
 
 const Post = (props: PostProps) => {
-  const hasSynced = props.syncState === SyncState.Synced;
-  const isSyncing = props.syncState === SyncState.Syncing;
+  const hasSynced = (props.syncState ?? SyncState.Synced) === SyncState.Synced;
 
   return (
     <div className="post">
-      <div className="post__ync-status">
+      <div className="post__sync-status">
         {!hasSynced && (
           <Button
             text={"Sync post"}
@@ -34,9 +33,6 @@ const Post = (props: PostProps) => {
             loadingText={"Syncing..."}
           />
         )}
-
-        {/* {hasSynced && <p>Synced</p>}
-        {isSyncing && <p>Syncing...</p>} */}
       </div>
 
       <div className="post__body">
@@ -52,7 +48,7 @@ const Post = (props: PostProps) => {
             ))}
           </span>
         </div>
-        <div className="post__image">
+        <div className={"post__image" + (hasSynced ? " no-sync": "")}>
           <FeaturedItem {...props.featuredItem} />
         </div>
         <div className="post__title">
