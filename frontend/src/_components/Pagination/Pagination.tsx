@@ -1,15 +1,17 @@
-import { useEffect, useState } from "react";
+import { useEffect, useState, ReactNode } from "react";
 import ReactPaginate from "react-paginate";
 import { PasslePost, WordpressPost } from "__services/SyncService";
 import "./Pagination.scss";
 
-export type PaginatedItemsProps = {
-  items: (PasslePost | WordpressPost)[];
-  renderItem: (post: PasslePost | WordpressPost) => any;
+type Post = PasslePost | WordpressPost;
+
+export type PaginatedItemsProps<T extends Post> = {
+  items: T[];
+  renderItem: (post: T) => ReactNode;
 };
 
-const PaginatedItems = (props: PaginatedItemsProps) => {
-  const [pageItems, setPageItems] = useState([]);
+const PaginatedItems = <T extends Post>(props: PaginatedItemsProps<T>) => {
+  const [pageItems, setPageItems] = useState<T[]>([]);
   const [pageOffset, setPageOffset] = useState(0);
 
   const itemsPerPage = 10;

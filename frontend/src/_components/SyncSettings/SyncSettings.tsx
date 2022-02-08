@@ -1,6 +1,6 @@
 import { useState } from "react";
+import LoadingButton from "__components/Atoms/LoadingButton/LoadingButton";
 import { setAPIKey, updateSettings } from "../../_services/APIService";
-import LoadingButton from "../LoadingButton";
 import "./SyncSettings.scss";
 
 export type SyncSettingsProps = {

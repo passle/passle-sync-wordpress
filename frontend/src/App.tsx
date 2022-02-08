@@ -1,10 +1,12 @@
 import { useState, useEffect } from "react";
 import { setAPIKey } from "./_services/APIService";
-import { fetchSyncedPosts, deleteSyncedPosts } from "./_services/SyncService";
+import { fetchSyncedPosts } from "./_services/SyncService";
 import UnsyncedPosts from "./_components/UnsyncedPosts/UnsyncedPosts";
 import SyncedPosts from "./_components/SyncedPosts/SyncedPosts";
 import SyncSettings from "./_components/SyncSettings/SyncSettings";
 import "./App.scss";
+import * as React from "react";
+import { PostDataContextProvider } from "__contexts/PostData";
 
 export type AppProps = {
   pluginApiKey: string;
@@ -19,40 +21,24 @@ const App = (props: AppProps) => {
   // But it does need to communicate securely with WP, so it needs to validate there
   setAPIKey(props.pluginApiKey);
 
-  useEffect(() => {
-    const initialFetch = async () => {
-      let results = await fetchSyncedPosts(null);
-      setSyncedPosts(results);
-    };
-    initialFetch();
-  }, []);
-
   return (
     <div className="App">
-      <h1>Passle Sync - Settings</h1>
-      <SyncSettings
-        pluginApiKey={props.pluginApiKey}
-        clientApiKey={props.clientApiKey}
-        passleShortcodes={props.passleShortcodes}
-      />
+      <PostDataContextProvider>
+        <h1>Passle Sync - Settings</h1>
+        <SyncSettings
+          pluginApiKey={props.pluginApiKey}
+          clientApiKey={props.clientApiKey}
+          passleShortcodes={props.passleShortcodes}
+        />
 
-      <hr />
+        <hr />
 
-      <SyncedPosts
-        posts={syncedPosts}
-        deleteSyncedPosts={(callback) =>
-          deleteSyncedPosts(callback).then((result) => setSyncedPosts(result))
-        }
-      />
+        <SyncedPosts />
 
-      <hr />
+        <hr />
 
-      <UnsyncedPosts
-        syncCallback={() =>
-          fetchSyncedPosts(null).then((result) => setSyncedPosts(result))
-        }
-        syncedPosts={syncedPosts}
-      />
+        <UnsyncedPosts />
+      </PostDataContextProvider>
     </div>
   );
 };

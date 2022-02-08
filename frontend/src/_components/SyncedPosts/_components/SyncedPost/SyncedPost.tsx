@@ -8,10 +8,10 @@ export type SyncedPostProps = {
 
 const SyncedPost = (props: SyncedPostProps) => {
   const post = props.post;
-  const authorString =
-    Object.prototype.toString.call(post.post_authors) === "[object Array]"
-      ? post.post_authors.join(", ")
-      : post.post_authors;
+  // const authorString =
+  // Object.prototype.toString.call(post.post_authors) === "[object Array]"
+  //   ? post.post_authors.join(", ")
+  //   : post.post_authors;
 
   return (
     <div className="synced-post">
@@ -26,7 +26,7 @@ const SyncedPost = (props: SyncedPostProps) => {
       </div>
       <div className="post-body">
         <div className="post-date">{RenderDate(post.post_date_gmt)}</div>
-        <div className="post-authors">By {authorString}</div>
+        <div className="post-authors">By {post.post_authors}</div>
         <div className="post-title">
           <a
             className="post-link"

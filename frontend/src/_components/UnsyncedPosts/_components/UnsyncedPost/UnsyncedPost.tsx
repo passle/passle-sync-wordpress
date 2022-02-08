@@ -1,6 +1,7 @@
+import { Fragment } from "react";
+import LoadingButton from "__components/Atoms/LoadingButton/LoadingButton";
 import { PasslePost } from "__services/SyncService";
-import LoadingButton from "../../../../_components/LoadingButton";
-import RenderDate from "../../../../_utils/date";
+import RenderDate from "__utils/date";
 import "./UnsyncedPost.scss";
 
 export type UnsyncedPostProps = {
@@ -38,7 +39,7 @@ const UnsyncedPost = (props: UnsyncedPostProps) => {
           <span>
             By{" "}
             {post.Authors.map((author, ii) => (
-              <>
+              <Fragment key={ii}>
                 <a
                   href={author.ProfileUrl}
                   target="_blank"
@@ -47,7 +48,7 @@ const UnsyncedPost = (props: UnsyncedPostProps) => {
                   {author.Name}
                 </a>
                 {ii < post.Authors.length - 1 ? ", " : ""}
-              </>
+              </Fragment>
             ))}
           </span>
         </div>

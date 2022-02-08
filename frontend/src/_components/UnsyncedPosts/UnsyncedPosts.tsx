@@ -1,38 +1,47 @@
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect, useRef, useContext } from "react";
 import {
-  getPostsFromPassleApi,
-  refreshPostsFromPassleApi,
   updatePost,
   syncAllPosts,
   checkSyncProgress,
 } from "../../_services/APIService";
 import UnsyncedPost from "./_components/UnsyncedPost/UnsyncedPost";
-import LoadingButton from "../LoadingButton";
 import PaginatedItems from "../Pagination/Pagination";
 import "./UnsyncedPosts.scss";
 import {
+  fetchSyncedPosts,
   fetchUnsyncedPosts,
   PasslePost,
   updateUnsyncedPosts,
-  WordpressPost,
 } from "__services/SyncService";
+import { PostDataContext } from "__contexts/PostData";
+import LoadingButton from "__components/Atoms/LoadingButton/LoadingButton";
+import Post from "__components/Molecules/Post/Post";
+import { SyncState } from "__types/Enums/SyncState";
 
 export type UnsyncedPostsProps = {
-  syncCallback: () => void;
-  syncedPosts: WordpressPost[];
+  // syncCallback: () => void;
+  // syncedPosts: WordpressPost[];
 };
 
 const UnsyncedPosts = (props: UnsyncedPostsProps) => {
-  const [posts, setPosts] = useState([]);
-  const [unsyncedPosts, setUnsyncedPosts] = useState([]);
+  const {
+    syncedPosts,
+    unsyncedPosts,
+    setSyncedPosts,
+    setUnsyncedPosts,
+    dedupePosts,
+  } = useContext(PostDataContext);
+
   const [totalSyncItems, setTotalSyncItems] = useState(0);
   const [completedSyncItems, setCompletedSyncItems] = useState(0);
   let pollInterval = useRef(null);
 
+  let posts: PasslePost[] = [];
+
   useEffect(() => {
     const initialFetch = async () => {
       let result = await fetchUnsyncedPosts(null);
-      setPosts(result);
+      setUnsyncedPosts(result);
     };
 
     const fetchSyncProgress = async () => {
@@ -58,21 +67,8 @@ const UnsyncedPosts = (props: UnsyncedPostsProps) => {
     // Set this as an effect whenever posts or syncedPosts changes
     // This catches any API post updates, but also handles the race condition on page load
     // where the synced and unsynced posts are loaded at the same time
-    const unsynced = dedupePosts(posts);
-    setUnsyncedPosts(unsynced);
-  }, [posts, props.syncedPosts]);
-
-  const dedupePosts = (unsyncedPosts: PasslePost[]) => {
-    const syncedShortcodes = Array.isArray(props.syncedPosts)
-      ? props.syncedPosts.map((p) => p.post_shortcode)
-      : [];
-
-    console.log(props.syncedPosts, unsyncedPosts);
-
-    return Array.isArray(unsyncedPosts)
-      ? unsyncedPosts.filter((p) => !syncedShortcodes.includes(p.PostShortcode))
-      : [];
-  };
+    posts = dedupePosts(unsyncedPosts);
+  }, [unsyncedPosts, syncedPosts]);
 
   const syncAll = async (finishLoadingCallback: () => void) => {
     syncAllPosts(unsyncedPosts);
@@ -88,7 +84,9 @@ const UnsyncedPosts = (props: UnsyncedPostsProps) => {
       if (done === total) {
         if (finishLoadingCallback) finishLoadingCallback();
         clearInterval(pollInterval.current);
-        props.syncCallback();
+        fetchSyncedPosts(finishLoadingCallback).then((result) =>
+          setSyncedPosts(result)
+        );
         setCompletedSyncItems(0);
         setTotalSyncItems(0);
       } else {
@@ -98,27 +96,37 @@ const UnsyncedPosts = (props: UnsyncedPostsProps) => {
   };
 
   const syncPost = async (
-    post: PasslePost,
+    postId: string,
     finishLoadingCallback: () => void
   ) => {
-    post = { ...post, syncState: "syncing" };
+    let matchingPosts = unsyncedPosts.filter(
+      (post) => post.PostShortcode === postId
+    );
+    if (matchingPosts.length == 0) return;
+
+    let post = matchingPosts[0];
+    post = { ...post, syncState: SyncState.Syncing };
 
     const result = await updatePost(post);
     if (finishLoadingCallback) finishLoadingCallback();
 
-    post = { ...post, syncState: "synced" };
-    if (props.syncCallback) props.syncCallback();
+    post = { ...post, syncState: SyncState.Synced };
+    fetchSyncedPosts(finishLoadingCallback).then((result) =>
+      setSyncedPosts(result)
+    );
   };
 
   return (
     <>
-      <h2>{unsyncedPosts?.length ?? 0} Unsynced Passle Posts:</h2>
+      <h2>{unsyncedPosts.length} Unsynced Passle Posts:</h2>
 
       <LoadingButton
         className="update-list"
         text={"Update list"}
         callback={(callback) =>
-          updateUnsyncedPosts(callback).then((result) => setPosts(result))
+          updateUnsyncedPosts(callback).then((result) =>
+            setUnsyncedPosts(result)
+          )
         }
         loadingText={"Fetching posts..."}
       />
@@ -141,9 +149,15 @@ const UnsyncedPosts = (props: UnsyncedPostsProps) => {
         <PaginatedItems
           items={unsyncedPosts}
           renderItem={(post: PasslePost) => (
-            <UnsyncedPost
-              post={post}
+            <Post
+              id={post.PostShortcode}
               key={post.PostShortcode}
+              title={post.PostTitle}
+              snippet={post.ContentTextSnippet}
+              postUrl={post.PostUrl}
+              imageUrl={post.ImageUrl}
+              publishedDate={post.PublishedDate}
+              authorNames={post.Authors.map((author) => author.Name)}
               syncPost={syncPost}
               syncState={post.syncState}
             />
@@ -151,7 +165,7 @@ const UnsyncedPosts = (props: UnsyncedPostsProps) => {
         />
       )}
 
-      {(!posts || !posts.length) && <h3>No posts fetched</h3>}
+      {(!unsyncedPosts || !unsyncedPosts.length) && <h3>No posts fetched</h3>}
       {posts &&
         posts.length > 0 &&
         (!unsyncedPosts || !unsyncedPosts.length) && (
