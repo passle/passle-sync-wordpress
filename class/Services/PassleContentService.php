@@ -35,12 +35,12 @@ class PassleContentService
 
     public function update_all_passle_posts_from_api()
     {
-        return $this->get_all_items_from_api('passle_posts_from_api', 'Posts', '/posts');
+        return $this->get_all_items_from_api('passle_posts_from_api', 'Posts', 'posts');
     }
 
     public function update_all_passle_authors_from_api()
     {
-        return $this->get_all_items_from_api('passle_authors_from_api', 'People', '/people');
+        return $this->get_all_items_from_api('passle_authors_from_api', 'People', 'people');
     }
 
     public function get_all_items_from_api(string $storage_key, string $response_key, string $path)
@@ -75,7 +75,7 @@ class PassleContentService
     {
         $factory = new UrlFactory();
         $url = $factory
-            ->path($path)
+            ->path("/passlesync/".$path)
             ->parameters(array(
                 'PassleShortcode' => $passle_shortcode,
                 'ItemsPerPage' => '100'
@@ -91,6 +91,25 @@ class PassleContentService
         $result = Utils::array_select_multiple($responses, $response_key);
 
         return $result;
+    }
+
+    public function get_single_from_api(string $passle_shortcode, string $item_shortcode, string $path)
+    {
+        $params = array(
+            'PassleShortcode' => $passle_shortcode
+        );
+        if ($path == "posts") {
+            $params["PostShortcode"] = $item_shortcode;
+        }
+
+        $factory = new UrlFactory();
+        $url = $factory
+            ->path("/passlesync/".$path)
+            ->parameters($params)
+            ->build();
+
+        $response = $this->get($url);
+        return $response["Posts"];
     }
 
     public function get_all_paginated(string $url, int $page_number = 1)

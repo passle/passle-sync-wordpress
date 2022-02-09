@@ -59,24 +59,23 @@ class PostsApiController extends ApiControllerBase implements IApiController
     {
         $post_data = $data->get_json_params();
 
-        if (!isset($post_data)) {
-            return new \WP_Error('no_data', 'You must include data to create a post', array('status' => 400));
-        }
-
-        if (!isset($post_data['PostTitle'])) {
-            return new \WP_Error('no_title', 'You must include a post title', array('status' => 400));
-        }
-
-        if (!isset($post_data['ContentTextSnippet']) && !isset($post_data['PostContentHtml'])) {
-            return new \WP_Error('no_content', 'You must include post content', array('status' => 400));
-        }
-
         // If the post isn't for this Passle, ignore it
         // This is useful to prevent reposts being added when a post is saved
         $passle_shortcodes = get_option(PASSLESYNC_SHORTCODE);
-        if (!in_array($post_data['PassleShortcode'], $passle_shortcodes))
+        if (!isset($post_data) || !in_array($post_data['PassleShortcode'], $passle_shortcodes))
         {
             return new \WP_Error('wrong_passle', "Passle shortcode (" . $post_data['PassleShortcode'] . ") is not in list (" . join(', ', $passle_shortcodes) . ")", array('status' => 400));
+        }
+
+        // Data from CMSIntegrationService will only include a shortcode
+        if (!isset($post_data['PostTitle'])) {
+            $full_data = $this->passle_content_service->get_single_from_api(
+                $post_data['PassleShortcode'],
+                $post_data['PostShortcode'],
+                "posts"
+            );
+
+            $post_data = $full_data[0];
         }
 
         return $this->sync_handler->sync_one($post_data);
