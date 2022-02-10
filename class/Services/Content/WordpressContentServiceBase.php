@@ -13,13 +13,13 @@ abstract class WordpressContentServiceBase
 
     public function get_items_by_type(string $item_type)
     {
-        $items = get_posts(array(
+        $items = get_posts([
             'numberposts'   => -1,
-            'post_type'     => array($item_type),
-        ));
+            'post_type'     => [$item_type],
+        ]);
 
         if (empty($items)) {
-            return array();
+            return [];
         }
 
         array_walk($items, function($item) {

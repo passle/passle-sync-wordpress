@@ -8,7 +8,7 @@ class ApiControllerBase
     private $plugin_api_key;
     private $api_key;
     private $queue;
-    protected $fields = array();
+    protected $fields = [];
     public $items_being_synced = 0;
 
     public function __construct()
@@ -28,14 +28,14 @@ class ApiControllerBase
 
     public function register_route(string $path, string $method, string $func_name)
     {
-        register_rest_route(PASSLESYNC_REST_API_BASE, $path, array(
+        register_rest_route(PASSLESYNC_REST_API_BASE, $path, [
             'methods' => $method,
-            'callback' => array($this, $func_name),
+            'callback' => [$this, $func_name],
             'validate_callback' => function($request) {
                 return $this->verify_header_api_key($request);
             },
             'permission_callback' => '__return_true',
-        ));
+        ]);
     }    
 
     public function register_api_settings_routes()
@@ -48,7 +48,7 @@ class ApiControllerBase
         $json_params = $data->get_json_params();
 
         if (!isset($json_params)) {
-            return new \WP_Error('no_data', 'You must include data to update settings', array('status' => 400));
+            return new \WP_Error('no_data', 'You must include data to update settings', ['status' => 400]);
         }
 
         update_option(PASSLESYNC_PLUGIN_API_KEY, $json_params['pluginApiKey'], true);

@@ -31,12 +31,12 @@ class PassleSync
     public function initialize()
     {
         // Register API routes
-        add_action("rest_api_init", array($this->posts_api_controller, "register_api_routes"));
-        add_action("rest_api_init", array($this->people_api_controller, "register_api_routes"));
-        add_action("rest_api_init", array($this->api_controller_base, "register_api_settings_routes"));
+        add_action("rest_api_init", [$this->posts_api_controller, "register_api_routes"]);
+        add_action("rest_api_init", [$this->people_api_controller, "register_api_routes"]);
+        add_action("rest_api_init", [$this->api_controller_base, "register_api_settings_routes"]);
 
         // Register settings menu
-        add_action("admin_menu", array($this->menu_service, "register_menus"));
+        add_action("admin_menu", [$this->menu_service, "register_menus"]);
 
         // /*
         // * Modify WP queries on the home page or searches
@@ -47,7 +47,7 @@ class PassleSync
         // // in case they had something else set
         // add_action( 'pre_get_posts', function ($query) {
         //     if ( $query->is_home() && $query->is_main_query() ) {
-        //         $query->set( 'post_type', array( 'post', PASSLESYNC_POST_TYPE ) );
+        //         $query->set( 'post_type', [ 'post', PASSLESYNC_POST_TYPE ] );
         //     }
         // });
 

@@ -78,11 +78,11 @@ abstract class SyncHandlerBase
         $shortcodes_to_remove = array_filter($existing_shortcodes, fn ($shortcode) => !in_array($shortcode, $passle_shortcodes));
         $shortcodes_to_update = array_filter($all_shortcodes, fn ($shortcode) => !in_array($shortcode, $shortcodes_to_add) && !in_array($shortcode, $shortcodes_to_remove));
 
-        $response = array(
+        $response = [
             "added" => [],
             "updated" => [],
             "removed" => [],
-        );
+        ];
 
         // Add
         $items_to_add = array_filter($passle_items, fn ($item) => in_array($item[$passle_item_shortcode_property], $shortcodes_to_add));

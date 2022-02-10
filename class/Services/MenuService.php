@@ -12,7 +12,7 @@ class MenuService
             "Passle Sync",
             "manage_options",
             "passlesync",
-            array($this, "render_settings_menu")
+            [$this, "render_settings_menu"]
         );
     }
 

@@ -25,12 +25,12 @@ class PassleContentService
 
     public function get_stored_passle_posts_from_api()
     {
-        return $this->posts_wordpress_content_service->get_or_update_items('passle_posts_from_api', array($this, 'update_all_passle_posts_from_api'));
+        return $this->posts_wordpress_content_service->get_or_update_items('passle_posts_from_api', [$this, 'update_all_passle_posts_from_api']);
     }
 
     public function get_stored_passle_authors_from_api()
     {
-        return $this->people_wordpress_content_service->get_or_update_items('passle_authors_from_api', array($this, 'update_all_passle_authors_from_api'));
+        return $this->people_wordpress_content_service->get_or_update_items('passle_authors_from_api', [$this, 'update_all_passle_authors_from_api']);
     }
 
     public function update_all_passle_posts_from_api()
@@ -54,7 +54,7 @@ class PassleContentService
         if (in_array(true, array_map(function($r) {
             return is_wp_error($r);
         }, $results))) {
-            return new \WP_Error('no_response', 'Failed to get data from the API', array('status' => 500));
+            return new \WP_Error('no_response', 'Failed to get data from the API', ['status' => 500]);
         }
 
         $result = array_merge(...$results);
@@ -76,16 +76,16 @@ class PassleContentService
         $factory = new UrlFactory();
         $url = $factory
             ->path("/passlesync/".$path)
-            ->parameters(array(
+            ->parameters([
                 'PassleShortcode' => $passle_shortcode,
                 'ItemsPerPage' => '100'
-            ))
+            ])
             ->build();
 
         $responses = $this->get_all_paginated($url);
 
         if (in_array(null, $responses)) {
-            return new \WP_Error('no_response', 'Failed to get data from the API', array('status' => 500));
+            return new \WP_Error('no_response', 'Failed to get data from the API', ['status' => 500]);
         }
 
         $result = Utils::array_select_multiple($responses, $response_key);
@@ -95,9 +95,9 @@ class PassleContentService
 
     public function get_single_from_api(string $passle_shortcode, string $item_shortcode, string $path)
     {
-        $params = array(
+        $params = [
             'PassleShortcode' => $passle_shortcode
-        );
+        ];
         if ($path == "posts") {
             $params["PostShortcode"] = $item_shortcode;
         }
@@ -157,12 +157,12 @@ class PassleContentService
 
     public function get(string $url)
     {
-        $request = wp_remote_get($url, array(
+        $request = wp_remote_get($url, [
             'sslverify' => false,
-            'headers' => array(
+            'headers' => [
                 "apiKey" => $this->api_key
-            )
-        ));
+            ]
+        ]);
 
         $body = wp_remote_retrieve_body($request);
         $data = json_decode($body, true);

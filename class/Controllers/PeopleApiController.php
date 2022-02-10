@@ -8,9 +8,9 @@ use Passle\PassleSync\Services\PassleContentService;
 
 class PeopleApiController extends ApiControllerBase implements IApiController
 {
-    protected $fields = array(
+    protected $fields = [
         'Shortcode',
-    );
+    ];
     protected $passle_content_service;
     protected $wordpress_content_service;
 
@@ -48,11 +48,11 @@ class PeopleApiController extends ApiControllerBase implements IApiController
         $author_data = $data->get_json_params();
 
         if (!isset($author_data)) {
-            return new \WP_Error('no_data', 'You must include data to create a author', array('status' => 400));
+            return new \WP_Error('no_data', 'You must include data to create a author', ['status' => 400]);
         }
 
         if (!isset($author_data['Name'])) {
-            return new \WP_Error('no_name', 'You must include a author name', array('status' => 400));
+            return new \WP_Error('no_name', 'You must include a author name', ['status' => 400]);
         }
 
         return $this->sync_handler->sync_one($author_data);

@@ -8,9 +8,9 @@ use Passle\PassleSync\Services\PassleContentService;
 
 class PostsApiController extends ApiControllerBase implements IApiController
 {
-    protected $fields = array(
+    protected $fields = [
         'Shortcode',
-    );
+    ];
     protected $passle_content_service;
     protected $wordpress_content_service;
 
@@ -42,10 +42,10 @@ class PostsApiController extends ApiControllerBase implements IApiController
         $wp_post_shortcodes = array_map(fn ($p) => $p->post_shortcode, $wp_posts);
         $unsynced_api_posts = array_filter($api_posts, fn ($p) => !in_array($p['PostShortcode'], $wp_post_shortcodes));
 
-        return array(
+        return [
             "syncedPosts" => $wp_posts,
             "unsyncedPosts" => array_values($unsynced_api_posts),   // Return the values as this is an associative array
-        );
+        ];
     }
 
     public function update_items()
@@ -62,7 +62,7 @@ class PostsApiController extends ApiControllerBase implements IApiController
         $passle_shortcodes = get_option(PASSLESYNC_SHORTCODE);
         if (!isset($post_data) || !in_array($post_data['PassleShortcode'], $passle_shortcodes))
         {
-            return new \WP_Error('wrong_passle', "Passle shortcode (" . $post_data['PassleShortcode'] . ") is not in list (" . join(', ', $passle_shortcodes) . ")", array('status' => 400));
+            return new \WP_Error('wrong_passle', "Passle shortcode (" . $post_data['PassleShortcode'] . ") is not in list (" . join(', ', $passle_shortcodes) . ")", ['status' => 400]);
         }
 
         // Data from CMSIntegrationService will only include a shortcode

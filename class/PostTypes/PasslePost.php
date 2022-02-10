@@ -6,14 +6,14 @@ class PasslePost
 {
     public function __construct()
     {
-        add_action("init", array($this, "create_post_type"));
+        add_action("init", [$this, "create_post_type"]);
     }
 
     function create_post_type()
     {
         // TODO: Create any/all custom taxonomies in another method.
 
-        $labels = array(
+        $labels = [
             'name' => 'Passle Posts',
             'singular_name' => 'Passle Post',
             'menu_name' => 'Passle Posts',
@@ -28,9 +28,9 @@ class PasslePost
             'parent_item_colon' => 'Parent Passle Post',
             'not_found' => 'No Passle Posts Found',
             'not_found_in_trash' => 'No Passle Posts Found in Trash'
-        );
+        ];
 
-        $args = array(
+        $args = [
             'labels' => $labels,
             'public' => true,
             'exclude_from_search' => false,
@@ -43,17 +43,17 @@ class PasslePost
             'menu_position' => 5,
             'menu_icon' => 'dashicons-admin-appearance',
             'capability_type' => 'post',
-            'capabilities' => array(
+            'capabilities' => [
                 'create_posts' => 'do_not_allow',
                 // 'edit_posts' => 'do_not_allow',
-            ),
+            ],
             'hierarchical' => false,
-            'supports' => array('title', 'custom-fields'),
+            'supports' => ['title', 'custom-fields'],
             'has_archive' => true,
-            'rewrite' => array('slug' => 'passle-posts'),
+            'rewrite' => ['slug' => 'passle-posts'],
             'query_var' => true,
             'show_in_rest' => true
-        );
+        ];
 
         register_post_type(PASSLESYNC_POST_TYPE, $args);
     }

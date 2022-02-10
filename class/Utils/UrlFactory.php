@@ -47,9 +47,9 @@ class UrlFactory
         $url = "{$this->protocol}://{$this->root}{$this->path}";
         $query = http_build_query($this->parameters, "", "&");
 
-        return join("?", array(
+        return join("?", [
             $url,
             $query
-        ));
+        ]);
     }
 }

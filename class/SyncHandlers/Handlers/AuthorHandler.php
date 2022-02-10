@@ -72,17 +72,17 @@ class AuthorHandler extends SyncHandlerBase implements ISyncHandler
         $author_shortcode = $this->update_property($author, "author_shortcode", $data, "Shortcode");
         $passle_shortcode = $this->update_property($author, "passle_shortcode", $data, "PassleShortcode");
         
-        $new_item = array(
+        $new_item = [
             'ID'                => $id,
             'post_title'        => $author_name,
             'post_type'         => PASSLESYNC_AUTHOR_TYPE,
             'post_status'       => 'publish',
             'comment_status'    => 'closed',
-            'meta_input'    => array(
+            'meta_input'    => [
                 'author_shortcode'   => $author_shortcode,
                 'passle_shortcode'   => $passle_shortcode,
-            )
-        );
+            ]
+        ];
 
         $new_id = wp_insert_post($new_item, true);
         if ($new_id != $id)
