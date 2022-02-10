@@ -1,4 +1,3 @@
-import PaginatedItems from "../Pagination/Pagination";
 import { WordpressPost } from "_Services/SyncService";
 import { useContext } from "react";
 import { PostDataContext } from "_Contexts/PostDataContext";
@@ -6,6 +5,7 @@ import { deleteWordPressPosts } from "_Services/APIService";
 import Button from "_Components/Atoms/LoadingButton/LoadingButton";
 import Post from "_Components/Molecules/Post/Post";
 import { FeaturedItemVariant } from "_API/Enums/FeaturedItemVariant";
+import PaginatedItems from "_Components/Molecules/Pagination/Pagination";
 
 const SyncedPosts = () => {
   const { syncedPosts, refreshPostLists } = useContext(PostDataContext);

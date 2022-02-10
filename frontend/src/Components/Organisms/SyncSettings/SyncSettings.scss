@@ -1,0 +1,13 @@
+.settings-container {
+  display: flex;
+  flex-direction: column;
+}
+
+.setting {
+  width: min(100%, 450px);
+
+  input {
+    min-width: 300px;
+    float: right;
+  }
+}

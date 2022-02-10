@@ -1,32 +1,23 @@
 import { useContext } from "react";
-import {
-  updateAllPosts,
-  updatePost
-} from "../../Services/APIService";
-import PaginatedItems from "../Pagination/Pagination";
 import "./UnsyncedPosts.scss";
-import {
-  PasslePost,
-  updateUnsyncedPosts,
-} from "_Services/SyncService";
+import { PasslePost, updateUnsyncedPosts } from "_Services/SyncService";
 import { PostDataContext } from "_Contexts/PostDataContext";
 import Button from "_Components/Atoms/LoadingButton/LoadingButton";
 import Post from "_Components/Molecules/Post/Post";
 import { SyncState } from "_API/Enums/SyncState";
 import { FeaturedItemVariant } from "_API/Enums/FeaturedItemVariant";
+import { updateAllPosts, updatePost } from "_Services/APIService";
+import PaginatedItems from "_Components/Molecules/Pagination/Pagination";
 
 const UnsyncedPosts = () => {
-  const {
-    unsyncedPosts,
-    setUnsyncedPosts,
-    refreshPostLists
-  } = useContext(PostDataContext);
+  const { unsyncedPosts, setUnsyncedPosts, refreshPostLists } =
+    useContext(PostDataContext);
 
   const areAnyPosts = unsyncedPosts && unsyncedPosts.length > 0;
 
   const syncAll = async (finishLoadingCallback: () => void) => {
     await updateAllPosts(unsyncedPosts);
-    
+
     await refreshPostLists();
     if (finishLoadingCallback) finishLoadingCallback();
   };
@@ -46,7 +37,7 @@ const UnsyncedPosts = () => {
     await updatePost(post);
 
     post = { ...post, SyncState: SyncState.Synced };
-    
+
     await refreshPostLists();
     if (finishLoadingCallback) finishLoadingCallback();
   };
@@ -79,17 +70,17 @@ const UnsyncedPosts = () => {
             renderItem={(post) => RenderAPIPost(post, syncPost)}
           />
         </>
-      ): (
+      ) : (
         <p>All posts have been synced</p>
       )}
     </>
   );
 };
 
-const RenderAPIPost = (post: PasslePost, syncPost:(
-  postId: string,
-  finishLoadingCallback: () => void
-) => void) => (
+const RenderAPIPost = (
+  post: PasslePost,
+  syncPost: (postId: string, finishLoadingCallback: () => void) => void
+) => (
   <Post
     id={post.PostShortcode}
     key={post.PostShortcode}

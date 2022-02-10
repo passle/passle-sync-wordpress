@@ -1,9 +1,9 @@
-import { setAPIKey } from "./Services/APIService";
-import UnsyncedPosts from "./Components/UnsyncedPosts/UnsyncedPosts";
-import SyncedPosts from "./Components/SyncedPosts/SyncedPosts";
-import SyncSettings from "./Components/SyncSettings/SyncSettings";
 import "./App.scss";
 import { PostDataContextProvider } from "_Contexts/PostDataContext";
+import SyncedPosts from "_Components/Organisms/SyncedPosts/SyncedPosts";
+import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
+import UnsyncedPosts from "_Components/Organisms/UnsyncedPosts/UnsyncedPosts";
+import { setAPIKey } from "_Services/APIService";
 
 export type AppProps = {
   pluginApiKey: string;
