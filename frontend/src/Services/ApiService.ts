@@ -1,4 +1,4 @@
-import { PasslePost } from "_Services/SyncService";
+import { PasslePost } from "_API/Types/PasslePost";
 
 const BASE_URL: string = "http://wordpressdemo.test/wp-json/passlesync/v1";
 let API_KEY: string = "";

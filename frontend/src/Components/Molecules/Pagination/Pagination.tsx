@@ -1,6 +1,7 @@
 import { useEffect, useState, ReactNode } from "react";
 import ReactPaginate from "react-paginate";
-import { PasslePost, WordpressPost } from "_Services/SyncService";
+import { PasslePost } from "_API/Types/PasslePost";
+import { WordpressPost } from "_API/Types/WordpressPost";
 import "./Pagination.scss";
 
 type Post = PasslePost | WordpressPost;

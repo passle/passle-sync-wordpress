@@ -1,9 +1,7 @@
 import { createContext, useState, ReactNode, useEffect } from "react";
-import {
-  fetchPosts,
-  PasslePost,
-  WordpressPost,
-} from "_Services/SyncService";
+import { PasslePost } from "_API/Types/PasslePost";
+import { WordpressPost } from "_API/Types/WordpressPost";
+import { fetchPosts } from "_Services/SyncService";
 
 type PostDataContextType = {
   syncedPosts: WordpressPost[];
@@ -18,7 +16,7 @@ export const PostDataContext = createContext<PostDataContextType>({
   syncedPosts: [],
   setSyncedPosts: () => {},
   setUnsyncedPosts: () => {},
-  refreshPostLists: async () => {}
+  refreshPostLists: async () => {},
 });
 
 export type PostDataContextProviderProps = {
@@ -36,7 +34,7 @@ export const PostDataContextProvider = (
     setSyncedPosts(postData.syncedPosts);
     setUnsyncedPosts(postData.unsyncedPosts);
     return Promise.resolve();
-  }
+  };
 
   useEffect(() => {
     (async () => {
@@ -51,7 +49,7 @@ export const PostDataContextProvider = (
         setSyncedPosts,
         unsyncedPosts,
         setUnsyncedPosts,
-        refreshPostLists
+        refreshPostLists,
       }}
     >
       {props.children}

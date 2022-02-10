@@ -1,6 +1,6 @@
 import { useContext } from "react";
 import "./UnsyncedPosts.scss";
-import { PasslePost, updateUnsyncedPosts } from "_Services/SyncService";
+import { updateUnsyncedPosts } from "_Services/SyncService";
 import { PostDataContext } from "_Contexts/PostDataContext";
 import Button from "_Components/Atoms/LoadingButton/LoadingButton";
 import Post from "_Components/Molecules/Post/Post";
@@ -8,6 +8,7 @@ import { SyncState } from "_API/Enums/SyncState";
 import { FeaturedItemVariant } from "_API/Enums/FeaturedItemVariant";
 import { updateAllPosts, updatePost } from "_Services/APIService";
 import PaginatedItems from "_Components/Molecules/Pagination/Pagination";
+import { PasslePost } from "_API/Types/PasslePost";
 
 const UnsyncedPosts = () => {
   const { unsyncedPosts, setUnsyncedPosts, refreshPostLists } =
