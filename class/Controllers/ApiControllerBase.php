@@ -2,10 +2,6 @@
 
 namespace Passle\PassleSync\Controllers;
 
-use Passle\PassleSync\Utils\UrlFactory;
-use Passle\PassleSync\Utils\Utils;
-use Passle\PassleSync\SyncHandlers\Handlers\PostHandler;
-
 class ApiControllerBase
 {
     protected $sync_handler;

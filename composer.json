@@ -1,12 +1,15 @@
 {
-    "name": "passle/passle-sync",
-    "type": "wordpress-plugin",
-    "require": {
-        "php-di/php-di": "^6.3"
+  "name": "passle/passle-sync",
+  "type": "wordpress-plugin",
+  "require": {
+    "php-di/php-di": "^6.3"
+  },
+  "autoload": {
+    "psr-4": {
+      "Passle\\PassleSync\\": "class/"
     },
-    "autoload": {
-        "psr-4": {
-            "Passle\\PassleSync\\": "class/"
-        }
-    }
+    "files": [
+      "helpers.php"
+    ]
+  }
 }

@@ -2,9 +2,6 @@
 
 namespace Passle\PassleSync\Services\Content;
 
-use Passle\PassleSync\Utils\UrlFactory;
-use Passle\PassleSync\Utils\Utils;
-
 class PeopleWordpressContentService extends WordpressContentServiceBase implements IWordpressContentService
 {
     private $item_type = PASSLESYNC_AUTHOR_TYPE;

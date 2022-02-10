@@ -2,8 +2,6 @@
 
 namespace Passle\PassleSync\Controllers;
 
-use Passle\PassleSync\Utils\UrlFactory;
-use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\SyncHandlers\Handlers\PostHandler;
 use Passle\PassleSync\Services\Content\PostsWordpressContentService;
 use Passle\PassleSync\Services\PassleContentService;
