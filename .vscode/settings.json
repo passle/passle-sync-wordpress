@@ -5,9 +5,6 @@
   "files.associations": {
     "*.json": "jsonc"
   },
-  "emmet.includeLanguages": {
-    "ejs": "html"
-  },
   "intelephense.stubs": [
     "apache",
     "bcmath",
@@ -84,5 +81,10 @@
     "wordpress"
   ],
   "intelephense.diagnostics.undefinedConstants": false,
-  "prettier.configPath": "./.vscode/.prettierrc"
+  "prettier.configPath": "./.vscode/.prettierrc",
+  "[php]": {
+    "editor.formatOnSave": true,
+    "editor.defaultFormatter": "bmewburn.vscode-intelephense-client"
+  },
+  "editor.tabSize": 2
 }
