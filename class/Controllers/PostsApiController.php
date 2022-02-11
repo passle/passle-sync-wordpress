@@ -2,6 +2,7 @@
 
 namespace Passle\PassleSync\Controllers;
 
+use Passle\PassleSync\Models\PaginatedResponse;
 use Passle\PassleSync\Models\Post;
 use Passle\PassleSync\SyncHandlers\Handlers\PostHandler;
 use Passle\PassleSync\Services\Content\PostsWordpressContentService;
@@ -35,7 +36,7 @@ class PostsApiController extends ApiControllerBase implements IApiController
         $this->register_route('/posts/refresh', 'GET', 'refresh_items');
     }
 
-    public function get_all_items($data)
+    public function get_all_items($request)
     {
         $wp_posts = $this->wordpress_content_service->get_items();
         $api_posts = $this->passle_content_service->get_stored_passle_posts_from_api();
@@ -46,10 +47,11 @@ class PostsApiController extends ApiControllerBase implements IApiController
         $all_models = array_merge($wp_post_models, $api_post_models);
         $unique_shortcodes = array_unique(array_column($all_models, "shortcode"));
         $unique_models = array_intersect_key($all_models, $unique_shortcodes);
-        
-        return [
-            "posts" => $unique_models,
-        ];
+
+        $current_page = $request["currentPage"] ?? 1;
+        $items_per_page = $request["itemsPerPage"] ?? 20;
+
+        return PaginatedResponse::make($unique_models, $current_page, $items_per_page);
     }
 
     public function update_items()

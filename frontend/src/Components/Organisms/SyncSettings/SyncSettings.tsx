@@ -1,6 +1,7 @@
 import { useState } from "react";
 import Button from "_Components/Atoms/Button/Button";
-import { setAPIKey, updateSettings } from "_Services/APIService";
+import { setAPIKey } from "_Services/ApiService";
+import { updateSettings } from "_Services/SyncService";
 import classNames from "_Utils/classNames";
 
 type Notice = {

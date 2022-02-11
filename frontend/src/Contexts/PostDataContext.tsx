@@ -1,16 +1,19 @@
-import { createContext, useState, ReactNode, useEffect } from "react";
+import { createContext, useState, ReactNode, useEffect, useMemo } from "react";
+import { PaginatedResponse } from "_API/Types/PaginatedResponse";
 import { Post } from "_API/Types/Post";
-import { fetchPosts } from "_Services/SyncService";
+import { getAllPosts } from "_Services/SyncService";
 
 type PostDataContextType = {
-  posts: Post[];
-  setPosts: (posts: Post[]) => void;
-  refreshPostLists: () => Promise<void>;
+  postData?: PaginatedResponse<Post>;
+  setCurrentPage: (page: number) => Promise<void>;
+  setItemsPerPage: (count: number) => void;
+  refreshPostLists: (page?: number, perPage?: number) => Promise<void>;
 };
 
 export const PostDataContext = createContext<PostDataContextType>({
-  posts: [],
-  setPosts: () => {},
+  postData: null,
+  setCurrentPage: async () => {},
+  setItemsPerPage: () => {},
   refreshPostLists: async () => {},
 });
 
@@ -21,12 +24,24 @@ export type PostDataContextProviderProps = {
 export const PostDataContextProvider = (
   props: PostDataContextProviderProps,
 ) => {
-  const [posts, setPosts] = useState<Post[]>([]);
+  const [postData, setPostData] = useState<PaginatedResponse<Post>>();
 
-  const refreshPostLists = async () => {
-    let postData = await fetchPosts(null);
-    setPosts(postData.posts);
-    return Promise.resolve();
+  const setCurrentPage = async (page: number) =>
+    await refreshPostLists(page, postData.items_per_page);
+
+  const setItemsPerPage = async (count: number) =>
+    await refreshPostLists(postData.current_page, count);
+
+  const refreshPostLists = async (
+    currentPage: number = 1,
+    itemsPerPage: number = 20,
+  ) => {
+    const response = await getAllPosts({
+      currentPage,
+      itemsPerPage,
+    });
+
+    setPostData(response);
   };
 
   useEffect(() => {
@@ -38,8 +53,9 @@ export const PostDataContextProvider = (
   return (
     <PostDataContext.Provider
       value={{
-        posts,
-        setPosts,
+        postData: postData,
+        setCurrentPage,
+        setItemsPerPage,
         refreshPostLists,
       }}>
       {props.children}

@@ -1,0 +1,31 @@
+.TableNav {
+  display: flex;
+  margin-bottom: 8px;
+
+  &_Actions {
+    flex: 1;
+    display: flex;
+    justify-content: space-between;
+  }
+
+  &_ActionGroup {
+    display: flex;
+
+    & > * + * {
+      margin-left: 6px !important;
+    }
+  }
+
+  &_Pages {
+    display: flex;
+    align-items: center;
+  }
+
+  &_PaginationLinks {
+    display: flex;
+
+    & > * + * {
+      margin-left: 4px !important;
+    }
+  }
+}

@@ -1,22 +1,25 @@
 import { useContext, useState } from "react";
 import { PostDataContext } from "_Contexts/PostDataContext";
-import { deleteWordPressPosts, updateAllPosts } from "_Services/APIService";
 import Button from "_Components/Atoms/Button/Button";
 import { FeaturedItemVariant } from "_API/Enums/FeaturedItemVariant";
 import Table from "_Components/Molecules/Table/Table";
 import FeaturedItem from "_Components/Atoms/FeaturedItem/FeaturedItem";
 import styles from "./PostsTable.module.scss";
-import { updateUnsyncedPosts } from "_Services/SyncService";
+import {
+  deleteWordPressPosts,
+  refreshPostsFromPassleApi,
+  updateAllPosts,
+} from "_Services/SyncService";
 
 const PostsTable = () => {
-  const { posts, refreshPostLists } = useContext(PostDataContext);
+  const { postData, refreshPostLists } = useContext(PostDataContext);
 
   const [working, setWorking] = useState(false);
 
   const refreshList = async (cb: () => void) => {
     setWorking(true);
 
-    await updateUnsyncedPosts();
+    await refreshPostsFromPassleApi();
     await refreshPostLists();
 
     setWorking(false);
@@ -26,7 +29,7 @@ const PostsTable = () => {
   const syncAll = async (cb: () => void) => {
     setWorking(true);
 
-    await updateAllPosts(posts);
+    await updateAllPosts(postData.data);
     await refreshPostLists();
 
     setWorking(false);
@@ -45,35 +48,40 @@ const PostsTable = () => {
 
   return (
     <div>
-      <div className={styles.ActionRow}>
-        <div className={styles.ActionRow_Group}>
-          <Button
-            variant="secondary"
-            text="Refresh Posts"
-            loadingText="Refreshing Posts..."
-            disabled={working}
-            onClick={refreshList}
-          />
-          <Button
-            variant="secondary"
-            text="Sync All Posts"
-            loadingText="Syncing Posts..."
-            disabled={working}
-            onClick={syncAll}
-          />
-        </div>
-        <div className={styles.ActionRow_Group}>
-          <Button
-            variant="secondary"
-            text="Delete Synced Posts"
-            loadingText="Deleting Posts..."
-            disabled={!posts.length || working} // TODO: This needs to count synced posts.
-            onClick={deleteAll}
-          />
-        </div>
-      </div>
-
       <Table
+        currentPage={postData.current_page}
+        itemsPerPage={postData.items_per_page}
+        totalItems={postData.total_items}
+        totalPages={postData.total_pages}
+        ActionsLeft={
+          <>
+            <Button
+              variant="secondary"
+              text="Refresh Posts"
+              loadingText="Refreshing Posts..."
+              disabled={working}
+              onClick={refreshList}
+            />
+            <Button
+              variant="secondary"
+              text="Sync All Posts"
+              loadingText="Syncing Posts..."
+              disabled={working}
+              onClick={syncAll}
+            />
+          </>
+        }
+        ActionsRight={
+          <>
+            <Button
+              variant="secondary"
+              text="Delete Synced Posts"
+              loadingText="Deleting Posts..."
+              disabled={!postData.data.length || working} // TODO: This needs to count synced posts.
+              onClick={deleteAll}
+            />
+          </>
+        }
         Head={
           <>
             <th>Title</th>
@@ -83,8 +91,8 @@ const PostsTable = () => {
           </>
         }
         Body={
-          posts.length ? (
-            posts.map((post) => (
+          postData.data.length ? (
+            postData.data.map((post) => (
               <tr key={post.shortcode}>
                 <td style={{ display: "flex" }}>
                   <FeaturedItem

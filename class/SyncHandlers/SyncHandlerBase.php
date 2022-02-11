@@ -103,8 +103,6 @@ abstract class SyncHandlerBase
             array_push($response["removed"], $this->delete($item));
         }
 
-        var_dump($response);
-        die();
         return $response;
     }
 

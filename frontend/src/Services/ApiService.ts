@@ -1,57 +1,28 @@
-import { PasslePost } from "_API/Types/PasslePost";
+import axios from "axios";
 
-const BASE_URL: string = "http://wordpressdemo.test/wp-json/passlesync/v1";
 let API_KEY: string = "";
 
-export const get = async (path: string) => {
-  const url = BASE_URL + path;
-  const response = await fetch(url, {
-    headers: {
-      APIKey: API_KEY,
-    },
+const instance = axios.create({
+  baseURL: "http://wordpressdemo.test/wp-json/passlesync/v1",
+});
+
+export const get = async <T>(path: string, params?: object) => {
+  const response = await instance.get<T>(path, {
+    headers: { APIKey: API_KEY },
+    params,
   });
 
-  let text = "";
-  try {
-    text = await response.text();
-    return JSON.parse(text);
-  } catch (err) {
-    console.log(err);
-    return text;
-  }
+  return response.data;
 };
 
-export const post = async (path: string, data?: object) => {
-  const url = BASE_URL + path;
-  const response = await fetch(url, {
-    method: "POST",
-    body: JSON.stringify(data),
-    headers: {
-      "Content-Type": "application/json",
-      APIKey: API_KEY,
-    },
+export const post = async <T>(path: string, data?: object) => {
+  const response = await instance.post<T>(path, {
+    headers: { APIKey: API_KEY },
+    data: data,
   });
 
-  let text = "";
-  try {
-    text = await response.text();
-    return JSON.parse(text);
-  } catch (err) {
-    console.log(err);
-    return text;
-  }
+  return response.data;
 };
-
-export const getAllPosts = async () => await get("/posts");
-export const deleteWordPressPosts = async () => await post("/posts/delete");
-export const refreshPostsFromPassleApi = async () =>
-  await get("/posts/refresh");
-export const updatePost = async (data: PasslePost) =>
-  await post("/post/update", data);
-export const updateAllPosts = async (data: object) =>
-  await post("/posts/update", data);
 
 export const setAPIKey = (apiKey: string) => (API_KEY = apiKey);
 export const getAPIKey = () => API_KEY;
-export const updateSettings = async (data: object) =>
-  await post("/settings/update", data);

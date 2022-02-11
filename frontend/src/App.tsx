@@ -1,5 +1,5 @@
 import { PostDataContextProvider } from "_Contexts/PostDataContext";
-import { setAPIKey } from "_Services/APIService";
+import { setAPIKey } from "_Services/ApiService";
 import Tabs from "_Components/Molecules/Tabs/Tabs";
 import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
 import PostsTable from "_Components/Organisms/PostsTable/PostsTable";

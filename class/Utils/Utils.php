@@ -17,4 +17,9 @@ class Utils
         $result = array_merge(...array_map(fn ($x) => $x[$key], $array));
         return $result;
     }
+
+    static function clamp(int $number, int $min, int $max)
+    {
+        return max($min, min($max, $number));
+    }
 }
