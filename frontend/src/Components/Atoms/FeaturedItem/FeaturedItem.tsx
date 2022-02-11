@@ -9,10 +9,14 @@ const FeaturedItem = (props: FeaturedItemProps) => {
       {props.variant === FeaturedItemVariant.Html ? (
         <div
           className="featured-image"
-          dangerouslySetInnerHTML={{ __html: props.data }}
-        ></div>
+          dangerouslySetInnerHTML={{ __html: props.data }}></div>
       ) : (
-        <img src={props.data} />
+        <img
+          src={props.data}
+          width={50}
+          height="auto"
+          style={{ objectFit: "cover" }}
+        />
       )}
     </>
   );

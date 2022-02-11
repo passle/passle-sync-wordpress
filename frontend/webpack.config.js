@@ -3,7 +3,6 @@ const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
-const webpack = require("webpack");
 
 const options = (env, options) => ({
   entry: "./src/index.tsx",
@@ -15,8 +14,26 @@ const options = (env, options) => ({
         exclude: /node_modules/,
       },
       {
-        test: /\.scss$/,
-        use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+        test: /\.s?css$/,
+        oneOf: [
+          {
+            test: /\.module\.s?css$/,
+            use: [
+              MiniCssExtractPlugin.loader,
+              "css-modules-typescript-loader",
+              {
+                loader: "css-loader",
+                options: {
+                  modules: true,
+                },
+              },
+              "sass-loader",
+            ],
+          },
+          {
+            use: [MiniCssExtractPlugin.loader, "css-loader", "sass-loader"],
+          },
+        ],
       },
     ],
   },

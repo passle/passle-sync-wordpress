@@ -8,11 +8,6 @@ export const fetchPosts = async (finishLoadingCallback: () => void) => {
   return result;
 };
 
-export const updateUnsyncedPosts = async (
-  finishLoadingCallback: () => void
-) => {
-  let result = await refreshPostsFromPassleApi();
-
-  if (finishLoadingCallback) finishLoadingCallback();
-  return result;
+export const updateUnsyncedPosts = async () => {
+  await refreshPostsFromPassleApi();
 };

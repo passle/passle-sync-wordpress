@@ -1,7 +1,12 @@
 import { useState } from "react";
-import Button from "_Components/Atoms/LoadingButton/LoadingButton";
+import Button from "_Components/Atoms/Button/Button";
 import { setAPIKey, updateSettings } from "_Services/APIService";
-import "./SyncSettings.scss";
+import classNames from "_Utils/classNames";
+
+type Notice = {
+  text: string;
+  success: boolean;
+};
 
 export type SyncSettingsProps = {
   pluginApiKey: string;
@@ -10,69 +15,115 @@ export type SyncSettingsProps = {
 };
 
 const SyncSettings = (props: SyncSettingsProps) => {
-  const [bannerText, setBannerText] = useState("");
-  const [savedPluginApiKey, setPluginApiKey] = useState(props.pluginApiKey);
-  const [savedClientApiKey, setClientApiKey] = useState(props.clientApiKey);
-  const [savedShortcodes, setPassleShortcodes] = useState(
-    props.passleShortcodes
+  const [notice, setNotice] = useState<Notice>(null);
+
+  const [pluginApiKey, setPluginApiKey] = useState(props.pluginApiKey);
+  const [clientApiKey, setClientApiKey] = useState(props.clientApiKey);
+  const [passleShortcodes, setPassleShortcodes] = useState(
+    props.passleShortcodes,
   );
 
   const saveSettings = (finishLoadingCallback: () => void) => {
     updateSettings({
-      pluginApiKey: savedPluginApiKey,
-      clientApiKey: savedClientApiKey,
-      passleShortcodes: savedShortcodes.replace(/\s/g, "").split(","),
+      pluginApiKey: pluginApiKey,
+      clientApiKey: clientApiKey,
+      passleShortcodes: passleShortcodes.replace(/\s/g, "").split(","),
     }).then((success) => {
       if (success) {
-        setBannerText("Successfully updated settings");
-        setAPIKey(savedPluginApiKey);
+        setNotice({
+          text: "Successfully updated settings.",
+          success: true,
+        });
+
+        setAPIKey(pluginApiKey);
       } else {
-        setBannerText("Failed to update settings");
+        setNotice({
+          text: "Failed to update settings.",
+          success: false,
+        });
       }
       if (finishLoadingCallback) finishLoadingCallback();
     });
   };
 
   return (
-    <>
-      <h2>Settings:</h2>
+    <div>
+      {notice && (
+        <div
+          id="message"
+          className={classNames(
+            "notice is-dismissible",
+            notice.success ? "notice-success" : "notice-error",
+          )}>
+          <p>{notice.text}</p>
+          <button
+            type="button"
+            className="notice-dismiss"
+            onClick={() => setNotice(null)}>
+            <span className="screen-reader-text">Dismiss this notice.</span>
+          </button>
+        </div>
+      )}
 
-      {bannerText && <h2>{bannerText}</h2>}
-      <div className="settings-container">
-        <div className="setting">
-          <span>
-            Sync API Key:
-            <input
-              type="text"
-              value={savedPluginApiKey}
-              onChange={(ev) => setPluginApiKey(ev.target.value)}
-            />
-          </span>
-        </div>
-        <div className="setting">
-          <span>
-            Passle API Key:
-            <input
-              type="text"
-              value={savedClientApiKey}
-              onChange={(ev) => setClientApiKey(ev.target.value)}
-            />
-          </span>
-        </div>
-        <div className="setting">
-          <span>
-            Passle Shortcodes:
-            <input
-              type="text"
-              value={savedShortcodes}
-              onChange={(ev) => setPassleShortcodes(ev.target.value)}
-            />
-          </span>
-        </div>
-      </div>
+      <table className="form-table">
+        <tbody>
+          <tr>
+            <th className="row">
+              <label htmlFor="plugin-api-key">Sync API Key</label>
+            </th>
+            <td>
+              <input
+                type="text"
+                id="plugin-api-key"
+                className="regular-text code"
+                value={pluginApiKey}
+                onChange={(e) => setPluginApiKey(e.target.value)}
+              />
+            </td>
+          </tr>
+          <tr>
+            <th className="row">
+              <label htmlFor="client-api-key">Passle API Key</label>
+            </th>
+            <td>
+              <input
+                type="text"
+                id="client-api-key"
+                className="regular-text code"
+                value={clientApiKey}
+                onChange={(e) => setClientApiKey(e.target.value)}
+              />
+            </td>
+          </tr>
+          <tr>
+            <th className="row">
+              <label htmlFor="passle-shortcodes">Passle Shortcodes</label>
+            </th>
+            <td>
+              <input
+                type="text"
+                id="passle-shortcodes"
+                className="regular-text code"
+                value={passleShortcodes}
+                onChange={(e) => setPassleShortcodes(e.target.value)}
+              />
+              <p className="description" id="passle-shortcodes-description">
+                A comma-separated list of the shortcodes of the Passles you want
+                to sync content from.
+              </p>
+            </td>
+          </tr>
+        </tbody>
+      </table>
 
-      <Button text={"Save"} callback={saveSettings} loadingText={"Saving..."} />
-    </>
+      <p className="submit">
+        <Button
+          text="Save Changes"
+          onClick={saveSettings}
+          loadingText={"Saving..."}
+        />
+      </p>
+    </div>
   );
 };
 

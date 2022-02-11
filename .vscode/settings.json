@@ -83,5 +83,6 @@
     "aerospike",
     "wordpress"
   ],
-  "intelephense.diagnostics.undefinedConstants": false
+  "intelephense.diagnostics.undefinedConstants": false,
+  "prettier.configPath": "./.vscode/.prettierrc"
 }

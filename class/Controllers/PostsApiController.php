@@ -2,6 +2,7 @@
 
 namespace Passle\PassleSync\Controllers;
 
+use Passle\PassleSync\Models\Post;
 use Passle\PassleSync\SyncHandlers\Handlers\PostHandler;
 use Passle\PassleSync\Services\Content\PostsWordpressContentService;
 use Passle\PassleSync\Services\PassleContentService;
@@ -39,12 +40,15 @@ class PostsApiController extends ApiControllerBase implements IApiController
         $wp_posts = $this->wordpress_content_service->get_items();
         $api_posts = $this->passle_content_service->get_stored_passle_posts_from_api();
 
-        $wp_post_shortcodes = array_map(fn ($p) => $p->post_shortcode, $wp_posts);
-        $unsynced_api_posts = array_filter($api_posts, fn ($p) => !in_array($p['PostShortcode'], $wp_post_shortcodes));
+        $wp_post_models = array_map(fn ($post) => Post::fromWordpressPost($post)->to_array(), $wp_posts);
+        $api_post_models = array_map(fn ($post) => Post::fromPasslePost($post)->to_array(), $api_posts);
 
+        $all_models = array_merge($wp_post_models, $api_post_models);
+        $unique_shortcodes = array_unique(array_column($all_models, "shortcode"));
+        $unique_models = array_intersect_key($all_models, $unique_shortcodes);
+        
         return [
-            "syncedPosts" => $wp_posts,
-            "unsyncedPosts" => array_values($unsynced_api_posts),   // Return the values as this is an associative array
+            "posts" => $unique_models,
         ];
     }
 

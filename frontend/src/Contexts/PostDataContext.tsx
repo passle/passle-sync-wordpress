@@ -1,21 +1,16 @@
 import { createContext, useState, ReactNode, useEffect } from "react";
-import { PasslePost } from "_API/Types/PasslePost";
-import { WordpressPost } from "_API/Types/WordpressPost";
+import { Post } from "_API/Types/Post";
 import { fetchPosts } from "_Services/SyncService";
 
 type PostDataContextType = {
-  syncedPosts: WordpressPost[];
-  unsyncedPosts: PasslePost[];
-  setSyncedPosts: (posts: WordpressPost[]) => void;
-  setUnsyncedPosts: (posts: PasslePost[]) => void;
+  posts: Post[];
+  setPosts: (posts: Post[]) => void;
   refreshPostLists: () => Promise<void>;
 };
 
 export const PostDataContext = createContext<PostDataContextType>({
-  unsyncedPosts: [],
-  syncedPosts: [],
-  setSyncedPosts: () => {},
-  setUnsyncedPosts: () => {},
+  posts: [],
+  setPosts: () => {},
   refreshPostLists: async () => {},
 });
 
@@ -24,15 +19,13 @@ export type PostDataContextProviderProps = {
 };
 
 export const PostDataContextProvider = (
-  props: PostDataContextProviderProps
+  props: PostDataContextProviderProps,
 ) => {
-  const [syncedPosts, setSyncedPosts] = useState<WordpressPost[]>([]);
-  const [unsyncedPosts, setUnsyncedPosts] = useState<PasslePost[]>([]);
+  const [posts, setPosts] = useState<Post[]>([]);
 
   const refreshPostLists = async () => {
     let postData = await fetchPosts(null);
-    setSyncedPosts(postData.syncedPosts);
-    setUnsyncedPosts(postData.unsyncedPosts);
+    setPosts(postData.posts);
     return Promise.resolve();
   };
 
@@ -45,13 +38,10 @@ export const PostDataContextProvider = (
   return (
     <PostDataContext.Provider
       value={{
-        syncedPosts,
-        setSyncedPosts,
-        unsyncedPosts,
-        setUnsyncedPosts,
+        posts,
+        setPosts,
         refreshPostLists,
-      }}
-    >
+      }}>
       {props.children}
     </PostDataContext.Provider>
   );

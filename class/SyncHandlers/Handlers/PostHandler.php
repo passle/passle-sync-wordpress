@@ -82,7 +82,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
         $post_tags = $this->update_property($post, "post_tags", $data, fn($x) => implode(", ", $x['Tags']));
         $post_image = $this->update_property($post, "post_image", $data, "ImageUrl");
         $post_image_html = $this->update_property($post, "post_image_html", $data, "FeaturedItemHTML");
-        $post_preview = $this->update_property($post, "post_preview", $data, "ContentTextSnippet");
+        $post_excerpt = $this->update_property($post, "post_excerpt", $data, "ContentTextSnippet");
 
         $new_item = [
             'ID'                => $id,
@@ -90,6 +90,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
             'post_date'         => $post_date,
             'post_type'         => PASSLESYNC_POST_TYPE,
             'post_content'      => $post_content,
+            'post_excerpt'      => $post_excerpt,
             'post_status'       => 'publish',
             'comment_status'    => 'closed',
             'meta_input'    => [
@@ -101,7 +102,6 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
                 'post_tags'         => $post_tags,
                 'post_image'        => $post_image,
                 'post_image_html'   => $post_image_html,
-                'post_preview'      => $post_preview,
             ],
         ];
 

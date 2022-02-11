@@ -1,4 +1,4 @@
-.post {
+.Post {
   display: flex;
   background: white;
   padding: 10px;
@@ -7,7 +7,7 @@
   width: max(80%, 720px);
   margin: 10px 0;
 
-  &__sync-status {
+  &_SyncStatus {
     width: 90px;
 
     button {
@@ -16,13 +16,13 @@
     }
   }
 
-  &__body {
+  &_Body {
     position: relative;
     width: max(calc(100% - 90px), 630px);
     min-height: 125px;
   }
 
-  &__title {
+  &_Title {
     a {
       text-decoration: none;
       color: #333;
@@ -37,19 +37,19 @@
     }
   }
 
-  &__date {
+  &_Date {
     position: absolute;
     right: 0px;
   }
 
-  &__image {
+  &_Image {
     position: absolute;
     left: -90px;
     height: 80px;
     min-width: 90px;
     top: 43px;
 
-    &.no-sync {
+    &___NoSync {
       top: 5px;
     }
 

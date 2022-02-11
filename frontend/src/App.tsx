@@ -1,9 +1,8 @@
-import "./App.scss";
 import { PostDataContextProvider } from "_Contexts/PostDataContext";
-import SyncedPosts from "_Components/Organisms/SyncedPosts/SyncedPosts";
-import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
-import UnsyncedPosts from "_Components/Organisms/UnsyncedPosts/UnsyncedPosts";
 import { setAPIKey } from "_Services/APIService";
+import Tabs from "_Components/Molecules/Tabs/Tabs";
+import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
+import PostsTable from "_Components/Organisms/PostsTable/PostsTable";
 
 export type AppProps = {
   pluginApiKey: string;
@@ -19,20 +18,29 @@ const App = (props: AppProps) => {
   return (
     <div className="App">
       <PostDataContextProvider>
-        <h1>Passle Sync - Settings</h1>
-        <SyncSettings
-          pluginApiKey={props.pluginApiKey}
-          clientApiKey={props.clientApiKey}
-          passleShortcodes={props.passleShortcodes}
-        />
+        <div className="wrap">
+          <h1 className="wp-heading-inline">Passle Sync</h1>
+          <hr className="wp-header-end" />
 
-        <hr />
-
-        <SyncedPosts />
-
-        <hr />
-
-        <UnsyncedPosts />
+          <Tabs
+            tabs={[
+              {
+                label: "Settings",
+                Content: (
+                  <SyncSettings
+                    pluginApiKey={props.pluginApiKey}
+                    clientApiKey={props.clientApiKey}
+                    passleShortcodes={props.passleShortcodes}
+                  />
+                ),
+              },
+              {
+                label: "Posts",
+                Content: <PostsTable />,
+              },
+            ]}
+          />
+        </div>
       </PostDataContextProvider>
     </div>
   );

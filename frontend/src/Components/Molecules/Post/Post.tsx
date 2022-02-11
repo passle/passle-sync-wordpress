@@ -1,10 +1,11 @@
 import { Fragment } from "react";
-import Button from "_Components/Atoms/LoadingButton/LoadingButton";
+import Button from "_Components/Atoms/Button/Button";
 import { SyncState } from "_API/Enums/SyncState";
 import RenderDate from "_Utils/date";
-import "./Post.scss";
+import styles from "./Post.module.scss";
 import { FeaturedItemType } from "_API/Types/FeaturedItemType";
 import FeaturedItem from "_Components/Atoms/FeaturedItem/FeaturedItem";
+import classNames from "_Utils/classNames";
 
 export type PostProps = {
   id: string;
@@ -22,12 +23,12 @@ const Post = (props: PostProps) => {
   const hasSynced = (props.syncState ?? SyncState.Synced) === SyncState.Synced;
 
   return (
-    <div className="post">
-      <div className="post__sync-status">
+    <div className={styles.Post}>
+      <div className={styles.Post_SyncStatus}>
         {!hasSynced && (
           <Button
             text={"Sync post"}
-            callback={(finishLoadingCallback) =>
+            onClick={(finishLoadingCallback) =>
               props.syncPost(props.id, finishLoadingCallback)
             }
             loadingText={"Syncing..."}
@@ -35,9 +36,11 @@ const Post = (props: PostProps) => {
         )}
       </div>
 
-      <div className="post__body">
-        <div className="post__date">{RenderDate(props.publishedDate)}</div>
-        <div className="post__authors">
+      <div className={styles.Post_Body}>
+        <div className={styles.Post_Date}>
+          {RenderDate(props.publishedDate)}
+        </div>
+        <div>
           <span>
             By{" "}
             {props.authorNames.map((name, ii) => (
@@ -48,23 +51,19 @@ const Post = (props: PostProps) => {
             ))}
           </span>
         </div>
-        <div className={"post__image" + (hasSynced ? " no-sync": "")}>
+        <div
+          className={classNames(
+            styles.Post_Image,
+            hasSynced && styles.Post_Image___NoSync,
+          )}>
           <FeaturedItem {...props.featuredItem} />
         </div>
-        <div className="post__title">
-          <a
-            className="post__link"
-            href={props.postUrl}
-            target="_blank"
-            rel="noreferrer"
-          >
+        <div className={styles.Post_Title}>
+          <a href={props.postUrl} target="_blank" rel="noreferrer">
             {props.title}
           </a>
         </div>
-        <div
-          className="post__excerpt"
-          dangerouslySetInnerHTML={{ __html: props.excerpt }}
-        ></div>
+        <div dangerouslySetInnerHTML={{ __html: props.excerpt }}></div>
       </div>
     </div>
   );

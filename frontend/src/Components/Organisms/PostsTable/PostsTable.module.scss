@@ -1,0 +1,13 @@
+.ActionRow {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 8px;
+
+  .ActionRow_Group {
+    display: flex;
+
+    button + button {
+      margin-left: 6px;
+    }
+  }
+}
