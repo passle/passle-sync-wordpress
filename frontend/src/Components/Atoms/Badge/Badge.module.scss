@@ -1,0 +1,28 @@
+$success--lighter: #d1fae5;
+$success--light: #a7f3d0;
+$success--dark: #065f46;
+
+$warning--lighter: #fef9c3;
+$warning--light: #fde047;
+$warning--dark: #854d0e;
+
+.Badge {
+  display: inline-flex;
+  padding: 4px 8px;
+  border-radius: 9999px;
+  font-size: 12px;
+  font-weight: 700;
+  line-height: 14px;
+
+  &___Success {
+    background: $success--lighter;
+    border: 1px solid $success--light;
+    color: $success--dark;
+  }
+
+  &___Warning {
+    background: $warning--lighter;
+    border: 1px solid $warning--light;
+    color: $warning--dark;
+  }
+}

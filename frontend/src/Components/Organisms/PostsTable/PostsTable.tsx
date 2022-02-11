@@ -10,6 +10,7 @@ import {
   refreshPostsFromPassleApi,
   updateAllPosts,
 } from "_Services/SyncService";
+import Badge from "_Components/Atoms/Badge/Badge";
 
 const PostsTable = () => {
   const { postData, refreshPostLists } = useContext(PostDataContext);
@@ -88,6 +89,7 @@ const PostsTable = () => {
             <th>Excerpt</th>
             <th style={{ width: 150 }}>Authors</th>
             <th style={{ width: 150 }}>Published Date</th>
+            <th style={{ width: 100 }}>Synced</th>
           </>
         }
         Body={
@@ -103,9 +105,19 @@ const PostsTable = () => {
                     {post.title}
                   </a>
                 </td>
-                <td dangerouslySetInnerHTML={{ __html: post.excerpt }} />
+                {post.excerpt ? (
+                  <td dangerouslySetInnerHTML={{ __html: post.excerpt }} />
+                ) : (
+                  <td>—</td>
+                )}
                 <td>{post.authors}</td>
                 <td>{post.publishedDate}</td>
+                <td>
+                  <Badge
+                    variant={post.synced ? "success" : "warning"}
+                    text={post.synced ? "Synced" : "Unsynced"}
+                  />
+                </td>
               </tr>
             ))
           ) : (

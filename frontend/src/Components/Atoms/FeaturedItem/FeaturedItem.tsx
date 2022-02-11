@@ -1,5 +1,6 @@
 import { FeaturedItemVariant } from "_API/Enums/FeaturedItemVariant";
 import { FeaturedItemType } from "_API/Types/FeaturedItemType";
+import styles from "./FeaturedItem.module.scss";
 
 export type FeaturedItemProps = FeaturedItemType;
 
@@ -15,7 +16,7 @@ const FeaturedItem = (props: FeaturedItemProps) => {
           src={props.data}
           width={50}
           height="auto"
-          style={{ objectFit: "cover" }}
+          className={styles.FeaturedItem}
         />
       )}
     </>

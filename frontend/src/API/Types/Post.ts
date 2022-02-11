@@ -6,4 +6,5 @@ export type Post = {
   authors: string;
   excerpt: string;
   publishedDate: string;
+  synced: boolean;
 };

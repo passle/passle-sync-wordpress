@@ -11,6 +11,7 @@ class Post
   public string $authors;
   public string $excerpt;
   public string $publishedDate;
+  public bool $synced;
 
   public function __construct(
     string $shortcode,
@@ -19,8 +20,9 @@ class Post
     string $title,
     string $authors,
     string $excerpt,
-    string $publishedDate)
-  {
+    string $publishedDate,
+    bool $synced
+  ) {
     $this->shortcode = $shortcode;
     $this->postUrl = $postUrl;
     $this->imageUrl = $imageUrl;
@@ -28,12 +30,13 @@ class Post
     $this->authors = $authors;
     $this->excerpt = $excerpt;
     $this->publishedDate = $publishedDate;
+    $this->synced = $synced;
   }
 
   public static function fromPasslePost(array $from)
   {
     $authors = join(", ", array_map(fn ($author) => $author["Name"], $from["Authors"]));
-    
+
     return new self(
       $from["PostShortcode"],
       $from["PostUrl"],
@@ -42,6 +45,7 @@ class Post
       $authors,
       $from["ContentTextSnippet"],
       $from["PublishedDate"],
+      false,
     );
   }
 
@@ -55,6 +59,7 @@ class Post
       $from->post_author,
       $from->post_excerpt,
       $from->post_date,
+      true,
     );
   }
 

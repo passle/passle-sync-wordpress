@@ -16,9 +16,8 @@ export const get = async <T>(path: string, params?: object) => {
 };
 
 export const post = async <T>(path: string, data?: object) => {
-  const response = await instance.post<T>(path, {
+  const response = await instance.post<T>(path, data, {
     headers: { APIKey: API_KEY },
-    data: data,
   });
 
   return response.data;
