@@ -3,7 +3,7 @@ import axios from "axios";
 let API_KEY: string = "";
 
 const instance = axios.create({
-  baseURL: "http://wordpressdemo.test/wp-json/passlesync/v1",
+  baseURL: "/wp-json/passlesync/v1",
 });
 
 export const get = async <T>(path: string, params?: object) => {

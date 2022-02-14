@@ -10,6 +10,7 @@ class Post
   public string $title;
   public string $authors;
   public string $excerpt;
+  public string $body;
   public string $publishedDate;
   public bool $synced;
 
@@ -20,6 +21,7 @@ class Post
     string $title,
     string $authors,
     string $excerpt,
+    string $body,
     string $publishedDate,
     bool $synced
   ) {
@@ -29,6 +31,7 @@ class Post
     $this->title = $title;
     $this->authors = $authors;
     $this->excerpt = $excerpt;
+    $this->body = $body;
     $this->publishedDate = $publishedDate;
     $this->synced = $synced;
   }
@@ -44,6 +47,7 @@ class Post
       $from["PostTitle"],
       $authors,
       $from["ContentTextSnippet"],
+      $from["PostContentHtml"],
       strtotime($from["PublishedDate"]),
       false,
     );
@@ -58,6 +62,7 @@ class Post
       $from->post_title,
       $from->post_author,
       $from->post_excerpt,
+      $from->post_content,
       strtotime($from->post_date),
       true,
     );
