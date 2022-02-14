@@ -32,6 +32,13 @@ abstract class SyncHandlerBase
     }
   }
 
+  public function sync_many(array $data)
+  {
+    foreach ($data as $item) {
+      $this->sync_one($item);
+    }
+  }
+
   public function sync_one(array $data)
   {
     try {
@@ -47,6 +54,13 @@ abstract class SyncHandlerBase
       return $this->delete_all_impl();
     } catch (\Exception $ex) {
       error_log("Failed to delete all items: {$ex->getMessage()}");
+    }
+  }
+
+  public function delete_many(array $data)
+  {
+    foreach ($data as $item) {
+      $this->delete_one($item);
     }
   }
 

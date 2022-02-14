@@ -2,37 +2,36 @@
 
 namespace Passle\PassleSync;
 
+use Passle\PassleSync\Controllers\Resources\PostsController;
+use Passle\PassleSync\Controllers\SettingsController;
 use Passle\PassleSync\PostTypes\PasslePost;
-use Passle\PassleSync\Controllers\PostsApiController;
-use Passle\PassleSync\Controllers\PeopleApiController;
-use Passle\PassleSync\Controllers\ApiControllerBase;
 use Passle\PassleSync\Services\MenuService;
 
 class PassleSync
 {
-  private $posts_api_controller;
-  private $people_api_controller;
-  private $api_controller_base;
+  private $posts_controller;
+  // private $people_api_controller;
+  private $settings_controller;
   private $menu_service;
 
   public function __construct(
-    PostsApiController $posts_api_controller,
-    PeopleApiController $people_api_controller,
-    ApiControllerBase $api_controller_base,
+    PostsController $posts_controller,
+    // PeopleApiController $people_api_controller,
+    SettingsController $settings_controller,
     MenuService $menu_service
   ) {
-    $this->posts_api_controller = $posts_api_controller;
-    $this->people_api_controller = $people_api_controller;
-    $this->api_controller_base = $api_controller_base;
+    $this->posts_controller = $posts_controller;
+    // $this->people_api_controller = $people_api_controller;
+    $this->settings_controller = $settings_controller;
     $this->menu_service = $menu_service;
   }
 
   public function initialize()
   {
     // Register API routes
-    add_action("rest_api_init", [$this->posts_api_controller, "register_api_routes"]);
-    add_action("rest_api_init", [$this->people_api_controller, "register_api_routes"]);
-    add_action("rest_api_init", [$this->api_controller_base, "register_api_settings_routes"]);
+    add_action("rest_api_init", [$this->posts_controller, "register_routes"]);
+    // add_action("rest_api_init", [$this->people_api_controller, "register_routes"]);
+    add_action("rest_api_init", [$this->settings_controller, "register_routes"]);
 
     // Register settings menu
     add_action("admin_menu", [$this->menu_service, "register_menus"]);

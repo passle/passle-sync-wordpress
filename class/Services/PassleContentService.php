@@ -111,6 +111,23 @@ class PassleContentService
     return $response["Posts"];
   }
 
+  /** @param array<string> $post_shortcodes */
+  public function get_posts(array $post_shortcodes)
+  {
+    $params = [
+      "PostShortcode" => join(",", $post_shortcodes)
+    ];
+
+    $factory = new UrlFactory();
+    $url = $factory
+      ->path("/passlesync/posts")
+      ->parameters($params)
+      ->build();
+
+    $response = $this->get($url);
+    return $response["Posts"];
+  }
+
   public function get_all_paginated(string $url, int $page_number = 1)
   {
     $result = [];

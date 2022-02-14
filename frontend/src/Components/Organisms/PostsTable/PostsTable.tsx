@@ -1,14 +1,15 @@
-import { useContext, useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { PostDataContext } from "_Contexts/PostDataContext";
 import Button from "_Components/Atoms/Button/Button";
 import { FeaturedItemVariant } from "_API/Enums/FeaturedItemVariant";
 import Table from "_Components/Molecules/Table/Table";
 import FeaturedItem from "_Components/Atoms/FeaturedItem/FeaturedItem";
-import styles from "./PostsTable.module.scss";
 import {
-  deleteWordPressPosts,
-  refreshPostsFromPassleApi,
-  updateAllPosts,
+  deleteAllPosts,
+  deleteManyPosts,
+  refreshAllPosts,
+  syncAllPosts,
+  syncManyPosts,
 } from "_Services/SyncService";
 import Badge from "_Components/Atoms/Badge/Badge";
 
@@ -17,33 +18,48 @@ const PostsTable = () => {
 
   const [working, setWorking] = useState(false);
 
-  const refreshList = async (cb: () => void) => {
-    setWorking(true);
+  const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
 
-    await refreshPostsFromPassleApi();
-    await refreshPostLists();
+  const allSelectedPostsAreSynced = useMemo(
+    () =>
+      postData.data
+        .filter((post) => selectedPosts.includes(post.shortcode))
+        .every((post) => post.synced),
+    [selectedPosts, postData],
+  );
 
-    setWorking(false);
-    cb();
+  const refreshList = async () => {
+    await refreshAllPosts();
   };
 
-  const syncAll = async (cb: () => void) => {
-    setWorking(true);
-
-    await updateAllPosts(postData.data);
-    await refreshPostLists();
-
-    setWorking(false);
-    cb();
+  const syncAll = async () => {
+    await syncAllPosts();
   };
 
-  const deleteAll = async (cb: () => void) => {
+  const syncSelected = async () => {
+    await syncManyPosts({
+      shortcodes: selectedPosts,
+    });
+  };
+
+  const deleteAll = async () => {
+    await deleteAllPosts();
+  };
+
+  const deleteSelected = async () => {
+    await deleteManyPosts({
+      shortcodes: selectedPosts,
+    });
+  };
+
+  const doWork = async (fn: () => Promise<void>, cb: () => void) => {
     setWorking(true);
 
-    await deleteWordPressPosts();
+    await fn();
     await refreshPostLists();
 
     setWorking(false);
+    setSelectedPosts([]);
     cb();
   };
 
@@ -61,30 +77,64 @@ const PostsTable = () => {
               text="Refresh Posts"
               loadingText="Refreshing Posts..."
               disabled={working}
-              onClick={refreshList}
+              onClick={(cb) => doWork(refreshList, cb)}
             />
-            <Button
-              variant="secondary"
-              text="Sync All Posts"
-              loadingText="Syncing Posts..."
-              disabled={working}
-              onClick={syncAll}
-            />
+            {selectedPosts.length ? (
+              <Button
+                variant="secondary"
+                text="Sync Selected Posts"
+                loadingText="Syncing Posts..."
+                disabled={working}
+                onClick={(cb) => doWork(syncSelected, cb)}
+              />
+            ) : (
+              <Button
+                variant="secondary"
+                text="Sync All Posts"
+                loadingText="Syncing Posts..."
+                disabled={working}
+                onClick={(cb) => doWork(syncAll, cb)}
+              />
+            )}
           </>
         }
         ActionsRight={
           <>
-            <Button
-              variant="secondary"
-              text="Delete Synced Posts"
-              loadingText="Deleting Posts..."
-              disabled={!postData.data.length || working} // TODO: This needs to count synced posts.
-              onClick={deleteAll}
-            />
+            {selectedPosts.length ? (
+              <Button
+                variant="secondary"
+                text="Delete Selected Posts"
+                loadingText="Deleting Posts..."
+                disabled={!allSelectedPostsAreSynced || working}
+                onClick={(cb) => doWork(deleteSelected, cb)}
+              />
+            ) : (
+              <Button
+                variant="secondary"
+                text="Delete All Synced Posts"
+                loadingText="Deleting Posts..."
+                disabled={!postData.data.length || working} // TODO: This needs to count synced posts.
+                onClick={(cb) => doWork(deleteAll, cb)}
+              />
+            )}
           </>
         }
         Head={
           <>
+            <td id="cb" className="manage-column column-cb check-column">
+              <input
+                id="cb-select-all-1"
+                type="checkbox"
+                checked={selectedPosts.length === postData.data.length}
+                onChange={(e) =>
+                  setSelectedPosts(
+                    e.target.checked
+                      ? postData.data.map((x) => x.shortcode)
+                      : [],
+                  )
+                }
+              />
+            </td>
             <th>Title</th>
             <th>Excerpt</th>
             <th style={{ width: 150 }}>Authors</th>
@@ -96,6 +146,21 @@ const PostsTable = () => {
           postData.data.length ? (
             postData.data.map((post) => (
               <tr key={post.shortcode}>
+                <th scope="row" className="check-column">
+                  <input
+                    id="cb-select-1"
+                    type="checkbox"
+                    value={post.shortcode}
+                    checked={selectedPosts.includes(post.shortcode)}
+                    onChange={(e) =>
+                      setSelectedPosts((state) =>
+                        e.target.checked
+                          ? [...state, post.shortcode]
+                          : state.filter((x) => x !== post.shortcode),
+                      )
+                    }
+                  />
+                </th>
                 <td style={{ display: "flex" }}>
                   <FeaturedItem
                     variant={FeaturedItemVariant.Url}

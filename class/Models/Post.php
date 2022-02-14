@@ -44,7 +44,7 @@ class Post
       $from["PostTitle"],
       $authors,
       $from["ContentTextSnippet"],
-      $from["PublishedDate"],
+      strtotime($from["PublishedDate"]),
       false,
     );
   }
@@ -58,7 +58,7 @@ class Post
       $from->post_title,
       $from->post_author,
       $from->post_excerpt,
-      $from->post_date,
+      strtotime($from->post_date),
       true,
     );
   }
