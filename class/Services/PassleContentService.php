@@ -92,13 +92,16 @@ class PassleContentService
     return $result;
   }
 
-  public function get_single_from_api(string $passle_shortcode, string $item_shortcode, string $path)
+  public function get_single_from_api(string $passle_shortcode, string $item_shortcode, string $path, string $response_key)
   {
     $params = [
       'PassleShortcode' => $passle_shortcode
     ];
     if ($path == "posts") {
       $params["PostShortcode"] = $item_shortcode;
+    }
+    if ($path == "people") {
+      $params["PersonShortcode"] = $item_shortcode;
     }
 
     $factory = new UrlFactory();
@@ -108,7 +111,7 @@ class PassleContentService
       ->build();
 
     $response = $this->get($url);
-    return $response["Posts"];
+    return $response[$response_key];
   }
 
   /** @param array<string> $post_shortcodes */
@@ -126,6 +129,23 @@ class PassleContentService
 
     $response = $this->get($url);
     return $response["Posts"];
+  }
+
+  /** @param array<string> $author_shortcodes */
+  public function get_people(array $author_shortcodes)
+  {
+    $params = [
+      "PersonShortcode" => join(",", $author_shortcodes)
+    ];
+
+    $factory = new UrlFactory();
+    $url = $factory
+      ->path("/passlesync/people")
+      ->parameters($params)
+      ->build();
+
+    $response = $this->get($url);
+    return $response["People"];
   }
 
   public function get_all_paginated(string $url, int $page_number = 1)

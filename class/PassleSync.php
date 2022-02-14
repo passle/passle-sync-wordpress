@@ -3,25 +3,27 @@
 namespace Passle\PassleSync;
 
 use Passle\PassleSync\Controllers\Resources\PostsController;
+use Passle\PassleSync\Controllers\Resources\PeopleController;
 use Passle\PassleSync\Controllers\SettingsController;
 use Passle\PassleSync\PostTypes\PasslePost;
+use Passle\PassleSync\PostTypes\PasslePerson;
 use Passle\PassleSync\Services\MenuService;
 
 class PassleSync
 {
   private $posts_controller;
-  // private $people_api_controller;
+  private $people_controller;
   private $settings_controller;
   private $menu_service;
 
   public function __construct(
     PostsController $posts_controller,
-    // PeopleApiController $people_api_controller,
+    PeopleController $people_controller,
     SettingsController $settings_controller,
     MenuService $menu_service
   ) {
     $this->posts_controller = $posts_controller;
-    // $this->people_api_controller = $people_api_controller;
+    $this->people_controller = $people_controller;
     $this->settings_controller = $settings_controller;
     $this->menu_service = $menu_service;
   }
@@ -30,7 +32,7 @@ class PassleSync
   {
     // Register API routes
     add_action("rest_api_init", [$this->posts_controller, "register_routes"]);
-    // add_action("rest_api_init", [$this->people_api_controller, "register_routes"]);
+    add_action("rest_api_init", [$this->people_controller, "register_routes"]);
     add_action("rest_api_init", [$this->settings_controller, "register_routes"]);
 
     // Register settings menu
@@ -51,5 +53,6 @@ class PassleSync
 
     // Register post types and additional fields
     new PasslePost();
+    new PasslePerson();
   }
 }

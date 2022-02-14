@@ -68,19 +68,27 @@ class AuthorHandler extends SyncHandlerBase implements ISyncHandler
     }
 
     // Update the fields from the new data, using the existing property values as a default
-    $author_name = $this->update_property($author, "author_name", $data, "Name");
+    $author_name = $this->update_property($author, "post_title", $data, "Name");
     $author_shortcode = $this->update_property($author, "author_shortcode", $data, "Shortcode");
     $passle_shortcode = $this->update_property($author, "passle_shortcode", $data, "PassleShortcode");
+    $profile_url = $this->update_property($author, "profile_url", $data, "ProfileUrl");
+    $avatar_url = $this->update_property($author, "avatar_url", $data, "AvatarUrl");
+    $author_role = $this->update_property($author, "post_excerpt", $data, "RoleInfo");
+    $author_description = $this->update_property($author, "post_content", $data, "Description");
 
     $new_item = [
       'ID'                => $id,
       'post_title'        => $author_name,
       'post_type'         => PASSLESYNC_AUTHOR_TYPE,
+      'post_content'      => $author_description,
+      'post_excerpt'      => $author_role,
       'post_status'       => 'publish',
       'comment_status'    => 'closed',
       'meta_input'    => [
         'author_shortcode'   => $author_shortcode,
         'passle_shortcode'   => $passle_shortcode,
+        'avatar_url'   => $avatar_url,
+        'profile_url'   => $profile_url,
       ]
     ];
 

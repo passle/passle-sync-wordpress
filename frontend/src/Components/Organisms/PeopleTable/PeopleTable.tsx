@@ -1,54 +1,54 @@
 import { useContext, useMemo, useState } from "react";
-import { PostDataContext } from "_Contexts/PassleDataContext";
+import { PersonDataContext } from "_Contexts/PassleDataContext";
 import Button from "_Components/Atoms/Button/Button";
 import { FeaturedItemVariant } from "_API/Enums/FeaturedItemVariant";
 import Table from "_Components/Molecules/Table/Table";
 import FeaturedItem from "_Components/Atoms/FeaturedItem/FeaturedItem";
 import {
-  deleteAllPosts,
-  deleteManyPosts,
-  refreshAllPosts,
-  syncAllPosts,
-  syncManyPosts,
+  deleteAllPeople,
+  deleteManyPeople,
+  refreshAllPeople,
+  syncAllPeople,
+  syncManyPeople,
 } from "_Services/SyncService";
 import Badge from "_Components/Atoms/Badge/Badge";
 
-const PostsTable = () => {
-  const { postData, refreshPostLists } = useContext(PostDataContext);
+const PeopleTable = () => {
+  const { personData, refreshPeopleLists } = useContext(PersonDataContext);
 
   const [working, setWorking] = useState(false);
 
-  const [selectedPosts, setSelectedPosts] = useState<string[]>([]);
+  const [selectedPeople, setSelectedPeople] = useState<string[]>([]);
 
-  const allSelectedPostsAreSynced = useMemo(
+  const allSelectedPeopleAreSynced = useMemo(
     () =>
-      postData.data
-        .filter((post) => selectedPosts.includes(post.shortcode))
-        .every((post) => post.synced),
-    [selectedPosts, postData],
+      personData.data
+        .filter((person) => selectedPeople.includes(person.shortcode))
+        .every((person) => person.synced),
+    [selectedPeople, personData],
   );
 
   const refreshList = async () => {
-    await refreshAllPosts();
+    await refreshAllPeople();
   };
 
   const syncAll = async () => {
-    await syncAllPosts();
+    await syncAllPeople();
   };
 
   const syncSelected = async () => {
-    await syncManyPosts({
-      shortcodes: selectedPosts,
+    await syncManyPeople({
+      shortcodes: selectedPeople,
     });
   };
 
   const deleteAll = async () => {
-    await deleteAllPosts();
+    await deleteAllPeople();
   };
 
   const deleteSelected = async () => {
-    await deleteManyPosts({
-      shortcodes: selectedPosts,
+    await deleteManyPeople({
+      shortcodes: selectedPeople,
     });
   };
 
@@ -56,42 +56,42 @@ const PostsTable = () => {
     setWorking(true);
 
     await fn();
-    await refreshPostLists();
+    await refreshPeopleLists();
 
     setWorking(false);
-    setSelectedPosts([]);
+    setSelectedPeople([]);
     cb();
   };
 
   return (
     <div>
       <Table
-        currentPage={postData.current_page}
-        itemsPerPage={postData.items_per_page}
-        totalItems={postData.total_items}
-        totalPages={postData.total_pages}
+        currentPage={personData.current_page}
+        itemsPerPage={personData.items_per_page}
+        totalItems={personData.total_items}
+        totalPages={personData.total_pages}
         ActionsLeft={
           <>
             <Button
               variant="secondary"
-              text="Refresh Posts"
-              loadingText="Refreshing Posts..."
+              text="Refresh People"
+              loadingText="Refreshing People..."
               disabled={working}
               onClick={(cb) => doWork(refreshList, cb)}
             />
-            {selectedPosts.length ? (
+            {selectedPeople.length ? (
               <Button
                 variant="secondary"
-                text="Sync Selected Posts"
-                loadingText="Syncing Posts..."
+                text="Sync Selected People"
+                loadingText="Syncing People..."
                 disabled={working}
                 onClick={(cb) => doWork(syncSelected, cb)}
               />
             ) : (
               <Button
                 variant="secondary"
-                text="Sync All Posts"
-                loadingText="Syncing Posts..."
+                text="Sync All People"
+                loadingText="Syncing People..."
                 disabled={working}
                 onClick={(cb) => doWork(syncAll, cb)}
               />
@@ -100,20 +100,20 @@ const PostsTable = () => {
         }
         ActionsRight={
           <>
-            {selectedPosts.length ? (
+            {selectedPeople.length ? (
               <Button
                 variant="secondary"
-                text="Delete Selected Posts"
-                loadingText="Deleting Posts..."
-                disabled={!allSelectedPostsAreSynced || working}
+                text="Delete Selected People"
+                loadingText="Deleting People..."
+                disabled={!allSelectedPeopleAreSynced || working}
                 onClick={(cb) => doWork(deleteSelected, cb)}
               />
             ) : (
               <Button
                 variant="secondary"
-                text="Delete All Synced Posts"
-                loadingText="Deleting Posts..."
-                disabled={!postData.data.length || working} // TODO: This needs to count synced posts.
+                text="Delete All Synced People"
+                loadingText="Deleting People..."
+                disabled={!personData.data.length || working} // TODO: This needs to count synced people.
                 onClick={(cb) => doWork(deleteAll, cb)}
               />
             )}
@@ -125,38 +125,36 @@ const PostsTable = () => {
               <input
                 id="cb-select-all-1"
                 type="checkbox"
-                checked={selectedPosts.length === postData.data.length}
+                checked={selectedPeople.length === personData.data.length}
                 onChange={(e) =>
-                  setSelectedPosts(
+                  setSelectedPeople(
                     e.target.checked
-                      ? postData.data.map((x) => x.shortcode)
+                      ? personData.data.map((x) => x.shortcode)
                       : [],
                   )
                 }
               />
             </td>
-            <th>Title</th>
+            <th>Name</th>
             <th>Excerpt</th>
-            <th style={{ width: 150 }}>Authors</th>
-            <th style={{ width: 150 }}>Published Date</th>
             <th style={{ width: 100 }}>Synced</th>
           </>
         }
         Body={
-          postData.data.length ? (
-            postData.data.map((post) => (
-              <tr key={post.shortcode}>
+          personData.data.length ? (
+            personData.data.map((person) => (
+              <tr key={person.shortcode}>
                 <th scope="row" className="check-column">
                   <input
                     id="cb-select-1"
                     type="checkbox"
-                    value={post.shortcode}
-                    checked={selectedPosts.includes(post.shortcode)}
+                    value={person.shortcode}
+                    checked={selectedPeople.includes(person.shortcode)}
                     onChange={(e) =>
-                      setSelectedPosts((state) =>
+                      setSelectedPeople((state) =>
                         e.target.checked
-                          ? [...state, post.shortcode]
-                          : state.filter((x) => x !== post.shortcode),
+                          ? [...state, person.shortcode]
+                          : state.filter((x) => x !== person.shortcode),
                       )
                     }
                   />
@@ -164,30 +162,28 @@ const PostsTable = () => {
                 <td style={{ display: "flex" }}>
                   <FeaturedItem
                     variant={FeaturedItemVariant.Url}
-                    data={post.imageUrl}
+                    data={person.avatarUrl}
                   />
-                  <a href={post.postUrl} style={{ marginLeft: 12 }}>
-                    {post.title}
+                  <a href={person.profileUrl} style={{ marginLeft: 12 }}>
+                    {person.name}
                   </a>
                 </td>
-                {post.excerpt ? (
-                  <td dangerouslySetInnerHTML={{ __html: post.excerpt }} />
+                {person.role ? (
+                  <td dangerouslySetInnerHTML={{ __html: person.role }} />
                 ) : (
                   <td>—</td>
                 )}
-                <td>{post.authors}</td>
-                <td>{post.publishedDate}</td>
                 <td>
                   <Badge
-                    variant={post.synced ? "success" : "warning"}
-                    text={post.synced ? "Synced" : "Unsynced"}
+                    variant={person.synced ? "success" : "warning"}
+                    text={person.synced ? "Synced" : "Unsynced"}
                   />
                 </td>
               </tr>
             ))
           ) : (
             <tr className="no-items">
-              <td colSpan={4}>No posts found.</td>
+              <td colSpan={4}>No people found.</td>
             </tr>
           )
         }
@@ -196,4 +192,4 @@ const PostsTable = () => {
   );
 };
 
-export default PostsTable;
+export default PeopleTable;

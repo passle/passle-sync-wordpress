@@ -8,11 +8,9 @@ class ResourceControllerBase extends ControllerBase
 {
   protected string $resource_url;
 
-  private string $plugin_api_key;
-
   public function __construct(string $resource_url)
   {
-    $this->plugin_api_key = get_option(PASSLESYNC_PLUGIN_API_KEY);
+    parent::__construct();
     $this->resource_url = $resource_url;
   }
 
@@ -23,10 +21,6 @@ class ResourceControllerBase extends ControllerBase
     $this->register_route("/{$this->resource_url}/delete-all", "POST", "delete_all");
     $this->register_route("/{$this->resource_url}/sync-many", "POST", "sync_many");
     $this->register_route("/{$this->resource_url}/delete-many", "POST", "delete_many");
-  }
-
-  protected function validate_callback($request): bool
-  {
-    return $request->get_header("APIKey") == $this->plugin_api_key;
+    $this->register_route("/{$this->resource_url}/refresh-all", "GET", "refresh_all");
   }
 }

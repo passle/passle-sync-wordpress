@@ -1,6 +1,6 @@
 import { ReactNode, useContext, useEffect, useState } from "react";
 import Button from "_Components/Atoms/Button/Button";
-import { PostDataContext } from "_Contexts/PostDataContext";
+import { PostDataContext } from "_Contexts/PassleDataContext";
 import classNames from "_Utils/classNames";
 import styles from "./TableNav.module.scss";
 

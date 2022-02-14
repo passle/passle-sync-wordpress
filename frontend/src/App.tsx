@@ -1,8 +1,9 @@
-import { PostDataContextProvider } from "_Contexts/PostDataContext";
+import { PassleDataContextProvider } from "_Contexts/PassleDataContext";
 import { setAPIKey } from "_Services/ApiService";
 import Tabs from "_Components/Molecules/Tabs/Tabs";
 import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
 import PostsTable from "_Components/Organisms/PostsTable/PostsTable";
+import PeopleTable from "_Components/Organisms/PeopleTable/PeopleTable";
 
 export type AppProps = {
   pluginApiKey: string;
@@ -17,7 +18,7 @@ const App = (props: AppProps) => {
 
   return (
     <div className="App">
-      <PostDataContextProvider>
+      <PassleDataContextProvider>
         <div className="wrap">
           <h1 className="wp-heading-inline">Passle Sync</h1>
           <hr className="wp-header-end" />
@@ -38,10 +39,14 @@ const App = (props: AppProps) => {
                 label: "Posts",
                 Content: <PostsTable />,
               },
+              {
+                label: "People",
+                Content: <PeopleTable />,
+              },
             ]}
           />
         </div>
-      </PostDataContextProvider>
+      </PassleDataContextProvider>
     </div>
   );
 };

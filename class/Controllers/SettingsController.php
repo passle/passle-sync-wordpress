@@ -26,6 +26,6 @@ class SettingsController extends ControllerBase
 
   protected function validate_callback($request): bool
   {
-    return true;
+    return $request->get_header("APIKey") == $this->plugin_api_key;
   }
 }

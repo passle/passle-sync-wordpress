@@ -60,7 +60,7 @@ class Post
       $from->guid,
       $from->post_image,
       $from->post_title,
-      $from->post_author,
+      $from->post_authors,
       $from->post_excerpt,
       $from->post_content,
       strtotime($from->post_date),

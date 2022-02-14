@@ -14,7 +14,10 @@ class PeopleWordpressContentService extends WordpressContentServiceBase implemen
   public function apply_meta_data_to_item(object $item)
   {
     $meta = get_post_meta($item->ID);
-    // $item = $this->apply_individual_meta_data_to_post($item, $meta, 'post_shortcode', "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'author_shortcode', "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'passle_shortcode', "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'avatar_url', "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'profile_url', "");
     return $item;
   }
 }
