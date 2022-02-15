@@ -19,7 +19,6 @@ export const PostDataContext = createContext<PostDataContextType>({
   refreshPostLists: async () => {},
 });
 
-
 type PersonDataContextType = {
   personData?: PaginatedResponse<Person>;
   setCurrentPage: (page: number) => Promise<void>;
@@ -45,18 +44,18 @@ export const PassleDataContextProvider = (
   const [personData, setPersonData] = useState<PaginatedResponse<Person>>();
 
   const setCurrentPostPage = async (page: number) =>
-    await refreshData(page, postData.items_per_page);
+    await refreshPostData(page, postData.items_per_page);
 
   const setPostItemsPerPage = async (count: number) =>
-    await refreshData(postData.current_page, count);
-    
+    await refreshPostData(postData.current_page, count);
+
   const setCurrentPeoplePage = async (page: number) =>
-  await refreshData(page, personData.items_per_page);
+    await refreshPersonData(page, personData.items_per_page);
 
-const setPeopleItemsPerPage = async (count: number) =>
-  await refreshData(personData.current_page, count);
+  const setPeopleItemsPerPage = async (count: number) =>
+    await refreshPersonData(personData.current_page, count);
 
-  const refreshPostLists = async (
+  const refreshPostData = async (
     currentPage: number = 1,
     itemsPerPage: number = 20,
   ) => {
@@ -68,7 +67,7 @@ const setPeopleItemsPerPage = async (count: number) =>
     setPostData(response);
   };
 
-  const refreshPeopleLists = async (
+  const refreshPersonData = async (
     currentPage: number = 1,
     itemsPerPage: number = 20,
   ) => {
@@ -80,17 +79,10 @@ const setPeopleItemsPerPage = async (count: number) =>
     setPersonData(response);
   };
 
-  const refreshData = async (
-    currentPage: number = 1,
-    itemsPerPage: number = 20,
-  ) => {
-    await refreshPostLists(currentPage, itemsPerPage);
-    await refreshPeopleLists(currentPage, itemsPerPage);
-  }
-
   useEffect(() => {
     (async () => {
-      await refreshData();
+      await refreshPostData();
+      await refreshPersonData();
     })();
   }, []);
 
@@ -100,15 +92,15 @@ const setPeopleItemsPerPage = async (count: number) =>
         postData: postData,
         setCurrentPage: setCurrentPostPage,
         setItemsPerPage: setPostItemsPerPage,
-        refreshPostLists,
+        refreshPostLists: refreshPostData,
       }}>
-        <PersonDataContext.Provider
-      value={{
-        personData: personData,
-        setCurrentPage: setCurrentPeoplePage,
-        setItemsPerPage: setPeopleItemsPerPage,
-        refreshPeopleLists,
-      }}>
+      <PersonDataContext.Provider
+        value={{
+          personData: personData,
+          setCurrentPage: setCurrentPeoplePage,
+          setItemsPerPage: setPeopleItemsPerPage,
+          refreshPeopleLists: refreshPersonData,
+        }}>
         {props.children}
       </PersonDataContext.Provider>
     </PostDataContext.Provider>

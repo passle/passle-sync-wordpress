@@ -12,6 +12,8 @@ abstract class ControllerBase
     $this->plugin_api_key = get_option(PASSLESYNC_PLUGIN_API_KEY);
   }
 
+  public abstract function register_routes();
+
   protected function register_route(string $path, string $method, string $func_name)
   {
     register_rest_route(PASSLESYNC_REST_API_BASE, $path, [
@@ -22,7 +24,7 @@ abstract class ControllerBase
     ]);
   }
 
-  protected function validate_callback($request): bool
+  public function validate_callback($request): bool
   {
     return $request->get_header("APIKey") == $this->plugin_api_key;
   }

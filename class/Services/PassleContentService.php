@@ -2,6 +2,7 @@
 
 namespace Passle\PassleSync\Services;
 
+use Exception;
 use Passle\PassleSync\Utils\UrlFactory;
 use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\Services\Content\PeopleWordpressContentService;
@@ -53,7 +54,7 @@ class PassleContentService
     if (in_array(true, array_map(function ($r) {
       return is_wp_error($r);
     }, $results))) {
-      return new \WP_Error('no_response', 'Failed to get data from the API', ['status' => 500]);
+      throw new Exception('Failed to get data from the API', 500);
     }
 
     $result = array_merge(...$results);
@@ -84,7 +85,7 @@ class PassleContentService
     $responses = $this->get_all_paginated($url);
 
     if (in_array(null, $responses)) {
-      return new \WP_Error('no_response', 'Failed to get data from the API', ['status' => 500]);
+      throw new Exception('Failed to get data from the API', 500);
     }
 
     $result = Utils::array_select_multiple($responses, $response_key);

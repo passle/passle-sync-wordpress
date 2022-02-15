@@ -2,6 +2,7 @@
 
 namespace Passle\PassleSync\Controllers\Resources;
 
+use Exception;
 use Passle\PassleSync\Controllers\Resources\ResourceControllerBase;
 use Passle\PassleSync\Models\PaginatedResponse;
 use Passle\PassleSync\Models\Post;
@@ -27,7 +28,7 @@ class PostsController extends ResourceControllerBase
     $this->passle_content_service = $passle_content_service;
     $this->wordpress_content_service = $wordpress_content_service;
   }
-  
+
   public function refresh_all()
   {
     $this->passle_content_service->update_all_passle_posts_from_api();
@@ -75,7 +76,7 @@ class PostsController extends ResourceControllerBase
     $shortcodes = $data["shortcodes"] ?? null;
 
     if ($shortcodes == null) {
-      return new \WP_Error("bad_request", "Missing shortcodes parameter", ["status" => 400]);
+      throw new Exception("Missing shortcodes parameter", 400);
     }
 
     $posts = $this->passle_content_service->get_posts($shortcodes);
@@ -95,7 +96,7 @@ class PostsController extends ResourceControllerBase
     $shortcodes = $data["shortcodes"] ?? null;
 
     if ($shortcodes == null) {
-      return new \WP_Error("bad_request", "Missing shortcodes parameter", ["status" => 400]);
+      throw new Exception("Missing shortcodes parameter", 400);
     }
 
     $posts = $this->passle_content_service->get_posts($shortcodes);

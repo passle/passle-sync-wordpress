@@ -2,6 +2,8 @@
 
 namespace Passle\PassleSync\Controllers;
 
+use Exception;
+
 class SettingsController extends ControllerBase
 {
   public function register_routes()
@@ -9,12 +11,12 @@ class SettingsController extends ControllerBase
     $this->register_route("/settings/update", "POST", "update_api_settings");
   }
 
-  private function update_api_settings($request)
+  public function update_api_settings($request)
   {
     $params = $request->get_params();
 
     if (!isset($params)) {
-      return new \WP_Error("no_data", "You must include data to update settings", ["status" => 400]);
+      throw new Exception("You must include data to update settings", 400);
     }
 
     update_option(PASSLESYNC_PLUGIN_API_KEY, $params["pluginApiKey"], true);
@@ -22,10 +24,5 @@ class SettingsController extends ControllerBase
     update_option(PASSLESYNC_SHORTCODE, $params["passleShortcodes"], true);
 
     return true;
-  }
-
-  protected function validate_callback($request): bool
-  {
-    return $request->get_header("APIKey") == $this->plugin_api_key;
   }
 }

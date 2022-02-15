@@ -2,6 +2,7 @@
 
 namespace Passle\PassleSync\Controllers\Resources;
 
+use Exception;
 use Passle\PassleSync\Controllers\Resources\ResourceControllerBase;
 use Passle\PassleSync\Models\PaginatedResponse;
 use Passle\PassleSync\Models\Person;
@@ -74,7 +75,7 @@ class PeopleController extends ResourceControllerBase
     $shortcodes = $data["shortcodes"] ?? null;
 
     if ($shortcodes == null) {
-      return new \WP_Error("bad_request", "Missing shortcodes parameter", ["status" => 400]);
+      throw new Exception("Missing shortcodes parameter", 400);
     }
 
     $people = $this->passle_content_service->get_people($shortcodes);
@@ -89,7 +90,7 @@ class PeopleController extends ResourceControllerBase
     $shortcodes = $data["shortcodes"] ?? null;
 
     if ($shortcodes == null) {
-      return new \WP_Error("bad_request", "Missing shortcodes parameter", ["status" => 400]);
+      throw new Exception("Missing shortcodes parameter", 400);
     }
 
     $people = $this->passle_content_service->get_people($shortcodes);

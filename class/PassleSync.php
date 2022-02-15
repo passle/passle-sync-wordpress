@@ -38,6 +38,11 @@ class PassleSync
     // Register settings menu
     add_action("admin_menu", [$this->menu_service, "register_menus"]);
 
+    // Generate plugin API key if it doesn't exist
+    if (get_option(PASSLESYNC_PLUGIN_API_KEY) == false) {
+      update_option(PASSLESYNC_PLUGIN_API_KEY, wp_generate_uuid4());
+    }
+
     // /*
     // * Modify WP queries on the home page or searches
     // * so that they return our new custom post type
