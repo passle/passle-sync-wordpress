@@ -14,7 +14,8 @@ import {
 import Badge from "_Components/Atoms/Badge/Badge";
 
 const PostsTable = () => {
-  const { postData, refreshPostLists } = useContext(PostDataContext);
+  const { postData, refreshPostLists, setCurrentPage } =
+    useContext(PostDataContext);
 
   const [working, setWorking] = useState(false);
 
@@ -70,6 +71,7 @@ const PostsTable = () => {
         itemsPerPage={postData.items_per_page}
         totalItems={postData.total_items}
         totalPages={postData.total_pages}
+        setCurrentPage={setCurrentPage}
         ActionsLeft={
           <>
             <Button

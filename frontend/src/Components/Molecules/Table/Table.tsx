@@ -10,6 +10,7 @@ export type TableProps = {
   ActionsRight: ReactNode;
   Head: ReactNode;
   Body: ReactNode;
+  setCurrentPage: (page: number) => Promise<void>;
 };
 
 const Table = (props: TableProps) => {
@@ -22,6 +23,7 @@ const Table = (props: TableProps) => {
         totalPages={props.totalPages}
         ActionsLeft={props.ActionsLeft}
         ActionsRight={props.ActionsRight}
+        setCurrentPage={props.setCurrentPage}
       />
 
       <table className="wp-list-table widefat fixed striped table-view-list">

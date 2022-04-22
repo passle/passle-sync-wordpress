@@ -1,4 +1,10 @@
 .FeaturedItem {
   object-fit: cover;
   border-radius: 5px;
+  flex-shrink: 0;
+  border: 2px solid #ededed;
+
+  &___Circle {
+    border-radius: 100%;
+  }
 }

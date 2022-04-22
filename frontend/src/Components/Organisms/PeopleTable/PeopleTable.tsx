@@ -14,7 +14,8 @@ import {
 import Badge from "_Components/Atoms/Badge/Badge";
 
 const PeopleTable = () => {
-  const { personData, refreshPeopleLists } = useContext(PersonDataContext);
+  const { personData, refreshPeopleLists, setCurrentPage } =
+    useContext(PersonDataContext);
 
   const [working, setWorking] = useState(false);
 
@@ -70,6 +71,7 @@ const PeopleTable = () => {
         itemsPerPage={personData.items_per_page}
         totalItems={personData.total_items}
         totalPages={personData.total_pages}
+        setCurrentPage={setCurrentPage}
         ActionsLeft={
           <>
             <Button
@@ -136,7 +138,8 @@ const PeopleTable = () => {
               />
             </td>
             <th>Name</th>
-            <th>Excerpt</th>
+            <th>Role</th>
+            <th>Description</th>
             <th style={{ width: 100 }}>Synced</th>
           </>
         }
@@ -162,17 +165,18 @@ const PeopleTable = () => {
                 <td style={{ display: "flex" }}>
                   <FeaturedItem
                     variant={FeaturedItemVariant.Url}
-                    data={person.avatarUrl}
+                    data={
+                      person.avatarUrl ||
+                      "https://images.passle.net/200x200/assets/images/no_avatar.png"
+                    }
+                    circle={true}
                   />
                   <a href={person.profileUrl} style={{ marginLeft: 12 }}>
                     {person.name}
                   </a>
                 </td>
-                {person.role ? (
-                  <td dangerouslySetInnerHTML={{ __html: person.role }} />
-                ) : (
-                  <td>—</td>
-                )}
+                <td>{person.role ?? "—"}</td>
+                <td>{person.description ?? "—"}</td>
                 <td>
                   <Badge
                     variant={person.synced ? "success" : "warning"}

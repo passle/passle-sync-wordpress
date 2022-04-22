@@ -11,17 +11,15 @@ export type TableNavProps = {
   totalPages: number;
   ActionsLeft: ReactNode;
   ActionsRight: ReactNode;
+  setCurrentPage: (page: number) => Promise<void>;
 };
 
 const TableNav = (props: TableNavProps) => {
-  const { postData, setCurrentPage, setItemsPerPage } =
-    useContext(PostDataContext);
-
   const [currentPageInput, setCurrentPageInput] = useState("");
 
   useEffect(() => {
-    setCurrentPageInput(postData.current_page.toString());
-  }, [postData]);
+    setCurrentPageInput(props.currentPage.toString());
+  }, [props.currentPage]);
 
   return (
     <div className={styles.TableNav}>
@@ -44,15 +42,15 @@ const TableNav = (props: TableNavProps) => {
           )}>
           <Button
             variant="secondary"
-            disabled={postData.current_page === 1}
-            onClick={async () => await setCurrentPage(1)}
+            disabled={props.currentPage === 1}
+            onClick={async () => await props.setCurrentPage(1)}
             text="«"
           />
           <Button
             variant="secondary"
-            disabled={postData.current_page === 1}
+            disabled={props.currentPage === 1}
             onClick={async () =>
-              await setCurrentPage(postData.current_page - 1)
+              await props.setCurrentPage(props.currentPage - 1)
             }
             text="‹"
           />
@@ -75,7 +73,7 @@ const TableNav = (props: TableNavProps) => {
               }}
               onKeyPress={async (e) => {
                 if (e.key === "Enter") {
-                  await setCurrentPage(parseInt(currentPageInput));
+                  await props.setCurrentPage(parseInt(currentPageInput));
                 }
               }}
               size={1}
@@ -83,21 +81,21 @@ const TableNav = (props: TableNavProps) => {
             />
             <span className="tablenav-paging-text">
               {" "}
-              of <span className="total-pages">{postData.total_pages}</span>
+              of <span className="total-pages">{props.totalPages}</span>
             </span>
           </span>
           <Button
             variant="secondary"
-            disabled={postData.current_page === postData.total_pages}
+            disabled={props.currentPage === props.totalPages}
             onClick={async () =>
-              await setCurrentPage(postData.current_page + 1)
+              await props.setCurrentPage(props.currentPage + 1)
             }
             text="›"
           />
           <Button
             variant="secondary"
-            disabled={postData.current_page === postData.total_pages}
-            onClick={async () => await setCurrentPage(postData.total_pages)}
+            disabled={props.currentPage === props.totalPages}
+            onClick={async () => await props.setCurrentPage(props.totalPages)}
             text="»"
           />
         </span>
