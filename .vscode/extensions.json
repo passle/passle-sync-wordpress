@@ -2,6 +2,8 @@
   "recommendations": [
     "esbenp.prettier-vscode",
     "xdebug.php-debug",
-    "bmewburn.vscode-intelephense-client"
+    "bmewburn.vscode-intelephense-client",
+    "csstools.postcss",
+    "bradlc.vscode-tailwindcss"
   ]
 }
