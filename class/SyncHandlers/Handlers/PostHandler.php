@@ -80,7 +80,8 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
     $post_author_names = $this->update_property($post, "post_author_names", $data, fn ($x) => implode(", ", Utils::array_select($x["Authors"], "Name")));
     $post_coauthors = $this->update_property($post, "post_coauthors", $data, fn ($x) => $this->map_authors($x["CoAuthors"]));
     $post_coauthor_names = $this->update_property($post, "post_coauthor_names", $data, fn ($x) => implode(", ", Utils::array_select($x["CoAuthors"], "Name")));
-    $post_share_views = $this->update_property($post, "post_share_views", $data, fn ($x) => $this->map_share_views($x));
+    $post_share_views = $this->update_property($post, "post_share_views", $data, fn ($x) => $this->map_share_views($x["ShareViews"]));
+    $post_tweets = $this->update_property($post, "post_tweets", $data, fn ($x) => $this->map_tweets($x["Tweets"]));
     $post_total_shares = $this->update_property($post, "post_total_shares", $data, "TotalShares");
     $post_total_likes = $this->update_property($post, "post_total_likes", $data, "TotalLikes");
     $post_date = $this->update_property($post, "post_date", $data, "PublishedDate");
@@ -115,6 +116,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
         "post_coauthors" => $post_coauthors,
         "post_coauthor_names" => $post_coauthor_names,
         "post_share_views" => $post_share_views,
+        "post_tweets" => $post_tweets,
         "post_total_shares" => $post_total_shares,
         "post_total_likes" => $post_total_likes,
         "post_is_repost" => $post_is_repost,
@@ -158,9 +160,18 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
 
   private function map_share_views(array $share_views)
   {
-    return array_map(fn ($author) => [
-      "social_network" => $author["SocialNetwork"],
-      "total_views" => $author["TotalViews"],
+    return array_map(fn ($share_view) => [
+      "social_network" => $share_view["SocialNetwork"],
+      "total_views" => $share_view["TotalViews"],
     ], $share_views);
+  }
+
+  private function map_tweets(array $tweets)
+  {
+    return array_map(fn ($tweet) => [
+      "embed_code" => $tweet["EmbedCode"],
+      "tweet_id" => $tweet["TweetId"],
+      "screen_name" => $tweet["ScreenName"],
+    ], $tweets);
   }
 }
