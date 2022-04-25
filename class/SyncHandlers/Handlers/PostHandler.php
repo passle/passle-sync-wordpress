@@ -11,6 +11,7 @@ use Passle\PassleSync\Services\PassleContentService;
 class PostHandler extends SyncHandlerBase implements ISyncHandler
 {
   private $shortcodeKey = "PostShortcode";
+  private $wordpress_content_service;
 
   public function __construct(
     PostsWordpressContentService $wordpress_content_service,
@@ -70,37 +71,63 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
     }
 
     // Update the fields from the new data, using the existing property values as a default
-    $post_title = $this->update_property($post, "post_title", $data, "PostTitle");
-    $post_content = $this->update_property($post, "post_content", $data, "PostContentHtml");
-    $post_date = $this->update_property($post, "post_date", $data, "PublishedDate");
     $post_shortcode = $this->update_property($post, "post_shortcode", $data, "PostShortcode");
     $passle_shortcode = $this->update_property($post, "passle_shortcode", $data, "PassleShortcode");
-    $post_authors = $this->update_property($post, "post_authors", $data, fn ($x) => implode(", ", Utils::array_select($x['Authors'], "Name")));
+    $post_url = $this->update_property($post, "post_url", $data, "PostUrl");
+    $post_title = $this->update_property($post, "post_title", $data, "PostTitle");
+    $post_content = $this->update_property($post, "post_content", $data, "PostContentHtml");
+    $post_authors = $this->update_property($post, "post_authors", $data, fn ($x) => $this->map_authors($x["Authors"]));
+    $post_author_names = $this->update_property($post, "post_author_names", $data, fn ($x) => implode(", ", Utils::array_select($x["Authors"], "Name")));
+    $post_coauthors = $this->update_property($post, "post_coauthors", $data, fn ($x) => $this->map_authors($x["CoAuthors"]));
+    $post_coauthor_names = $this->update_property($post, "post_coauthor_names", $data, fn ($x) => implode(", ", Utils::array_select($x["CoAuthors"], "Name")));
+    $post_share_views = $this->update_property($post, "post_share_views", $data, fn ($x) => $this->map_share_views($x));
+    $post_total_shares = $this->update_property($post, "post_total_shares", $data, "TotalShares");
+    $post_total_likes = $this->update_property($post, "post_total_likes", $data, "TotalLikes");
+    $post_date = $this->update_property($post, "post_date", $data, "PublishedDate");
+    $post_tags = $this->update_property($post, "post_tags", $data, "Tags");
     $post_is_repost = $this->update_property($post, "post_is_repost", $data, "IsRepost", false);
-    $post_read_time = $this->update_property($post, "post_read_time", $data, "EstimatedReadTimeInSeconds", 0);
-    $post_tags = $this->update_property($post, "post_tags", $data, fn ($x) => implode(", ", $x['Tags']));
-    $post_image = $this->update_property($post, "post_image", $data, "ImageUrl");
-    $post_image_html = $this->update_property($post, "post_image_html", $data, "FeaturedItemHTML");
+    $post_estimated_read_time = $this->update_property($post, "post_estimated_read_time", $data, "EstimatedReadTimeInSeconds", 0);
+    $post_image_url = $this->update_property($post, "post_image_url", $data, "ImageUrl");
+    $post_featured_item_html = $this->update_property($post, "post_featured_item_html", $data, "FeaturedItemHtml");
+    $post_featured_item_media_type = $this->update_property($post, "post_featured_item_media_type", $data, "FeaturedItemMediaType");
+    $post_featured_item_embed_type = $this->update_property($post, "post_featured_item_embed_type", $data, "FeaturedItemEmbedType");
+    $post_featured_item_embed_provider = $this->update_property($post, "post_featured_item_embed_provider", $data, "FeaturedItemEmbedProvider");
     $post_excerpt = $this->update_property($post, "post_excerpt", $data, "ContentTextSnippet");
+    $post_opens_in_new_tab = $this->update_property($post, "post_opens_in_new_tab", $data, "OpensInNewTab");
+    $post_quote_text = $this->update_property($post, "post_quote_text", $data, "QuoteText");
+    $post_quote_url = $this->update_property($post, "post_quote_url", $data, "QuoteUrl");
 
     $new_item = [
-      'ID'                => $id,
-      'post_title'        => $post_title,
-      'post_date'         => $post_date,
-      'post_type'         => PASSLESYNC_POST_TYPE,
-      'post_content'      => $post_content,
-      'post_excerpt'      => $post_excerpt,
-      'post_status'       => 'publish',
-      'comment_status'    => 'closed',
-      'meta_input'    => [
-        'post_shortcode'    => $post_shortcode,
-        'passle_shortcode'  => $passle_shortcode,
-        'post_authors'      => $post_authors,
-        'post_is_repost'    => $post_is_repost,
-        'post_read_time'    => $post_read_time,
-        'post_tags'         => $post_tags,
-        'post_image'        => $post_image,
-        'post_image_html'   => $post_image_html,
+      "ID" => $id,
+      "post_title" => $post_title,
+      "post_date" => $post_date,
+      "post_type" => PASSLESYNC_POST_TYPE,
+      "post_content" => $post_content,
+      "post_excerpt" => $post_excerpt,
+      "post_status" => "publish",
+      "comment_status" => "closed",
+      "meta_input" => [
+        "post_shortcode" => $post_shortcode,
+        "passle_shortcode" => $passle_shortcode,
+        "post_url" => $post_url,
+        "post_authors" => $post_authors,
+        "post_author_names" => $post_author_names,
+        "post_coauthors" => $post_coauthors,
+        "post_coauthor_names" => $post_coauthor_names,
+        "post_share_views" => $post_share_views,
+        "post_total_shares" => $post_total_shares,
+        "post_total_likes" => $post_total_likes,
+        "post_is_repost" => $post_is_repost,
+        "post_estimated_read_time" => $post_estimated_read_time,
+        "post_tags" => $post_tags,
+        "post_image_url" => $post_image_url,
+        "post_featured_item_html" => $post_featured_item_html,
+        "post_featured_item_media_type" => $post_featured_item_media_type,
+        "post_featured_item_embed_type" => $post_featured_item_embed_type,
+        "post_featured_item_embed_provider" => $post_featured_item_embed_provider,
+        "post_opens_in_new_tab" => $post_opens_in_new_tab,
+        "post_quote_text" => $post_quote_text,
+        "post_quote_url" => $post_quote_url,
       ],
     ];
 
@@ -115,5 +142,25 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
   protected function delete(object $post)
   {
     return $this->delete_item($post->ID);
+  }
+
+  private function map_authors(array $authors)
+  {
+    return array_map(fn ($author) => [
+      "shortcode" => $author["Shortcode"],
+      "name" => $author["Name"],
+      "image_url" => $author["ImageUrl"],
+      "profile_url" => $author["ProfileUrl"],
+      "role" => $author["Role"],
+      "twitter_screen_name" => $author["TwitterScreenName"],
+    ], $authors);
+  }
+
+  private function map_share_views(array $share_views)
+  {
+    return array_map(fn ($author) => [
+      "social_network" => $author["SocialNetwork"],
+      "total_views" => $author["TotalViews"],
+    ], $share_views);
   }
 }

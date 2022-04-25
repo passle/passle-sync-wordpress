@@ -14,15 +14,15 @@ class PostsWordpressContentService extends WordpressContentServiceBase implement
   public function apply_meta_data_to_item(object $item)
   {
     $meta = get_post_meta($item->ID);
-    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'post_shortcode', "");
-    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'passle_shortcode', "default");
-    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'post_authors', "");
-    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'post_is_repost', "");
-    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'post_read_time', 0);
-    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'post_tags', "");
-    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'post_image', "");
-    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'post_image_html', "");
-    $item = $this->apply_individual_meta_data_to_item($item, $meta, 'post_preview', "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, "post_shortcode", "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, "passle_shortcode", "default");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, "post_authors", "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, "post_is_repost", "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, "post_read_time", 0);
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, "post_tags", "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, "post_image", "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, "post_image_html", "");
+    $item = $this->apply_individual_meta_data_to_item($item, $meta, "post_preview", "");
     return $item;
   }
 }

@@ -58,9 +58,9 @@ class Post
     return new self(
       $from->post_shortcode,
       $from->guid,
-      $from->post_image,
+      $from->post_image_url,
       $from->post_title,
-      $from->post_authors,
+      $from->post_author_names,
       $from->post_excerpt,
       $from->post_content,
       strtotime($from->post_date),

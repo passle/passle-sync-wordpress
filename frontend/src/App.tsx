@@ -1,9 +1,14 @@
-import { PassleDataContextProvider } from "_Contexts/PassleDataContext";
+import {
+  PassleDataContextProvider,
+  PersonDataContext,
+  PostDataContext,
+} from "_Contexts/PassleDataContext";
 import { setAPIKey } from "_Services/ApiService";
 import Tabs from "_Components/Molecules/Tabs/Tabs";
 import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
 import PostsTable from "_Components/Organisms/PostsTable/PostsTable";
 import PeopleTable from "_Components/Organisms/PeopleTable/PeopleTable";
+import { useContext } from "react";
 
 export type AppProps = {
   pluginApiKey: string;
@@ -16,6 +21,9 @@ const App = (props: AppProps) => {
   // But it does need to communicate securely with WP, so it needs to validate there
   setAPIKey(props.pluginApiKey);
 
+  const { postData } = useContext(PostDataContext);
+  const { personData } = useContext(PersonDataContext);
+
   return (
     <div className="App">
       <PassleDataContextProvider>
@@ -23,28 +31,38 @@ const App = (props: AppProps) => {
           <h1 className="wp-heading-inline">Passle Sync</h1>
           <hr className="wp-header-end" />
 
-          <Tabs
-            tabs={[
-              {
-                label: "Settings",
-                Content: (
-                  <SyncSettings
-                    pluginApiKey={props.pluginApiKey}
-                    clientApiKey={props.clientApiKey}
-                    passleShortcodes={props.passleShortcodes}
+          <PostDataContext.Consumer>
+            {({ postData }) => (
+              <PersonDataContext.Consumer>
+                {({ personData }) => (
+                  <Tabs
+                    tabs={[
+                      {
+                        label: "Settings",
+                        Content: (
+                          <SyncSettings
+                            pluginApiKey={props.pluginApiKey}
+                            clientApiKey={props.clientApiKey}
+                            passleShortcodes={props.passleShortcodes}
+                          />
+                        ),
+                      },
+                      {
+                        label: "Posts",
+                        disabled: postData == null,
+                        Content: <PostsTable />,
+                      },
+                      {
+                        label: "People",
+                        disabled: personData == null,
+                        Content: <PeopleTable />,
+                      },
+                    ]}
                   />
-                ),
-              },
-              {
-                label: "Posts",
-                Content: <PostsTable />,
-              },
-              {
-                label: "People",
-                Content: <PeopleTable />,
-              },
-            ]}
-          />
+                )}
+              </PersonDataContext.Consumer>
+            )}
+          </PostDataContext.Consumer>
         </div>
       </PassleDataContextProvider>
     </div>

@@ -19,6 +19,15 @@
     color: #000;
   }
 
+  &___Disabled {
+    color: #939da7;
+    cursor: not-allowed;
+
+    &:hover {
+      background: #dcdcde !important;
+    }
+  }
+
   &:hover {
     background: #f0f0f1;
   }

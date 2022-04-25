@@ -4,6 +4,7 @@ import styles from "./Tabs.module.scss";
 
 type TabType = {
   label: string;
+  disabled?: boolean;
   Content: ReactNode;
 };
 
@@ -22,6 +23,7 @@ const Tabs = (props: TabsProps) => {
             key={tab.label}
             text={tab.label}
             active={activeIdx === idx}
+            disabled={tab.disabled ?? false}
             onClick={() => setActiveIdx(idx)}
           />
         ))}
