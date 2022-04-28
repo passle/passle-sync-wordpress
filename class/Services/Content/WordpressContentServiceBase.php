@@ -4,11 +4,16 @@ namespace Passle\PassleSync\Services\Content;
 
 abstract class WordpressContentServiceBase
 {
-  public abstract function get_items();
+  protected string $item_type;
 
-  public function apply_meta_data_to_item(object $item)
+  public function __construct(string $item_type)
   {
-    return $item;
+    $this->item_type = $item_type;
+  }
+
+  public function get_items()
+  {
+    return $this->get_items_by_type($this->item_type);
   }
 
   public function get_items_by_type(string $item_type)
@@ -45,13 +50,14 @@ abstract class WordpressContentServiceBase
     }
   }
 
-  public function apply_individual_meta_data_to_item(object $item, array $meta, string $propName, $default)
+  public function apply_meta_data_to_item(object $item)
   {
-    if (!empty($meta[$propName])) {
-      $item->{$propName} = $meta[$propName][0];
-    } else {
-      $item->{$propName} = $default;
+    $meta = get_post_meta($item->ID);
+
+    foreach ($meta as $meta_key => $meta_value) {
+      $item->$meta_key = $meta_value[0];
     }
+
     return $item;
   }
 

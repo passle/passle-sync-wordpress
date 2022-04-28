@@ -27,7 +27,7 @@ class MenuService
     }
 
 ?>
-    <div id="passle-sync-settings-root" data-plugin-api-key="<?php echo get_option(PASSLESYNC_PLUGIN_API_KEY) ?>" data-client-api-key="<?php echo get_option(PASSLESYNC_CLIENT_API_KEY) ?>" data-passle-shortcodes="<?php echo $shortcodes_string ?>">
+    <div id="passle-sync-settings-root" data-plugin-api-key="<?php echo get_option(PASSLESYNC_PLUGIN_API_KEY) ?>" data-client-api-key="<?php echo get_option(PASSLESYNC_CLIENT_API_KEY) ?>" data-passle-shortcodes="<?php echo $shortcodes_string ?>" data-post-permalink-prefix="<?php echo get_option(PASSLESYNC_POST_PERMALINK_PREFIX); ?>" data-person-permalink-prefix="<?php echo get_option(PASSLESYNC_PERSON_PERMALINK_PREFIX); ?>">
     </div>
 <?php
   }

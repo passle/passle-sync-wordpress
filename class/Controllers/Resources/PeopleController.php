@@ -4,8 +4,8 @@ namespace Passle\PassleSync\Controllers\Resources;
 
 use Exception;
 use Passle\PassleSync\Controllers\Resources\ResourceControllerBase;
-use Passle\PassleSync\Models\PaginatedResponse;
-use Passle\PassleSync\Models\Person;
+use Passle\PassleSync\Models\Admin\PaginatedResponse;
+use Passle\PassleSync\Models\Admin\Person;
 use Passle\PassleSync\SyncHandlers\Handlers\AuthorHandler;
 use Passle\PassleSync\Services\Content\PeopleWordpressContentService;
 use Passle\PassleSync\Services\PassleContentService;
@@ -28,6 +28,10 @@ class PeopleController extends ResourceControllerBase
     $this->passle_content_service = $passle_content_service;
     $this->wordpress_content_service = $wordpress_content_service;
   }
+
+  /*
+   * Admin dashboard routes
+   */
 
   public function refresh_all()
   {
@@ -94,6 +98,30 @@ class PeopleController extends ResourceControllerBase
     }
 
     $people = $this->passle_content_service->get_people($shortcodes);
+
+    $this->sync_handler->delete_many($people);
+  }
+
+  /*
+   * Webhooks
+   */
+
+  public function update($request)
+  {
+    $data = $request->get_json_params();
+
+    $person_shortcode = $data["Shortcode"];
+    $people = $this->passle_content_service->get_people([$person_shortcode]);
+
+    $this->sync_handler->sync_many($people);
+  }
+
+  public function delete($request)
+  {
+    $data = $request->get_json_params();
+
+    $person_shortcode = $data["PersonShortcode"];
+    $people = $this->passle_content_service->get_people([$person_shortcode]);
 
     $this->sync_handler->delete_many($people);
   }

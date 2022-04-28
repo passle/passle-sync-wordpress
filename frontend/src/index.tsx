@@ -3,7 +3,7 @@ import App from "./App";
 import "./index.scss";
 
 const passleSyncSettingsPageRoot = document.getElementById(
-  "passle-sync-settings-root"
+  "passle-sync-settings-root",
 );
 
 if (passleSyncSettingsPageRoot) {
@@ -13,10 +13,14 @@ if (passleSyncSettingsPageRoot) {
         pluginApiKey: passleSyncSettingsPageRoot.dataset.pluginApiKey,
         clientApiKey: passleSyncSettingsPageRoot.dataset.clientApiKey,
         passleShortcodes: passleSyncSettingsPageRoot.dataset.passleShortcodes,
+        postPermalinkPrefix:
+          passleSyncSettingsPageRoot.dataset.postPermalinkPrefix,
+        personPermalinkPrefix:
+          passleSyncSettingsPageRoot.dataset.personPermalinkPrefix,
       }}
     />,
-    passleSyncSettingsPageRoot
+    passleSyncSettingsPageRoot,
   );
 } else {
-  console.error("Can't find passle-sync-settings-root");
+  console.warn("Can't find passle-sync-settings-root");
 }

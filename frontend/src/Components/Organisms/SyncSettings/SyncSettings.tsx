@@ -13,6 +13,8 @@ export type SyncSettingsProps = {
   pluginApiKey: string;
   clientApiKey: string;
   passleShortcodes: string;
+  postPermalinkPrefix: string;
+  personPermalinkPrefix: string;
 };
 
 const SyncSettings = (props: SyncSettingsProps) => {
@@ -23,12 +25,20 @@ const SyncSettings = (props: SyncSettingsProps) => {
   const [passleShortcodes, setPassleShortcodes] = useState(
     props.passleShortcodes,
   );
+  const [postPermalinkPrefix, setPostPermalinkPrefix] = useState(
+    props.postPermalinkPrefix,
+  );
+  const [personPermalinkPrefix, setPersonPermalinkPrefix] = useState(
+    props.personPermalinkPrefix,
+  );
 
   const saveSettings = (finishLoadingCallback: () => void) => {
     updateSettings({
-      pluginApiKey: pluginApiKey,
-      clientApiKey: clientApiKey,
+      pluginApiKey,
+      clientApiKey,
       passleShortcodes: passleShortcodes.replace(/\s/g, "").split(","),
+      postPermalinkPrefix,
+      personPermalinkPrefix,
     }).then((success) => {
       if (success) {
         setNotice({
@@ -111,6 +121,46 @@ const SyncSettings = (props: SyncSettingsProps) => {
               <p className="description" id="passle-shortcodes-description">
                 A comma-separated list of the shortcodes of the Passles you want
                 to sync content from.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <th className="row">
+              <label htmlFor="post-permalink-prefix">
+                Post Permalink Prefix
+              </label>
+            </th>
+            <td>
+              <input
+                type="text"
+                id="post-permalink-prefix"
+                className="regular-text code"
+                value={postPermalinkPrefix}
+                onChange={(e) => setPostPermalinkPrefix(e.target.value)}
+              />
+              <p className="description" id="post-permalink-prefix-description">
+                The prefix that will be used for post permalink URLs.
+              </p>
+            </td>
+          </tr>
+          <tr>
+            <th className="row">
+              <label htmlFor="person-permalink-prefix">
+                Person Permalink Prefix
+              </label>
+            </th>
+            <td>
+              <input
+                type="text"
+                id="person-permalink-prefix"
+                className="regular-text code"
+                value={personPermalinkPrefix}
+                onChange={(e) => setPersonPermalinkPrefix(e.target.value)}
+              />
+              <p
+                className="description"
+                id="person-permalink-prefix-description">
+                The prefix that will be used for person permalink URLs.
               </p>
             </td>
           </tr>

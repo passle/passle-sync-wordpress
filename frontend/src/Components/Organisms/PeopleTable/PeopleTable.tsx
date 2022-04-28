@@ -162,7 +162,7 @@ const PeopleTable = () => {
                     }
                   />
                 </th>
-                <td style={{ display: "flex" }}>
+                <td style={{ display: "flex", alignItems: "flex-start" }}>
                   <FeaturedItem
                     variant={FeaturedItemVariant.Url}
                     data={

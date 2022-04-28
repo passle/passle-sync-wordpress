@@ -4,8 +4,8 @@ namespace Passle\PassleSync\Controllers\Resources;
 
 use Exception;
 use Passle\PassleSync\Controllers\Resources\ResourceControllerBase;
-use Passle\PassleSync\Models\PaginatedResponse;
-use Passle\PassleSync\Models\Post;
+use Passle\PassleSync\Models\Admin\PaginatedResponse;
+use Passle\PassleSync\Models\Admin\Post;
 use Passle\PassleSync\SyncHandlers\Handlers\PostHandler;
 use Passle\PassleSync\Services\Content\PostsWordpressContentService;
 use Passle\PassleSync\Services\PassleContentService;
@@ -28,6 +28,10 @@ class PostsController extends ResourceControllerBase
     $this->passle_content_service = $passle_content_service;
     $this->wordpress_content_service = $wordpress_content_service;
   }
+
+  /*
+   * Admin dashboard routes
+   */
 
   public function refresh_all()
   {
@@ -100,6 +104,30 @@ class PostsController extends ResourceControllerBase
     }
 
     $posts = $this->passle_content_service->get_posts($shortcodes);
+
+    $this->sync_handler->delete_many($posts);
+  }
+
+  /*
+   * Webhooks
+   */
+
+  public function update($request)
+  {
+    $data = $request->get_json_params();
+
+    $post_shortcode = $data["PostShortcode"];
+    $posts = $this->passle_content_service->get_posts([$post_shortcode]);
+
+    $this->sync_handler->sync_many($posts);
+  }
+
+  public function delete($request)
+  {
+    $data = $request->get_json_params();
+
+    $post_shortcode = $data["PostShortcode"];
+    $posts = $this->passle_content_service->get_posts([$post_shortcode]);
 
     $this->sync_handler->delete_many($posts);
   }

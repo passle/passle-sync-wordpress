@@ -16,11 +16,16 @@ class ResourceControllerBase extends ControllerBase
 
   public function register_routes()
   {
+    // Admin dashboard routes
     $this->register_route("/{$this->resource_url}", "GET", "get_all");
     $this->register_route("/{$this->resource_url}/sync-all", "POST", "sync_all");
     $this->register_route("/{$this->resource_url}/delete-all", "POST", "delete_all");
     $this->register_route("/{$this->resource_url}/sync-many", "POST", "sync_many");
     $this->register_route("/{$this->resource_url}/delete-many", "POST", "delete_many");
     $this->register_route("/{$this->resource_url}/refresh-all", "GET", "refresh_all");
+
+    // Webhooks
+    $this->register_route("/{$this->resource_url}/update", "POST", "update", "validate_passle_webhook_request");
+    $this->register_route("/{$this->resource_url}/delete", "POST", "delete", "validate_passle_webhook_request");
   }
 }

@@ -77,18 +77,19 @@ class AuthorHandler extends SyncHandlerBase implements ISyncHandler
     $author_description = $this->update_property($author, "post_content", $data, "Description");
 
     $new_item = [
-      'ID'                => $id,
-      'post_title'        => $author_name,
-      'post_type'         => PASSLESYNC_AUTHOR_TYPE,
-      'post_content'      => $author_description,
-      'post_excerpt'      => $author_role,
-      'post_status'       => 'publish',
-      'comment_status'    => 'closed',
-      'meta_input'    => [
-        'author_shortcode'   => $author_shortcode,
-        'passle_shortcode'   => $passle_shortcode,
-        'avatar_url'   => $avatar_url,
-        'profile_url'   => $profile_url,
+      "ID" => $id,
+      "post_title" => $author_name,
+      "post_name" => $author_shortcode,
+      "post_type" => PASSLESYNC_AUTHOR_TYPE,
+      "post_content" => $author_description,
+      "post_excerpt" => $author_role,
+      "post_status" => "publish",
+      "comment_status" => "closed",
+      "meta_input" => [
+        "author_shortcode" => $author_shortcode,
+        "passle_shortcode" => $passle_shortcode,
+        "avatar_url" => $avatar_url,
+        "profile_url" => $profile_url,
       ]
     ];
 

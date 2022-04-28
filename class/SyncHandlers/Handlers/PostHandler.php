@@ -74,6 +74,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
     $post_shortcode = $this->update_property($post, "post_shortcode", $data, "PostShortcode");
     $passle_shortcode = $this->update_property($post, "passle_shortcode", $data, "PassleShortcode");
     $post_url = $this->update_property($post, "post_url", $data, "PostUrl");
+    $post_slug = $this->update_property($post, "post_slug", $data, fn ($x) => $this->extract_slug_from_url($x["PostUrl"]));
     $post_title = $this->update_property($post, "post_title", $data, "PostTitle");
     $post_content = $this->update_property($post, "post_content", $data, "PostContentHtml");
     $post_authors = $this->update_property($post, "post_authors", $data, fn ($x) => $this->map_authors($x["Authors"]));
@@ -101,6 +102,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
     $new_item = [
       "ID" => $id,
       "post_title" => $post_title,
+      "post_name" => $post_shortcode,
       "post_date" => $post_date,
       "post_type" => PASSLESYNC_POST_TYPE,
       "post_content" => $post_content,
@@ -111,6 +113,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
         "post_shortcode" => $post_shortcode,
         "passle_shortcode" => $passle_shortcode,
         "post_url" => $post_url,
+        "post_slug" => $post_slug,
         "post_authors" => $post_authors,
         "post_author_names" => $post_author_names,
         "post_coauthors" => $post_coauthors,
@@ -173,5 +176,10 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
       "tweet_id" => $tweet["TweetId"],
       "screen_name" => $tweet["ScreenName"],
     ], $tweets);
+  }
+
+  private function extract_slug_from_url(string $url)
+  {
+    return basename($url);
   }
 }

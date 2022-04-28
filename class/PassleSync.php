@@ -5,8 +5,8 @@ namespace Passle\PassleSync;
 use Passle\PassleSync\Controllers\Resources\PostsController;
 use Passle\PassleSync\Controllers\Resources\PeopleController;
 use Passle\PassleSync\Controllers\SettingsController;
-use Passle\PassleSync\PostTypes\PasslePost;
-use Passle\PassleSync\PostTypes\PasslePerson;
+use Passle\PassleSync\PostTypes\PasslePostCPT;
+use Passle\PassleSync\PostTypes\PasslePersonCPT;
 use Passle\PassleSync\Services\MenuService;
 
 class PassleSync
@@ -38,10 +38,10 @@ class PassleSync
     // Register settings menu
     add_action("admin_menu", [$this->menu_service, "register_menus"]);
 
-    // Generate plugin API key if it doesn't exist
-    if (get_option(PASSLESYNC_PLUGIN_API_KEY) == false) {
-      update_option(PASSLESYNC_PLUGIN_API_KEY, wp_generate_uuid4());
-    }
+    // Set default options if they don't already exist
+    add_option(PASSLESYNC_PLUGIN_API_KEY, wp_generate_uuid4());
+    add_option(PASSLESYNC_POST_PERMALINK_PREFIX, "p");
+    add_option(PASSLESYNC_PERSON_PERMALINK_PREFIX, "u");
 
     // /*
     // * Modify WP queries on the home page or searches
@@ -57,7 +57,7 @@ class PassleSync
     // });
 
     // Register post types and additional fields
-    new PasslePost();
-    new PasslePerson();
+    new PasslePostCPT();
+    new PasslePersonCPT();
   }
 }
