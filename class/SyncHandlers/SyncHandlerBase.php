@@ -8,12 +8,10 @@ use Passle\PassleSync\Utils\Utils;
 abstract class SyncHandlerBase
 {
   protected $passle_content_service;
-  private $passle_shortcode;
 
   public function __construct(PassleContentService $passle_content_service)
   {
     $this->passle_content_service = $passle_content_service;
-    $this->passle_shortcode = get_option(PASSLESYNC_SHORTCODE);
   }
 
   protected abstract function sync_all_impl();

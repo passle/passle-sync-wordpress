@@ -3,8 +3,8 @@
 namespace Passle\PassleSync\Controllers;
 
 use Exception;
-use Passle\PassleSync\PostTypes\PasslePerson;
-use Passle\PassleSync\PostTypes\PasslePost;
+use Passle\PassleSync\Models\Admin\Options;
+use Passle\PassleSync\Services\OptionsService;
 
 class SettingsController extends ControllerBase
 {
@@ -21,13 +21,15 @@ class SettingsController extends ControllerBase
       throw new Exception("You must include data to update settings", 400);
     }
 
-    update_option(PASSLESYNC_PLUGIN_API_KEY, $params["pluginApiKey"], true);
-    update_option(PASSLESYNC_CLIENT_API_KEY, $params["clientApiKey"], true);
-    update_option(PASSLESYNC_SHORTCODE, $params["passleShortcodes"], true);
-    update_option(POST_PERMALINK_PREFIX, $params["postPermalinkPrefix"], true);
-    update_option(PERSON_PERMALINK_PREFIX, $params["personPermalinkPrefix"], true);
+    $options = new Options(
+      $params["passleApiKey"],
+      $params["pluginApiKey"],
+      $params["passleShortcodes"],
+      $params["postPermalinkPrefix"],
+      $params["personPermalinkPrefix"],
+    );
 
-    flush_rewrite_rules();
+    OptionsService::set($options);
 
     return true;
   }

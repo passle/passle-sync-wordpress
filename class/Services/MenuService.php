@@ -18,16 +18,15 @@ class MenuService
 
   public function render_settings_menu()
   {
-    $shortcodes = get_option(PASSLESYNC_SHORTCODE);
-    $shortcodes_string = "";
-    if (gettype($shortcodes) == "array") {
-      $shortcodes_string = implode(",", $shortcodes);
-    } else {
-      $shortcodes_string = $shortcodes;
-    }
+
+    $options = htmlspecialchars(
+      json_encode(OptionsService::get()),
+      ENT_QUOTES,
+      "UTF-8"
+    );
 
 ?>
-    <div id="passle-sync-settings-root" data-plugin-api-key="<?php echo get_option(PASSLESYNC_PLUGIN_API_KEY) ?>" data-client-api-key="<?php echo get_option(PASSLESYNC_CLIENT_API_KEY) ?>" data-passle-shortcodes="<?php echo $shortcodes_string ?>" data-post-permalink-prefix="<?php echo get_option(PASSLESYNC_POST_PERMALINK_PREFIX); ?>" data-person-permalink-prefix="<?php echo get_option(PASSLESYNC_PERSON_PERMALINK_PREFIX); ?>">
+    <div id="passle-sync-settings-root" data-passlesync-options="<?php echo $options; ?>">
     </div>
 <?php
   }

@@ -8,6 +8,7 @@ use Passle\PassleSync\Controllers\SettingsController;
 use Passle\PassleSync\PostTypes\PasslePostCPT;
 use Passle\PassleSync\PostTypes\PasslePersonCPT;
 use Passle\PassleSync\Services\MenuService;
+use Passle\PassleSync\Services\OptionsService;
 
 class PassleSync
 {
@@ -30,34 +31,27 @@ class PassleSync
 
   public function initialize()
   {
-    // Register API routes
     add_action("rest_api_init", [$this->posts_controller, "register_routes"]);
     add_action("rest_api_init", [$this->people_controller, "register_routes"]);
     add_action("rest_api_init", [$this->settings_controller, "register_routes"]);
 
-    // Register settings menu
+    register_activation_hook(__FILE__, [$this, "activate"]);
+    register_deactivation_hook(__FILE__, [$this, "deactivate"]);
+
     add_action("admin_menu", [$this->menu_service, "register_menus"]);
 
-    // Set default options if they don't already exist
-    add_option(PASSLESYNC_PLUGIN_API_KEY, wp_generate_uuid4());
-    add_option(PASSLESYNC_POST_PERMALINK_PREFIX, "p");
-    add_option(PASSLESYNC_PERSON_PERMALINK_PREFIX, "u");
+    OptionsService::init();
+    PasslePostCPT::init();
+    PasslePersonCPT::init();
+  }
 
-    // /*
-    // * Modify WP queries on the home page or searches
-    // * so that they return our new custom post type
-    // * as well as the default post type.
-    // */
-    // // I guess we wouldn't want to do this by default
-    // // in case they had something else set
-    // add_action( 'pre_get_posts', function ($query) {
-    //     if ( $query->is_home() && $query->is_main_query() ) {
-    //         $query->set( 'post_type', [ 'post', PASSLESYNC_POST_TYPE ] );
-    //     }
-    // });
+  public function activate()
+  {
+    flush_rewrite_rules();
+  }
 
-    // Register post types and additional fields
-    new PasslePostCPT();
-    new PasslePersonCPT();
+  public function deactivate()
+  {
+    flush_rewrite_rules();
   }
 }

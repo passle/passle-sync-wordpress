@@ -10,13 +10,9 @@ if (passleSyncSettingsPageRoot) {
   ReactDOM.render(
     <App
       {...{
-        pluginApiKey: passleSyncSettingsPageRoot.dataset.pluginApiKey,
-        clientApiKey: passleSyncSettingsPageRoot.dataset.clientApiKey,
-        passleShortcodes: passleSyncSettingsPageRoot.dataset.passleShortcodes,
-        postPermalinkPrefix:
-          passleSyncSettingsPageRoot.dataset.postPermalinkPrefix,
-        personPermalinkPrefix:
-          passleSyncSettingsPageRoot.dataset.personPermalinkPrefix,
+        options: JSON.parse(
+          passleSyncSettingsPageRoot.dataset.passlesyncOptions,
+        ),
       }}
     />,
     passleSyncSettingsPageRoot,

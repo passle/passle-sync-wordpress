@@ -2,6 +2,8 @@
 
 namespace Passle\PassleSync\Controllers;
 
+use Passle\PassleSync\Services\OptionsService;
+
 abstract class ControllerBase
 {
 
@@ -9,7 +11,8 @@ abstract class ControllerBase
 
   public function __construct()
   {
-    $this->plugin_api_key = get_option(PASSLESYNC_PLUGIN_API_KEY);
+    $options = OptionsService::get();
+    $this->plugin_api_key = $options->plugin_api_key;
   }
 
   public abstract function register_routes();

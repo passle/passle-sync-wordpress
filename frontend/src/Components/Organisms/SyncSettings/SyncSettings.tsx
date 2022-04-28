@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { Options } from "_API/Types/Options";
 import Button from "_Components/Atoms/Button/Button";
 import { setAPIKey } from "_Services/ApiService";
 import { updateSettings } from "_Services/SyncService";
@@ -10,33 +11,29 @@ type Notice = {
 };
 
 export type SyncSettingsProps = {
-  pluginApiKey: string;
-  clientApiKey: string;
-  passleShortcodes: string;
-  postPermalinkPrefix: string;
-  personPermalinkPrefix: string;
+  options: Options;
 };
 
 const SyncSettings = (props: SyncSettingsProps) => {
   const [notice, setNotice] = useState<Notice>(null);
 
-  const [pluginApiKey, setPluginApiKey] = useState(props.pluginApiKey);
-  const [clientApiKey, setClientApiKey] = useState(props.clientApiKey);
+  const [passleApiKey, setPassleApiKey] = useState(props.options.passleApiKey);
+  const [pluginApiKey, setPluginApiKey] = useState(props.options.pluginApiKey);
   const [passleShortcodes, setPassleShortcodes] = useState(
-    props.passleShortcodes,
+    props.options.passleShortcodes,
   );
   const [postPermalinkPrefix, setPostPermalinkPrefix] = useState(
-    props.postPermalinkPrefix,
+    props.options.postPermalinkPrefix,
   );
   const [personPermalinkPrefix, setPersonPermalinkPrefix] = useState(
-    props.personPermalinkPrefix,
+    props.options.personPermalinkPrefix,
   );
 
   const saveSettings = (finishLoadingCallback: () => void) => {
     updateSettings({
       pluginApiKey,
-      clientApiKey,
-      passleShortcodes: passleShortcodes.replace(/\s/g, "").split(","),
+      passleApiKey,
+      passleShortcodes,
       postPermalinkPrefix,
       personPermalinkPrefix,
     }).then((success) => {
@@ -101,8 +98,8 @@ const SyncSettings = (props: SyncSettingsProps) => {
                 type="text"
                 id="client-api-key"
                 className="regular-text code"
-                value={clientApiKey}
-                onChange={(e) => setClientApiKey(e.target.value)}
+                value={passleApiKey}
+                onChange={(e) => setPassleApiKey(e.target.value)}
               />
             </td>
           </tr>
@@ -116,7 +113,11 @@ const SyncSettings = (props: SyncSettingsProps) => {
                 id="passle-shortcodes"
                 className="regular-text code"
                 value={passleShortcodes}
-                onChange={(e) => setPassleShortcodes(e.target.value)}
+                onChange={(e) =>
+                  setPassleShortcodes(
+                    e.target.value.replace(/\s/g, "").split(","),
+                  )
+                }
               />
               <p className="description" id="passle-shortcodes-description">
                 A comma-separated list of the shortcodes of the Passles you want

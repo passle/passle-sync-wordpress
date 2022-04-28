@@ -2,16 +2,18 @@
 
 namespace Passle\PassleSync\PostTypes;
 
+use Passle\PassleSync\Services\OptionsService;
+
 class PasslePersonCPT
 {
-  public function __construct()
+  public static function init()
   {
-    add_action("init", [$this, "create_post_type"]);
-    add_action("init", [$this, "create_rewrite_rules"]);
-    add_filter("post_type_link", [$this, "rewrite_post_permalink"], 1, 2);
+    add_action("init", [self::class, "create_post_type"]);
+    add_action("init", [self::class, "create_rewrite_rules"]);
+    add_filter("post_type_link", [self::class, "rewrite_post_permalink"], 1, 2);
   }
 
-  function create_post_type()
+  public static function create_post_type()
   {
     $labels = [
       "name" => "Passle Authors",
@@ -57,27 +59,25 @@ class PasslePersonCPT
     register_post_type(PASSLESYNC_AUTHOR_TYPE, $args);
   }
 
-  function create_rewrite_rules()
+  public static function create_rewrite_rules()
   {
-    $person_permalink_prefix = get_option(PASSLESYNC_PERSON_PERMALINK_PREFIX);
+    $person_permalink_prefix = OptionsService::get()->person_permalink_prefix;
 
     add_rewrite_rule(
       '^' . $person_permalink_prefix . '/([^/]*)/([^/]*)/?$',
       'index.php?post_type=' . PASSLESYNC_AUTHOR_TYPE . '&name=$matches[1]',
       'top'
     );
-
-    flush_rewrite_rules(); // TODO: Remove this before committing.
   }
 
-  function rewrite_post_permalink($permalink, $post)
+  public static function rewrite_post_permalink($permalink, $post)
   {
     if ($post->post_type !== PASSLESYNC_AUTHOR_TYPE) return $permalink;
 
     $post_shortcode = get_post_meta($post->ID, "post_shortcode", true);
     $post_slug = get_post_meta($post->ID, "post_slug", true);
 
-    $person_permalink_prefix = get_option(PASSLESYNC_PERSON_PERMALINK_PREFIX);
+    $person_permalink_prefix = OptionsService::get()->person_permalink_prefix;
     return home_url($person_permalink_prefix . "/$post_shortcode/$post_slug");
   }
 }

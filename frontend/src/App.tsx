@@ -8,20 +8,16 @@ import Tabs from "_Components/Molecules/Tabs/Tabs";
 import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
 import PostsTable from "_Components/Organisms/PostsTable/PostsTable";
 import PeopleTable from "_Components/Organisms/PeopleTable/PeopleTable";
-import { useContext } from "react";
+import { Options } from "_API/Types/Options";
 
 export type AppProps = {
-  pluginApiKey: string;
-  clientApiKey: string;
-  passleShortcodes: string;
-  postPermalinkPrefix: string;
-  personPermalinkPrefix: string;
+  options: Options;
 };
 
 const App = (props: AppProps) => {
   // React doesn't load data from Passle, so doesn't need the Passle API Key
   // But it does need to communicate securely with WP, so it needs to validate there
-  setAPIKey(props.pluginApiKey);
+  setAPIKey(props.options.pluginApiKey);
 
   return (
     <div className="App">
@@ -38,15 +34,7 @@ const App = (props: AppProps) => {
                     tabs={[
                       {
                         label: "Settings",
-                        Content: (
-                          <SyncSettings
-                            pluginApiKey={props.pluginApiKey}
-                            clientApiKey={props.clientApiKey}
-                            passleShortcodes={props.passleShortcodes}
-                            postPermalinkPrefix={props.postPermalinkPrefix}
-                            personPermalinkPrefix={props.personPermalinkPrefix}
-                          />
-                        ),
+                        Content: <SyncSettings options={props.options} />,
                       },
                       {
                         label: "Posts",

@@ -8,6 +8,7 @@ use Passle\PassleSync\Models\Admin\PaginatedResponse;
 use Passle\PassleSync\Models\Admin\Post;
 use Passle\PassleSync\SyncHandlers\Handlers\PostHandler;
 use Passle\PassleSync\Services\Content\PostsWordpressContentService;
+use Passle\PassleSync\Services\OptionsService;
 use Passle\PassleSync\Services\PassleContentService;
 use Passle\PassleSync\SyncHandlers\SyncHandlerBase;
 
@@ -87,7 +88,7 @@ class PostsController extends ResourceControllerBase
 
     // Filter out posts that aren't in the list of Passle shortcodes we want to sync content from
     // This is useful to prevent reposts being added when a post is saved
-    $passle_shortcodes = get_option(PASSLESYNC_SHORTCODE);
+    $passle_shortcodes = OptionsService::get()->passle_shortcodes;
     $posts = array_filter($posts, fn ($post) => in_array($post["PassleShortcode"], $passle_shortcodes));
 
     $this->sync_handler->sync_many($posts);

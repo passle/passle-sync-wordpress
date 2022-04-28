@@ -10,7 +10,7 @@ use Passle\PassleSync\Services\Content\PostsWordpressContentService;
 
 class PassleContentService
 {
-  private $api_key;
+  private $passle_api_key;
   private $people_wordpress_content_service;
   private $posts_wordpress_content_service;
 
@@ -18,7 +18,8 @@ class PassleContentService
     PeopleWordpressContentService $people_wordpress_content_service,
     PostsWordpressContentService $posts_wordpress_content_service
   ) {
-    $this->api_key = get_option(PASSLESYNC_CLIENT_API_KEY);
+    $options = OptionsService::get();
+    $this->passle_api_key = $options->passle_api_key;
     $this->people_wordpress_content_service = $people_wordpress_content_service;
     $this->posts_wordpress_content_service = $posts_wordpress_content_service;
   }
@@ -45,8 +46,9 @@ class PassleContentService
 
   public function get_all_items_from_api(string $storage_key, string $response_key, string $path)
   {
-    $passle_shortcodes = get_option(PASSLESYNC_SHORTCODE);
+    $passle_shortcodes = OptionsService::get()->passle_shortcodes;
 
+    /** @var array[] $results */
     $results = array_map(function ($passle_shortcode) use ($response_key, $path) {
       return $this->get_items_from_api_for_passle($passle_shortcode, $response_key, $path);
     }, $passle_shortcodes);
@@ -197,7 +199,7 @@ class PassleContentService
     $request = wp_remote_get($url, [
       'sslverify' => false,
       'headers' => [
-        "apiKey" => $this->api_key
+        "apiKey" => $this->passle_api_key
       ]
     ]);
 
