@@ -54,14 +54,21 @@ const PostsTable = () => {
   };
 
   const doWork = async (fn: () => Promise<void>, cb: () => void) => {
-    setWorking(true);
+    try {
+      setWorking(true);
 
-    await fn();
-    await refreshPostLists();
+      await fn();
+      await refreshPostLists();
 
-    setWorking(false);
-    setSelectedPosts([]);
-    cb();
+      setWorking(false);
+      setSelectedPosts([]);
+      cb();
+    } catch (e) {
+      setWorking(false);
+      cb();
+
+      alert("Oops, something went wrong. Please try again.");
+    }
   };
 
   return (
@@ -115,7 +122,7 @@ const PostsTable = () => {
                 variant="secondary"
                 text="Delete All Synced Posts"
                 loadingText="Deleting Posts..."
-                disabled={!postData.data.length || working} // TODO: This needs to count synced posts.
+                disabled={!postData.data.length || working}
                 onClick={(cb) => doWork(deleteAll, cb)}
               />
             )}
@@ -168,9 +175,13 @@ const PostsTable = () => {
                     variant={FeaturedItemVariant.Url}
                     data={post.imageUrl}
                   />
-                  <a href={post.postUrl} style={{ marginLeft: 12 }}>
-                    {post.title}
-                  </a>
+                  {post.synced ? (
+                    <a href={post.postUrl} style={{ marginLeft: 12 }}>
+                      {post.title}
+                    </a>
+                  ) : (
+                    <div style={{ marginLeft: 12 }}>{post.title}</div>
+                  )}
                 </td>
                 {post.excerpt ? (
                   <td dangerouslySetInnerHTML={{ __html: post.excerpt }} />

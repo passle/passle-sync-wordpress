@@ -29,7 +29,7 @@ abstract class ControllerBase
 
   public function validate_admin_dashboard_request($request): bool
   {
-    return $request->get_header("APIKey") == $this->plugin_api_key;
+    return current_user_can("administrator");
   }
 
   public function validate_passle_webhook_request($request): bool

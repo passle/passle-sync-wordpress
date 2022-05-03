@@ -10,7 +10,7 @@ class MenuService
       "options-general.php",
       "Passle Sync",
       "Passle Sync",
-      "manage_options",
+      "administrator",
       "passlesync",
       [$this, "render_settings_menu"]
     );
@@ -26,7 +26,7 @@ class MenuService
     );
 
 ?>
-    <div id="passle-sync-settings-root" data-passlesync-options="<?php echo $options; ?>">
+    <div id="passle-sync-settings-root" data-passlesync-options="<?php echo $options; ?>" data-wp-nonce="<?php echo wp_create_nonce("wp_rest"); ?>">
     </div>
 <?php
   }

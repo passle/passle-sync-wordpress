@@ -54,14 +54,26 @@ const PeopleTable = () => {
   };
 
   const doWork = async (fn: () => Promise<void>, cb: () => void) => {
-    setWorking(true);
+    try {
+      setWorking(true);
 
-    await fn();
-    await refreshPeopleLists();
+      await fn();
+      await refreshPeopleLists();
 
-    setWorking(false);
-    setSelectedPeople([]);
-    cb();
+      setWorking(false);
+      setSelectedPeople([]);
+      cb();
+    } catch (e) {
+      setWorking(false);
+      cb();
+
+      alert("Oops, something went wrong. Please try again.");
+    }
+  };
+
+  const htmlDecode = (html: string) => {
+    const doc = new DOMParser().parseFromString(html, "text/html");
+    return doc.documentElement.textContent;
   };
 
   return (
@@ -115,7 +127,7 @@ const PeopleTable = () => {
                 variant="secondary"
                 text="Delete All Synced People"
                 loadingText="Deleting People..."
-                disabled={!personData.data.length || working} // TODO: This needs to count synced people.
+                disabled={!personData.data.length || working}
                 onClick={(cb) => doWork(deleteAll, cb)}
               />
             )}
@@ -145,46 +157,61 @@ const PeopleTable = () => {
         }
         Body={
           personData.data.length ? (
-            personData.data.map((person) => (
-              <tr key={person.shortcode}>
-                <th scope="row" className="check-column">
-                  <input
-                    id="cb-select-1"
-                    type="checkbox"
-                    value={person.shortcode}
-                    checked={selectedPeople.includes(person.shortcode)}
-                    onChange={(e) =>
-                      setSelectedPeople((state) =>
-                        e.target.checked
-                          ? [...state, person.shortcode]
-                          : state.filter((x) => x !== person.shortcode),
-                      )
-                    }
+            personData.data.map((person) => {
+              const description = useMemo(
+                () => htmlDecode(person.description),
+                [person.description],
+              );
+
+              return (
+                <tr key={person.shortcode}>
+                  <th scope="row" className="check-column">
+                    <input
+                      id="cb-select-1"
+                      type="checkbox"
+                      value={person.shortcode}
+                      checked={selectedPeople.includes(person.shortcode)}
+                      onChange={(e) =>
+                        setSelectedPeople((state) =>
+                          e.target.checked
+                            ? [...state, person.shortcode]
+                            : state.filter((x) => x !== person.shortcode),
+                        )
+                      }
+                    />
+                  </th>
+                  <td style={{ display: "flex", alignItems: "flex-start" }}>
+                    <FeaturedItem
+                      variant={FeaturedItemVariant.Url}
+                      data={
+                        person.avatarUrl ||
+                        "https://images.passle.net/200x200/assets/images/no_avatar.png"
+                      }
+                      circle={true}
+                    />
+                    {person.synced ? (
+                      <a href={person.profileUrl} style={{ marginLeft: 12 }}>
+                        {person.name}
+                      </a>
+                    ) : (
+                      <div style={{ marginLeft: 12 }}>{person.name}</div>
+                    )}
+                  </td>
+                  <td>{person.role || "—"}</td>
+                  <td
+                    dangerouslySetInnerHTML={{
+                      __html: description || "—",
+                    }}
                   />
-                </th>
-                <td style={{ display: "flex", alignItems: "flex-start" }}>
-                  <FeaturedItem
-                    variant={FeaturedItemVariant.Url}
-                    data={
-                      person.avatarUrl ||
-                      "https://images.passle.net/200x200/assets/images/no_avatar.png"
-                    }
-                    circle={true}
-                  />
-                  <a href={person.profileUrl} style={{ marginLeft: 12 }}>
-                    {person.name}
-                  </a>
-                </td>
-                <td>{person.role ?? "—"}</td>
-                <td>{person.description ?? "—"}</td>
-                <td>
-                  <Badge
-                    variant={person.synced ? "success" : "warning"}
-                    text={person.synced ? "Synced" : "Unsynced"}
-                  />
-                </td>
-              </tr>
-            ))
+                  <td>
+                    <Badge
+                      variant={person.synced ? "success" : "warning"}
+                      text={person.synced ? "Synced" : "Unsynced"}
+                    />
+                  </td>
+                </tr>
+              );
+            })
           ) : (
             <tr className="no-items">
               <td colSpan={4}>No people found.</td>
