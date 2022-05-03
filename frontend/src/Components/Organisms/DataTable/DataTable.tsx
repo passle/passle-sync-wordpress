@@ -24,8 +24,10 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
   const { data, refreshItems, setCurrentPage } = useContext(props.context);
 
   const [working, setWorking] = useState(false);
+
   const [showDeleteAllModal, setShowDeleteAllModal] = useState(false);
   const [showDeleteMultipleModal, setShowDeleteMultipleModal] = useState(false);
+  const [showErrorModal, setShowErrorModal] = useState(false);
 
   const [selectedItems, setSelectedItems] = useState<string[]>([]);
 
@@ -79,7 +81,7 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
       setWorking(false);
       cb();
 
-      alert("Oops, something went wrong. Please try again.");
+      setShowErrorModal(true);
     }
   };
 
@@ -141,6 +143,14 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
         onCancel={() => {
           if (!working) setShowDeleteMultipleModal(false);
         }}
+      />
+      {/* Error modal */}
+      <Modal
+        title="Oops"
+        text="Something went wrong, please try again."
+        buttons={<Button text="OK" onClick={() => setShowErrorModal(false)} />}
+        open={showErrorModal}
+        onCancel={() => setShowErrorModal(false)}
       />
       <Table
         currentPage={data.current_page}
