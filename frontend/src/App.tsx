@@ -27,9 +27,9 @@ const App = (props: AppProps) => {
           <hr className="wp-header-end" />
 
           <PostDataContext.Consumer>
-            {({ postData }) => (
+            {({ data: postData }) => (
               <PersonDataContext.Consumer>
-                {({ personData }) => (
+                {({ data: personData }) => (
                   <Tabs
                     tabs={[
                       {

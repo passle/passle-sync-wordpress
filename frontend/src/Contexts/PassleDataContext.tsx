@@ -1,36 +1,29 @@
-import { createContext, useState, ReactNode, useEffect, useMemo } from "react";
+import { createContext, useState, ReactNode, useEffect } from "react";
 import { PaginatedResponse } from "_API/Types/PaginatedResponse";
 import { Person } from "_API/Types/Person";
 import { Post } from "_API/Types/Post";
-import { getAllPosts } from "_Services/SyncService";
-import { getAllPeople } from "_Services/SyncService";
+import { Syncable } from "_API/Types/Syncable";
+import { getAll } from "_Services/SyncService";
 
-type PostDataContextType = {
-  postData?: PaginatedResponse<Post>;
+export type DataContextType<T extends Syncable> = {
+  data?: PaginatedResponse<T>;
   setCurrentPage: (page: number) => Promise<void>;
   setItemsPerPage: (count: number) => void;
-  refreshPostLists: (page?: number, perPage?: number) => Promise<void>;
+  refreshItems: (page?: number, perPage?: number) => Promise<void>;
 };
 
-export const PostDataContext = createContext<PostDataContextType>({
-  postData: null,
+export const PostDataContext = createContext<DataContextType<Post>>({
+  data: null,
   setCurrentPage: async () => {},
   setItemsPerPage: () => {},
-  refreshPostLists: async () => {},
+  refreshItems: async () => {},
 });
 
-type PersonDataContextType = {
-  personData?: PaginatedResponse<Person>;
-  setCurrentPage: (page: number) => Promise<void>;
-  setItemsPerPage: (count: number) => void;
-  refreshPeopleLists: (page?: number, perPage?: number) => Promise<void>;
-};
-
-export const PersonDataContext = createContext<PersonDataContextType>({
-  personData: null,
+export const PersonDataContext = createContext<DataContextType<Person>>({
+  data: null,
   setCurrentPage: async () => {},
   setItemsPerPage: () => {},
-  refreshPeopleLists: async () => {},
+  refreshItems: async () => {},
 });
 
 export type PassleDataContextProviderProps = {
@@ -59,7 +52,7 @@ export const PassleDataContextProvider = (
     currentPage: number = 1,
     itemsPerPage: number = 20,
   ) => {
-    const response = await getAllPosts({
+    const response = await getAll<Post>("posts", {
       currentPage,
       itemsPerPage,
     });
@@ -71,7 +64,7 @@ export const PassleDataContextProvider = (
     currentPage: number = 1,
     itemsPerPage: number = 20,
   ) => {
-    const response = await getAllPeople({
+    const response = await getAll<Person>("people", {
       currentPage,
       itemsPerPage,
     });
@@ -89,17 +82,17 @@ export const PassleDataContextProvider = (
   return (
     <PostDataContext.Provider
       value={{
-        postData: postData,
+        data: postData,
         setCurrentPage: setCurrentPostPage,
         setItemsPerPage: setPostItemsPerPage,
-        refreshPostLists: refreshPostData,
+        refreshItems: refreshPostData,
       }}>
       <PersonDataContext.Provider
         value={{
-          personData: personData,
+          data: personData,
           setCurrentPage: setCurrentPeoplePage,
           setItemsPerPage: setPeopleItemsPerPage,
-          refreshPeopleLists: refreshPersonData,
+          refreshItems: refreshPersonData,
         }}>
         {props.children}
       </PersonDataContext.Provider>
