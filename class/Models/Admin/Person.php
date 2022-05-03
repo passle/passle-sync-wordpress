@@ -46,12 +46,12 @@ class Person
   public static function fromWordpressPerson(object $from)
   {
     return new self(
-      $from->author_shortcode,
-      $from->profile_url,
-      $from->avatar_url,
+      $from->author_shortcode[0],
+      $from->profile_url[0],
+      $from->avatar_url[0],
       $from->post_title,
       $from->post_excerpt,
-      $from->post_content,
+      wp_trim_words($from->post_content, 20),
       true,
     );
   }

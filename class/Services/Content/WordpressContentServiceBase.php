@@ -55,7 +55,7 @@ abstract class WordpressContentServiceBase
     $meta = get_post_meta($item->ID);
 
     foreach ($meta as $meta_key => $meta_value) {
-      $item->$meta_key = $meta_value[0];
+      $item->$meta_key = $meta_value;
     }
 
     return $item;

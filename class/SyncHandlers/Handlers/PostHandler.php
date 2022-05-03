@@ -70,34 +70,34 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
       $id = $existing_post->ID;
     }
 
-    // Update the fields from the new data, using the existing property values as a default
-    $post_shortcode = $this->update_property($post, "post_shortcode", $data, "PostShortcode");
-    $passle_shortcode = $this->update_property($post, "passle_shortcode", $data, "PassleShortcode");
-    $post_url = $this->update_property($post, "post_url", $data, "PostUrl");
-    $post_slug = $this->update_property($post, "post_slug", $data, fn ($x) => $this->extract_slug_from_url($x["PostUrl"]));
-    $post_title = $this->update_property($post, "post_title", $data, "PostTitle");
-    $post_content = $this->update_property($post, "post_content", $data, "PostContentHtml");
-    $post_authors = $this->update_property($this, "post_authors", $data, fn ($x) => $this->map_authors($x["Authors"]));
-    $post_author_shortcodes = $this->update_property($post, "post_author_shortcodes", $data, fn ($x) => $this->map_author_shortcodes($x["Authors"]));
-    $post_coauthors = $this->update_property($this, "post_coauthors", $data, fn ($x) => $this->map_authors($x["CoAuthors"]));
-    $post_coauthor_shortcodes = $this->update_property($post, "post_coauthor_shortcodes", $data, fn ($x) => $this->map_author_shortcodes($x["CoAuthors"]));
-    $post_share_views = $this->update_property($post, "post_share_views", $data, fn ($x) => $this->map_share_views($x["ShareViews"]));
-    $post_tweets = $this->update_property($post, "post_tweets", $data, fn ($x) => $this->map_tweets($x["Tweets"]));
-    $post_total_shares = $this->update_property($post, "post_total_shares", $data, "TotalShares");
-    $post_total_likes = $this->update_property($post, "post_total_likes", $data, "TotalLikes");
-    $post_date = $this->update_property($post, "post_date", $data, "PublishedDate");
-    $post_tags = $this->update_property($post, "post_tags", $data, "Tags");
-    $post_is_repost = $this->update_property($post, "post_is_repost", $data, "IsRepost", false);
-    $post_estimated_read_time = $this->update_property($post, "post_estimated_read_time", $data, "EstimatedReadTimeInSeconds", 0);
-    $post_image_url = $this->update_property($post, "post_image_url", $data, "ImageUrl");
-    $post_featured_item_html = $this->update_property($post, "post_featured_item_html", $data, "FeaturedItemHtml");
-    $post_featured_item_media_type = $this->update_property($post, "post_featured_item_media_type", $data, "FeaturedItemMediaType");
-    $post_featured_item_embed_type = $this->update_property($post, "post_featured_item_embed_type", $data, "FeaturedItemEmbedType");
-    $post_featured_item_embed_provider = $this->update_property($post, "post_featured_item_embed_provider", $data, "FeaturedItemEmbedProvider");
-    $post_excerpt = $this->update_property($post, "post_excerpt", $data, "ContentTextSnippet");
-    $post_opens_in_new_tab = $this->update_property($post, "post_opens_in_new_tab", $data, "OpensInNewTab");
-    $post_quote_text = $this->update_property($post, "post_quote_text", $data, "QuoteText");
-    $post_quote_url = $this->update_property($post, "post_quote_url", $data, "QuoteUrl");
+    // Update the fields from the new data
+    $post_shortcode = $data["PostShortcode"];
+    $passle_shortcode = $data["PassleShortcode"];
+    $post_url = $data["PostUrl"];
+    $post_slug = $this->extract_slug_from_url($data["PostUrl"]);
+    $post_title = $data["PostTitle"];
+    $post_content = $data["PostContentHtml"];
+    $post_authors = $this->map_authors($data["Authors"]);
+    $post_author_shortcodes = $this->map_author_shortcodes($data["Authors"]);
+    $post_coauthors = $this->map_authors($data["CoAuthors"]);
+    $post_coauthor_shortcodes = $this->map_author_shortcodes($data["CoAuthors"]);
+    $post_share_views = $this->map_share_views($data["ShareViews"]);
+    $post_tweets = $this->map_tweets($data["Tweets"]);
+    $post_total_shares = $data["TotalShares"];
+    $post_total_likes = $data["TotalLikes"];
+    $post_date = $data["PublishedDate"];
+    $post_tags = $data["Tags"];
+    $post_is_repost = $data["IsRepost"];
+    $post_estimated_read_time = $data["EstimatedReadTimeInSeconds"];
+    $post_image_url = $data["ImageUrl"];
+    $post_featured_item_html = $data["FeaturedItemHtml"];
+    $post_featured_item_media_type = $data["FeaturedItemMediaType"];
+    $post_featured_item_embed_type = $data["FeaturedItemEmbedType"];
+    $post_featured_item_embed_provider = $data["FeaturedItemEmbedProvider"];
+    $post_excerpt = $data["ContentTextSnippet"];
+    $post_opens_in_new_tab = $data["OpensInNewTab"];
+    $post_quote_text = $data["QuoteText"];
+    $post_quote_url = $data["QuoteUrl"];
 
     $new_item = [
       "ID" => $id,

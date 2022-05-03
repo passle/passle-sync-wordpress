@@ -118,20 +118,6 @@ abstract class SyncHandlerBase
     return $response;
   }
 
-  /** @param string|callable $data_key */
-  protected function update_property(?object $item, string $item_key, array $data, $data_key, $default_value = "")
-  {
-    $value = $item->{$item_key} ?? $default_value;
-
-    if (is_callable($data_key)) {
-      $value = call_user_func($data_key, $data);
-    } else {
-      $value = $data[$data_key] ?? $value;
-    }
-
-    return $value;
-  }
-
   protected function delete_item(int $id)
   {
     return wp_delete_post($id, true);

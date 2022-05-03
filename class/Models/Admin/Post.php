@@ -55,12 +55,14 @@ class Post
 
   public static function fromWordpressPost(object $from)
   {
+    $authors = join(", ", array_map(fn ($author) => unserialize($author)["name"], $from->post_authors));
+
     return new self(
-      $from->post_shortcode,
-      $from->post_url,
-      $from->post_image_url,
+      $from->post_shortcode[0],
+      $from->post_url[0],
+      $from->post_image_url[0],
       $from->post_title,
-      $from->post_author_names,
+      $authors,
       $from->post_excerpt,
       $from->post_content,
       strtotime($from->post_date),
