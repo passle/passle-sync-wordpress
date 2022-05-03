@@ -34,6 +34,6 @@ abstract class ControllerBase
 
   public function validate_passle_webhook_request($request): bool
   {
-    return true; // TODO: Validate sync API key.
+    return $request->get_header("APIKey") === $this->plugin_api_key;
   }
 }
