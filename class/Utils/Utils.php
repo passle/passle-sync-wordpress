@@ -30,6 +30,17 @@ class Utils
     return false;
   }
 
+  static function sformat($template, $params)
+  {
+    return str_replace(
+      array_map(function ($v) {
+        return "{" . $v . "}";
+      }, array_keys($params)),
+      $params,
+      $template
+    );
+  }
+
   static function clamp(int $number, int $min, int $max)
   {
     return max($min, min($max, $number));
