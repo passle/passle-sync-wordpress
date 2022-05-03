@@ -77,10 +77,10 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
     $post_slug = $this->update_property($post, "post_slug", $data, fn ($x) => $this->extract_slug_from_url($x["PostUrl"]));
     $post_title = $this->update_property($post, "post_title", $data, "PostTitle");
     $post_content = $this->update_property($post, "post_content", $data, "PostContentHtml");
-    $post_authors = $this->update_property($post, "post_authors", $data, fn ($x) => $this->map_authors($x["Authors"]));
-    $post_author_names = $this->update_property($post, "post_author_names", $data, fn ($x) => implode(", ", Utils::array_select($x["Authors"], "Name")));
-    $post_coauthors = $this->update_property($post, "post_coauthors", $data, fn ($x) => $this->map_authors($x["CoAuthors"]));
-    $post_coauthor_names = $this->update_property($post, "post_coauthor_names", $data, fn ($x) => implode(", ", Utils::array_select($x["CoAuthors"], "Name")));
+    $post_authors = $this->update_property($this, "post_authors", $data, fn ($x) => $this->map_authors($x["Authors"]));
+    $post_author_shortcodes = $this->update_property($post, "post_author_shortcodes", $data, fn ($x) => $this->map_author_shortcodes($x["Authors"]));
+    $post_coauthors = $this->update_property($this, "post_coauthors", $data, fn ($x) => $this->map_authors($x["CoAuthors"]));
+    $post_coauthor_shortcodes = $this->update_property($post, "post_coauthor_shortcodes", $data, fn ($x) => $this->map_author_shortcodes($x["CoAuthors"]));
     $post_share_views = $this->update_property($post, "post_share_views", $data, fn ($x) => $this->map_share_views($x["ShareViews"]));
     $post_tweets = $this->update_property($post, "post_tweets", $data, fn ($x) => $this->map_tweets($x["Tweets"]));
     $post_total_shares = $this->update_property($post, "post_total_shares", $data, "TotalShares");
@@ -115,9 +115,9 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
         "post_url" => $post_url,
         "post_slug" => $post_slug,
         "post_authors" => $post_authors,
-        "post_author_names" => $post_author_names,
+        "post_author_shortcodes" => $post_author_shortcodes,
         "post_coauthors" => $post_coauthors,
-        "post_coauthor_names" => $post_coauthor_names,
+        "post_coauthors_shortcodes" => $post_coauthor_shortcodes,
         "post_share_views" => $post_share_views,
         "post_tweets" => $post_tweets,
         "post_total_shares" => $post_total_shares,
@@ -136,7 +136,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
       ],
     ];
 
-    $new_id = wp_insert_post($new_item, true);
+    $new_id = $this->insert_post($new_item, true);
     if ($new_id != $id) {
       $new_item["ID"] = $new_id;
     }
@@ -159,6 +159,11 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
       "role" => $author["Role"],
       "twitter_screen_name" => $author["TwitterScreenName"],
     ], $authors);
+  }
+
+  private function map_author_shortcodes(array $authors)
+  {
+    return array_map(fn ($author) => $author["Shortcode"], $authors);
   }
 
   private function map_share_views(array $share_views)

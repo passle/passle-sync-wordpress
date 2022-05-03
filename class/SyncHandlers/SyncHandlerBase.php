@@ -136,4 +136,34 @@ abstract class SyncHandlerBase
   {
     return wp_delete_post($id, true);
   }
+
+  protected function insert_post(array $postarr, $wp_error = \false, $fire_after_hooks = \true)
+  {
+    if (empty($postarr["meta_input"])) {
+      return wp_insert_post($postarr, $wp_error, $fire_after_hooks);
+    }
+
+    // Find the keys that are arrays, take them out of $postarr and store them in a temporary array
+    $postarr_arrays = [];
+
+    foreach ($postarr["meta_input"] as $key => $value) {
+      if (gettype($value) !== "array") continue;
+      $postarr_arrays[$key] = $value;
+      unset($postarr["meta_input"][$key]);
+    }
+
+    // Insert the post
+    $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
+
+    // Add metadata for all arrays
+    foreach ($postarr_arrays as $key => $value) {
+      delete_post_meta($post_id, $key);
+
+      foreach ($value as $item) {
+        add_post_meta($post_id, $key, $item);
+      }
+    }
+
+    return $post_id;
+  }
 }

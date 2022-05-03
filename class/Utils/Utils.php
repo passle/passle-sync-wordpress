@@ -18,6 +18,18 @@ class Utils
     return $result;
   }
 
+  static function array_first(array $array, callable $predicate)
+  {
+    foreach ($array as $value) {
+      $matches = call_user_func($predicate, $value);
+      if ($matches) {
+        return $value;
+      }
+    }
+
+    return false;
+  }
+
   static function clamp(int $number, int $min, int $max)
   {
     return max($min, min($max, $number));

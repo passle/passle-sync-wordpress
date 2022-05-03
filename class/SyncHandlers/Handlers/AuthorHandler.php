@@ -70,11 +70,26 @@ class AuthorHandler extends SyncHandlerBase implements ISyncHandler
     // Update the fields from the new data, using the existing property values as a default
     $author_name = $this->update_property($author, "post_title", $data, "Name");
     $author_shortcode = $this->update_property($author, "author_shortcode", $data, "Shortcode");
-    $passle_shortcode = $this->update_property($author, "passle_shortcode", $data, "PassleShortcode");
     $profile_url = $this->update_property($author, "profile_url", $data, "ProfileUrl");
     $avatar_url = $this->update_property($author, "avatar_url", $data, "AvatarUrl");
     $author_role = $this->update_property($author, "post_excerpt", $data, "RoleInfo");
     $author_description = $this->update_property($author, "post_content", $data, "Description");
+    $email_address = $this->update_property($author, "email_address", $data, "EmailAddress");
+    $phone_number = $this->update_property($author, "phone_number", $data, "PhoneNumber");
+    $linkedin_profile_link = $this->update_property($author, "linkedin_profile_link", $data, "LinkedInProfileLink");
+    $facebook_profile_link = $this->update_property($author, "facebook_profile_link", $data, "FacebookProfileLink");
+    $twitter_screen_name = $this->update_property($author, "twitter_screen_name", $data, "TwitterScreenName");
+    $xing_profile_link = $this->update_property($author, "xing_profile_link", $data, "XingProfileLink");
+    $skype_profile_link = $this->update_property($author, "skype_profile_link", $data, "SkypeProfileLink");
+    $vimeo_profile_link = $this->update_property($author, "vimeo_profile_link", $data, "VimeoProfileLink");
+    $youtube_profile_link = $this->update_property($author, "youtube_profile_link", $data, "YouTubeProfileLink");
+    $stumbleupon_profile_link = $this->update_property($author, "stumbleupon_profile_link", $data, "StumbleUponProfileLink");
+    $pinterest_profile_link = $this->update_property($author, "pinterest_profile_link", $data, "PinterestProfileLink");
+    $instagram_profile_link = $this->update_property($author, "instagram_profile_link", $data, "InstagramProfileLink");
+    $personal_links = $this->update_property($author, "personal_links", $data, fn ($x) => $this->map_links($x["PersonalLinks"] ?? []));
+    $location_detail = $this->update_property($author, "location_detail", $data, "LocationDetail");
+    $location_country = $this->update_property($author, "location_country", $data, "LocationCountry");
+    $company_tagline = $this->update_property($author, "company_tagline", $data, "TagLineCompany");
 
     $new_item = [
       "ID" => $id,
@@ -87,13 +102,28 @@ class AuthorHandler extends SyncHandlerBase implements ISyncHandler
       "comment_status" => "closed",
       "meta_input" => [
         "author_shortcode" => $author_shortcode,
-        "passle_shortcode" => $passle_shortcode,
         "avatar_url" => $avatar_url,
         "profile_url" => $profile_url,
+        "email_address" => $email_address,
+        "phone_number" => $phone_number,
+        "linkedin_profile_link" => $linkedin_profile_link,
+        "facebook_profile_link" => $facebook_profile_link,
+        "twitter_screen_name" => $twitter_screen_name,
+        "xing_profile_link" => $xing_profile_link,
+        "skype_profile_link" => $skype_profile_link,
+        "vimeo_profile_link" => $vimeo_profile_link,
+        "youtube_profile_link" => $youtube_profile_link,
+        "stumbleupon_profile_link" => $stumbleupon_profile_link,
+        "pinterest_profile_link" => $pinterest_profile_link,
+        "instagram_profile_link" => $instagram_profile_link,
+        "personal_links" => $personal_links,
+        "location_detail" => $location_detail,
+        "location_country" => $location_country,
+        "company_tagline" => $company_tagline,
       ]
     ];
 
-    $new_id = wp_insert_post($new_item, true);
+    $new_id = $this->insert_post($new_item, true);
     if ($new_id != $id) {
       $new_item["ID"] = $new_id;
     }
@@ -104,5 +134,13 @@ class AuthorHandler extends SyncHandlerBase implements ISyncHandler
   protected function delete(object $author)
   {
     $this->delete_item($author->ID);
+  }
+
+  private function map_links(array $links)
+  {
+    return array_map(fn ($link) => [
+      "title" => $link["Title"],
+      "url" => $link["Url"],
+    ], $links);
   }
 }
