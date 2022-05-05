@@ -1,4 +1,4 @@
-const RenderDate = (dateString: string) => {
+const renderDate = (dateString: string) => {
   let date = new Date(dateString);
   const options: Intl.DateTimeFormatOptions = {
     year: "numeric",
@@ -9,4 +9,4 @@ const RenderDate = (dateString: string) => {
   return date.toLocaleDateString(undefined, options);
 };
 
-export default RenderDate;
+export default renderDate;

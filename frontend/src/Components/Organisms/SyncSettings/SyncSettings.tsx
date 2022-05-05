@@ -2,7 +2,6 @@ import { useState } from "react";
 import { Options } from "_API/Types/Options";
 import Button from "_Components/Atoms/Button/Button";
 import SettingsInput from "_Components/Molecules/SettingsInput/SettingsInput";
-import { setAPIKey } from "_Services/ApiService";
 import { updateSettings } from "_Services/SyncService";
 import classNames from "_Utils/classNames";
 
@@ -43,8 +42,6 @@ const SyncSettings = (props: SyncSettingsProps) => {
           text: "Successfully updated settings.",
           success: true,
         });
-
-        setAPIKey(pluginApiKey);
       } else {
         setNotice({
           text: "Failed to update settings.",

@@ -1,7 +1,7 @@
 import { Fragment } from "react";
 import Button from "_Components/Atoms/Button/Button";
 import { SyncState } from "_API/Enums/SyncState";
-import RenderDate from "_Utils/date";
+import renderDate from "_Utils/renderDate";
 import styles from "./Post.module.scss";
 import { FeaturedItemType } from "_API/Types/FeaturedItemType";
 import FeaturedItem from "_Components/Atoms/FeaturedItem/FeaturedItem";
@@ -38,7 +38,7 @@ const Post = (props: PostProps) => {
 
       <div className={styles.Post_Body}>
         <div className={styles.Post_Date}>
-          {RenderDate(props.publishedDate)}
+          {renderDate(props.publishedDate)}
         </div>
         <div>
           <span>

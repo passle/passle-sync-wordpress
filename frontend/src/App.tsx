@@ -3,7 +3,6 @@ import {
   PersonDataContext,
   PostDataContext,
 } from "_Contexts/PassleDataContext";
-import { setAPIKey } from "_Services/ApiService";
 import Tabs from "_Components/Molecules/Tabs/Tabs";
 import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
 import PostsTable from "_Components/Organisms/PostsTable/PostsTable";
@@ -15,10 +14,6 @@ export type AppProps = {
 };
 
 const App = (props: AppProps) => {
-  // React doesn't load data from Passle, so doesn't need the Passle API Key
-  // But it does need to communicate securely with WP, so it needs to validate there
-  setAPIKey(props.options.pluginApiKey);
-
   return (
     <div className="App">
       <PassleDataContextProvider>

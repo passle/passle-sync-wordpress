@@ -17,6 +17,4 @@ if (passleSyncSettingsPageRoot) {
     />,
     passleSyncSettingsPageRoot,
   );
-} else {
-  console.warn("Can't find passle-sync-settings-root");
 }
