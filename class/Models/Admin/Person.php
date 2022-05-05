@@ -38,7 +38,7 @@ class Person
       $from["AvatarUrl"],
       $from["Name"],
       $from["RoleInfo"],
-      $from["Description"],
+      wp_trim_words($from["Description"], 20),
       false,
     );
   }

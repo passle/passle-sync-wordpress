@@ -4,7 +4,6 @@ namespace Passle\PassleSync\SyncHandlers\Handlers;
 
 use Passle\PassleSync\SyncHandlers\SyncHandlerBase;
 use Passle\PassleSync\SyncHandlers\ISyncHandler;
-use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\Services\Content\PostsWordpressContentService;
 use Passle\PassleSync\Services\PassleContentService;
 

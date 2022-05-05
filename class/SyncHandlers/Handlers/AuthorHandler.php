@@ -96,8 +96,8 @@ class AuthorHandler extends SyncHandlerBase implements ISyncHandler
       "post_title" => $author_name,
       "post_name" => $author_shortcode,
       "post_type" => PASSLESYNC_AUTHOR_TYPE,
-      "post_content" => $author_description,
-      "post_excerpt" => $author_role,
+      "post_content" => $author_description ?? "",
+      "post_excerpt" => $author_role ?? "",
       "post_status" => "publish",
       "comment_status" => "closed",
       "meta_input" => [

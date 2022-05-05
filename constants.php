@@ -13,6 +13,8 @@ passle_constants("DOMAIN_EXT", "localhost");
 
 passle_constants("REST_API_BASE", "passlesync/v1");
 passle_constants("OPTIONS_KEY", "passlesync_options");
+passle_constants("POSTS_CACHE", "passlesync_posts_cache");
+passle_constants("AUTHORS_CACHE", "passlesync_authors_cache");
 passle_constants("POST_TYPE", "passle-post");
 passle_constants("AUTHOR_TYPE", "passle-author");
 passle_constants("CLIENT_API_BASE", "clientwebapi.passle." . PASSLESYNC_DOMAIN_EXT . "/api");

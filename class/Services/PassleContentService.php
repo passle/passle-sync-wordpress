@@ -26,22 +26,22 @@ class PassleContentService
 
   public function get_stored_passle_posts_from_api()
   {
-    return $this->posts_wordpress_content_service->get_or_update_items('passle_posts_from_api', [$this, 'update_all_passle_posts_from_api']);
+    return $this->posts_wordpress_content_service->get_or_update_items(PASSLESYNC_POSTS_CACHE, [$this, 'update_all_passle_posts_from_api']);
   }
 
   public function get_stored_passle_authors_from_api()
   {
-    return $this->people_wordpress_content_service->get_or_update_items('passle_authors_from_api', [$this, 'update_all_passle_authors_from_api']);
+    return $this->people_wordpress_content_service->get_or_update_items(PASSLESYNC_AUTHORS_CACHE, [$this, 'update_all_passle_authors_from_api']);
   }
 
   public function update_all_passle_posts_from_api()
   {
-    return $this->get_all_items_from_api('passle_posts_from_api', 'Posts', 'posts');
+    return $this->get_all_items_from_api(PASSLESYNC_POSTS_CACHE, 'Posts', 'posts');
   }
 
   public function update_all_passle_authors_from_api()
   {
-    return $this->get_all_items_from_api('passle_authors_from_api', 'People', 'people');
+    return $this->get_all_items_from_api(PASSLESYNC_AUTHORS_CACHE, 'People', 'people');
   }
 
   public function get_all_items_from_api(string $storage_key, string $response_key, string $path)
@@ -93,28 +93,6 @@ class PassleContentService
     $result = Utils::array_select_multiple($responses, $response_key);
 
     return $result;
-  }
-
-  public function get_single_from_api(string $passle_shortcode, string $item_shortcode, string $path, string $response_key)
-  {
-    $params = [
-      'PassleShortcode' => $passle_shortcode
-    ];
-    if ($path == "posts") {
-      $params["PostShortcode"] = $item_shortcode;
-    }
-    if ($path == "people") {
-      $params["PersonShortcode"] = $item_shortcode;
-    }
-
-    $factory = new UrlFactory();
-    $url = $factory
-      ->path("/passlesync/" . $path)
-      ->parameters($params)
-      ->build();
-
-    $response = $this->get($url);
-    return $response[$response_key];
   }
 
   /** @param array<string> $post_shortcodes */
