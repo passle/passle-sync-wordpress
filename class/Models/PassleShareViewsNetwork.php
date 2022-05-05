@@ -21,7 +21,7 @@ class PassleShareViewsNetwork
 
   private function initialize()
   {
-    $this->social_network = $this->wp_network["social_network"];
-    $this->total_views = $this->wp_network["total_views"];
+    $this->social_network = $this->wp_network["social_network"] ?? "";
+    $this->total_views = $this->wp_network["total_views"] ?? 0;
   }
 }

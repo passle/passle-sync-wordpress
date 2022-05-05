@@ -74,28 +74,28 @@ class PasslePost
 
   private function initialize()
   {
-    $this->shortcode = $this->meta["post_shortcode"][0];
-    $this->passle_shortcode = $this->meta["passle_shortcode"][0];
-    $this->url = $this->meta["post_url"][0];
-    $this->slug = $this->meta["post_slug"][0];
-    $this->title = $this->wp_post->post_title;
-    $this->content = $this->wp_post->post_content;
-    $this->total_shares = $this->meta["post_total_shares"][0];
-    $this->total_likes = $this->meta["post_total_likes"][0];
-    $this->date = date_create($this->wp_post->post_date);
+    $this->shortcode = $this->meta["post_shortcode"][0] ?? "";
+    $this->passle_shortcode = $this->meta["passle_shortcode"][0] ?? "";
+    $this->url = $this->meta["post_url"][0] ?? "";
+    $this->slug = $this->meta["post_slug"][0] ?? "";
+    $this->title = $this->wp_post->post_title ?? "";
+    $this->content = $this->wp_post->post_content ?? "";
+    $this->total_shares = $this->meta["post_total_shares"][0] ?? 0;
+    $this->total_likes = $this->meta["post_total_likes"][0] ?? 0;
+    $this->date = date_create($this->wp_post->post_date ?? "now");
     $this->tags = $this->meta["post_tags"] ?? [];
-    $this->is_repost = $this->meta["post_is_repost"][0];
-    $this->estimated_read_time_seconds = $this->meta["post_estimated_read_time"][0];
-    $this->estimated_read_time_minutes = max(ceil($this->estimated_read_time_seconds / 60), 1);
-    $this->image_url = $this->meta["post_image_url"][0];
-    $this->featured_item_html = htmlspecialchars_decode($this->meta["post_featured_item_html"][0]);
-    $this->featured_item_media_type = $this->meta["post_featured_item_media_type"][0];
-    $this->featured_item_embed_type = $this->meta["post_featured_item_embed_type"][0];
-    $this->featured_item_embed_provider = $this->meta["post_featured_item_embed_provider"][0];
-    $this->excerpt = $this->wp_post->post_excerpt;
-    $this->opens_in_new_tab = $this->meta["post_opens_in_new_tab"][0];
-    $this->quote_text = $this->meta["post_quote_text"][0];
-    $this->quote_url = $this->meta["post_quote_url"][0];
+    $this->is_repost = $this->meta["post_is_repost"][0] ?? false;
+    $this->estimated_read_time_seconds = $this->meta["post_estimated_read_time"][0] ?? 0;
+    $this->estimated_read_time_minutes = max(ceil($this->estimated_read_time_seconds / 60), 1) ?? 0;
+    $this->image_url = $this->meta["post_image_url"][0] ?? "";
+    $this->featured_item_html = htmlspecialchars_decode($this->meta["post_featured_item_html"][0]) ?? "";
+    $this->featured_item_media_type = $this->meta["post_featured_item_media_type"][0] ?? "";
+    $this->featured_item_embed_type = $this->meta["post_featured_item_embed_type"][0] ?? "";
+    $this->featured_item_embed_provider = $this->meta["post_featured_item_embed_provider"][0] ?? "";
+    $this->excerpt = $this->wp_post->post_excerpt ?? "";
+    $this->opens_in_new_tab = $this->meta["post_opens_in_new_tab"][0] ?? false;
+    $this->quote_text = $this->meta["post_quote_text"][0] ?? "";
+    $this->quote_url = $this->meta["post_quote_url"][0] ?? "";
 
     $this->initialize_authors();
     $this->initialize_share_views();

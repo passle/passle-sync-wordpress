@@ -21,7 +21,7 @@ class PassleLink
 
   private function initialize()
   {
-    $this->title = $this->wp_link["title"];
-    $this->url = $this->wp_link["url"];
+    $this->title = $this->wp_link["title"] ?? "";
+    $this->url = $this->wp_link["url"] ?? "";
   }
 }

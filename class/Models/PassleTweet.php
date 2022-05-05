@@ -22,8 +22,8 @@ class PassleTweet
 
   private function initialize()
   {
-    $this->embed_code = $this->wp_tweet["embed_code"];
-    $this->tweet_id = $this->wp_tweet["tweet_id"];
-    $this->screen_name = $this->wp_tweet["screen_name"];
+    $this->embed_code = $this->wp_tweet["embed_code"] ?? "";
+    $this->tweet_id = $this->wp_tweet["tweet_id"] ?? "";
+    $this->screen_name = $this->wp_tweet["screen_name"] ?? "";
   }
 }
