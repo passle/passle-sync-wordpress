@@ -80,8 +80,9 @@ abstract class SyncHandlerBase
     $existing_items_by_shortcode = [];
 
     foreach ($existing_items as $item) {
-      array_push($existing_shortcodes, $item->{$existing_item_shortcode_property});
-      $existing_items_by_shortcode[$item->{$existing_item_shortcode_property}] = $item;
+      $item_shortcode = $item->{$existing_item_shortcode_property}[0];
+      array_push($existing_shortcodes, $item_shortcode);
+      $existing_items_by_shortcode[$item_shortcode] = $item;
     }
 
     $all_shortcodes = array_unique(array_merge($passle_shortcodes, $existing_shortcodes));

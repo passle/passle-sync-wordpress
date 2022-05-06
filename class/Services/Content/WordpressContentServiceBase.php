@@ -39,7 +39,7 @@ abstract class WordpressContentServiceBase
     $items = $this->get_items();
 
     $matching_items = array_filter($items, function ($item) use ($shortcode, $shortcode_property) {
-      return $item->{$shortcode_property} === $shortcode;
+      return $item->{$shortcode_property}[0] === $shortcode;
     });
 
     if (count($matching_items) > 0) {
