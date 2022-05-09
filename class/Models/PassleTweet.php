@@ -8,12 +8,16 @@ namespace Passle\PassleSync\Models;
  */
 class PassleTweet
 {
+  /** The HTML embed code of the Tweet. */
   public string $embed_code;
+  /** The ID of the Tweet. */
   public string $tweet_id;
+  /** The Twitter username of the person who posted this Tweet. */
   public string $screen_name;
 
   private array $wp_tweet;
 
+  /** @internal */
   public function __construct(array $wp_tweet)
   {
     $this->wp_tweet = $wp_tweet;

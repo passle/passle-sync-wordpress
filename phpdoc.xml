@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<phpdocumentor configVersion="3" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns="https://www.phpdoc.org">
+  <title>PassleSync</title>
+  <paths>
+    <output>docs/</output>
+  </paths>
+  <version number="1.0.0">
+    <folder>latest</folder>
+    <api>
+      <source dsn=".">
+        <path>class/Models</path>
+      </source>
+      <output>api</output>
+      <ignore hidden="true" symlinks="true">
+        <path>class/Models/Admin/**/*</path>
+      </ignore>
+      <extensions>
+        <extension>php</extension>
+      </extensions>
+      <visibility>public</visibility>
+      <default-package-name>PassleSync</default-package-name>
+    </api>
+  </version>
+  <template name="./vendor/saggre/phpdocumentor-markdown/themes/markdown"/>
+</phpdocumentor>

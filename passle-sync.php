@@ -1,12 +1,13 @@
 <?php
 /*
-  Plugin Name: Passle Sync for WordPress
-  Plugin URI: https://www.passle.net
-  Description: Plugin to sync your Passle posts into your WordPress instance
-  Version: 0.2
+  Plugin Name: Passle Sync
+  Plugin URI: https://github.com/passle/passle-sync-wordpress
+  Description: This plugin will sync your Passle posts and authors into your WordPress instance.
+  Version: 1.0.0
   Author: Passle
   Author URI: https://www.passle.net
-  License: TBC
+  License: MIT
+  License URI: https://github.com/passle/passle-sync-wordpress/blob/master/LICENSE
   Text Domain: passle
 */
 

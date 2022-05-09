@@ -8,29 +8,56 @@ namespace Passle\PassleSync\Models;
  */
 class PassleAuthor
 {
+  /** The person's full name. */
   public string $name;
+  /** The shortcode for the person. */
   public string $shortcode;
+  /** The URL for the person's profile. */
   public string $profile_url;
+  /** The URL for this person's avatar image. */
   public string $avatar_url;
+  /** The URL to the subscribe page for this person. */
+  public string $subscribe_link;
+  /** The tagline for this person. */
   public string $role;
+  /** The profile description for this person. */
   public string $description;
+  /** The person's email address. */
   public string $email_address;
+  /** The person's phone number. */
   public string $phone_number;
+  /** The URL to the person's LinkedIn profile. */
   public string $linkedin_profile_link;
+  /** The URL to the person's Facebook profile. */
   public string $facebook_profile_link;
+  /** The person's Twitter screen name. */
   public string $twitter_screen_name;
+  /** The URL to the person's Xing profile. */
   public string $xing_profile_link;
+  /** The URL to the person's Skype profile. */
   public string $skype_profile_link;
+  /** The URL to the person's Vimeo profile. */
   public string $vimeo_profile_link;
+  /** The URL to the person's YouTube profile. */
   public string $youtube_profile_link;
+  /** The URL to the person's StumbleUpon profile. */
   public string $stumbleupon_profile_link;
+  /** The URL to the person's Pinterest profile. */
   public string $pinterest_profile_link;
+  /** The URL to the person's Instagram profile. */
   public string $instagram_profile_link;
-  /** @var PassleLink[] $personal_links */
+  /** 
+   * A list of titles and urls for any other links the person may have added to their profile.
+   * @var PassleLink[]|null
+   */
   public ?array $personal_links;
+  /** The city/region the person is in. */
   public string $location_detail;
+  /** The country the person is in. */
   public string $location_country;
+  /** The combined city/region and/or country the person is in, separated by a comma. */
   public string $location_full;
+  /** The tagline for the client the person is in. */
   public string $company_tagline;
 
   private object $wp_author;
@@ -38,19 +65,30 @@ class PassleAuthor
 
   private array $post_author;
 
-  public function __construct($wp_author_or_post_author)
+  /**
+   * Construct a new instance of the `PassleAuthor` class from the Wordpress post object.
+   * 
+   * @param WP_Post $wp_author The Wordpress post object.
+   * @return void
+   */
+  public function __construct($wp_author)
   {
-    if (gettype($wp_author_or_post_author) === "object") {
-      $this->wp_author = $wp_author_or_post_author;
-      $this->meta = get_post_meta($wp_author_or_post_author->ID);
+    if (gettype($wp_author) === "object") {
+      $this->wp_author = $wp_author;
+      $this->meta = get_post_meta($wp_author->ID);
       $this->initialize_wp_author();
     } else {
-      $this->post_author = $wp_author_or_post_author;
+      $this->post_author = $wp_author;
       $this->initialize_post_author();
     }
   }
 
-  /** Get the avatar URL, opionally specifying a fallback URL. */
+  /**
+   * Get the avatar URL, opionally specifying a fallback URL.
+   * 
+   * @param string|null $fallback_url The fallback image URL if the author doesn't have an avatar.
+   * @return string
+   */
   public function get_avatar_url(?string $fallback_url = PASSLESYNC_DEFAULT_AVATAR_URL)
   {
     return empty($this->avatar_url) ? $fallback_url : $this->avatar_url;
@@ -62,6 +100,7 @@ class PassleAuthor
     $this->shortcode = $this->wp_author->post_name ?? "";
     $this->profile_url = $this->meta["profile_url"][0] ?? "";
     $this->avatar_url = $this->meta["avatar_url"][0] ?? "";
+    $this->subscribe_link = $this->meta["subscribe_link"][0] ?? "";
     $this->role = $this->wp_author->post_excerpt ?? "";
     $this->description = $this->wp_author->post_content ?? "";
     $this->email_address = $this->meta["email_address"][0] ?? "";

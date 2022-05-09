@@ -8,11 +8,14 @@ namespace Passle\PassleSync\Models;
  */
 class PassleShareViewsNetwork
 {
+  /** The social media channel this object represents. One of None; LinkedIn; Twitter; Facebook; DefaultShareButtons = LinkedIn, Twitter and Facebook combined; Xing; Email. */
   public string $social_network;
+  /** The total number of views via this social media channel. */
   public int $total_views;
 
   private array $wp_network;
 
+  /** @internal */
   public function __construct(array $wp_network)
   {
     $this->wp_network = $wp_network;

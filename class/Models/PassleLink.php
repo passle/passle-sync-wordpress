@@ -8,11 +8,14 @@ namespace Passle\PassleSync\Models;
  */
 class PassleLink
 {
+  /** The title of the link. */
   public string $title;
+  /** The URL of the link. */
   public string $url;
 
   private array $wp_link;
 
+  /** @internal */
   public function __construct(array $wp_link)
   {
     $this->wp_link = $wp_link;

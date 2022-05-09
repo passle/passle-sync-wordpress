@@ -72,6 +72,7 @@ class AuthorHandler extends SyncHandlerBase implements ISyncHandler
     $author_shortcode = $data["Shortcode"];
     $profile_url = $data["ProfileUrl"];
     $avatar_url = $data["AvatarUrl"];
+    $subscribe_link = $data["SubscribeLink"];
     $author_role = $data["RoleInfo"];
     $author_description = $data["Description"];
     $email_address = $data["EmailAddress"];
@@ -104,6 +105,7 @@ class AuthorHandler extends SyncHandlerBase implements ISyncHandler
         "author_shortcode" => $author_shortcode,
         "avatar_url" => $avatar_url,
         "profile_url" => $profile_url,
+        "subscribe_link" => $subscribe_link,
         "email_address" => $email_address,
         "phone_number" => $phone_number,
         "linkedin_profile_link" => $linkedin_profile_link,

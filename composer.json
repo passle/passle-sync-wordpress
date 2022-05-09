@@ -11,5 +11,17 @@
     "files": [
       "helpers.php"
     ]
+  },
+  "require-dev": {
+    "phpdocumentor/shim": "3",
+    "saggre/phpdocumentor-markdown": "^0.1.3"
+  },
+  "config": {
+    "allow-plugins": {
+      "phpdocumentor/shim": true
+    }
+  },
+  "scripts": {
+    "generate-docs": "php ./vendor/bin/phpdoc"
   }
 }
