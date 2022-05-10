@@ -24,7 +24,7 @@ On the first tab of the plugin settings page, you will find the following config
 
 ### 📙 Basic Usage
 
-Once the plugin has been configured correctly, posts and people can be synced. Using the Posts and People tabs under Settings > Passle Sync.
+Once the plugin has been configured correctly, posts and people can be synced using the **Posts** and **People** tabs under **Settings > Passle Sync**.
 
 **1. Fetch from API**
 
@@ -51,6 +51,15 @@ For detailed documentation on the available classes, jump to the [API documentat
 TBD
 
 ## 👨‍💻 Development
+
+<details>
+<summary>Prerequisites</summary>
+
+You will need a development environment running a Wordpress instance.
+
+To build documentation, you will need to ensure `extension=fileinfo` is enabled in your `php.ini`. This extension is disabled by default on Windows.
+
+</details>
 
 <details>
 <summary>Environment setup</summary>

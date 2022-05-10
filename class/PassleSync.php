@@ -7,6 +7,7 @@ use Passle\PassleSync\Controllers\Resources\PeopleController;
 use Passle\PassleSync\Controllers\SettingsController;
 use Passle\PassleSync\PostTypes\PasslePostCPT;
 use Passle\PassleSync\PostTypes\PasslePersonCPT;
+use Passle\PassleSync\Services\EmbedService;
 use Passle\PassleSync\Services\MenuService;
 use Passle\PassleSync\Services\OptionsService;
 
@@ -40,6 +41,7 @@ class PassleSync
 
     add_action("admin_menu", [$this->menu_service, "register_menus"]);
 
+    EmbedService::init();
     OptionsService::init();
     PasslePostCPT::init();
     PasslePersonCPT::init();
