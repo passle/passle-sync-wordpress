@@ -1,0 +1,28 @@
+{
+  "name": "passle-sync-wordpress",
+  "description": "Passle Sync is a plugin for Wordpress which syncs your [Passle](https://home.passle.net/) posts and authors into your Wordpress instance.",
+  "version": "1.0.0",
+  "main": "index.js",
+  "directories": {
+    "doc": "docs"
+  },
+  "scripts": {
+    "build-zip": "gulp buildZip"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/passle/passle-sync-wordpress.git"
+  },
+  "author": "Passle",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/passle/passle-sync-wordpress/issues"
+  },
+  "homepage": "https://github.com/passle/passle-sync-wordpress#readme",
+  "devDependencies": {
+    "chalk": "^4.1.2",
+    "gulp": "^4.0.2",
+    "gulp-cli": "^2.3.0",
+    "gulp-zip": "^5.1.0"
+  }
+}

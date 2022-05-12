@@ -1,5 +1,4 @@
 const path = require("path");
-const HtmlWebpackPlugin = require("html-webpack-plugin");
 const MiniCssExtractPlugin = require("mini-css-extract-plugin");
 const TsconfigPathsPlugin = require("tsconfig-paths-webpack-plugin");
 const { WebpackManifestPlugin } = require("webpack-manifest-plugin");
@@ -48,10 +47,6 @@ const options = (env, options) => ({
     publicPath: "",
   },
   plugins: [
-    new HtmlWebpackPlugin({
-      template: "src/index.html",
-      filename: "index.html",
-    }),
     new MiniCssExtractPlugin({
       filename: "index.bundle.css",
     }),
