@@ -57,21 +57,6 @@ const options = (env, options) => ({
     }),
     new WebpackManifestPlugin({
       fileName: "asset-manifest.json",
-      generate: (seed, files, entrypoints) => {
-        const manifestFiles = files.reduce((manifest, file) => {
-          manifest[file.name] =
-            "/wp-content/plugins/passle-sync/frontend/dist/" + file.path;
-          return manifest;
-        }, seed);
-        const entrypointFiles = entrypoints.main.filter(
-          (fileName) => !fileName.endsWith(".map")
-        );
-
-        return {
-          files: manifestFiles,
-          entrypoints: entrypointFiles,
-        };
-      },
     }),
   ],
   devtool: false,

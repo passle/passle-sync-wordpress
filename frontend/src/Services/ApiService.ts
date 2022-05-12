@@ -7,7 +7,7 @@ const passleSyncSettingsPageRoot = document.getElementById(
 const instance = axios.create({
   baseURL: "/wp-json/passlesync/v1",
   headers: {
-    "X-WP-Nonce": passleSyncSettingsPageRoot.dataset.wpNonce,
+    "X-WP-Nonce": passleSyncSettingsPageRoot?.dataset.wpNonce ?? "",
   },
 });
 
