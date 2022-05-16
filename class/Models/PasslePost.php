@@ -67,6 +67,8 @@ class PasslePost
   public string $image_url;
   /** The HTML content for the post's featured media. */
   public string $featured_item_html;
+  /** An integer showing where the featured media is shown in the post. Values are: 0 - None; 1 - At the bottom of the post; 2 - At the top of the post; 3 - In the post’s header. */
+  public int $featured_item_position;
   /** An integer showing what type of media the post's featured media is. 0 - None; 1 - Image; 2 - Video; 3 - Audio; 4 - Embedded link / item; 5 - Font; 6 - Document. */
   public int $featured_item_media_type;
   /** An integer showing what type of embed the post's embedded item is, if the featured media is of type '4 - Embedded link / item'. 0 - None; 1 - Photo; 2 - Video; 3 - Link; 4 - Rich. */
@@ -142,6 +144,7 @@ class PasslePost
     $this->estimated_read_time_minutes = max(ceil($this->estimated_read_time_seconds / 60), 1) ?? 0;
     $this->image_url = $this->meta["post_image_url"][0] ?? "";
     $this->featured_item_html = htmlspecialchars_decode($this->meta["post_featured_item_html"][0]) ?? "";
+    $this->featured_item_position = $this->meta["post_featured_item_position"][0] ?? "";
     $this->featured_item_media_type = $this->meta["post_featured_item_media_type"][0] ?? "";
     $this->featured_item_embed_type = $this->meta["post_featured_item_embed_type"][0] ?? "";
     $this->featured_item_embed_provider = $this->meta["post_featured_item_embed_provider"][0] ?? "";

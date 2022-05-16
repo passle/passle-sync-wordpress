@@ -90,6 +90,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
     $post_estimated_read_time = $data["EstimatedReadTimeInSeconds"];
     $post_image_url = $data["ImageUrl"];
     $post_featured_item_html = $data["FeaturedItemHtml"];
+    $post_featured_item_position = $data["FeaturedItemPosition"];
     $post_featured_item_media_type = $data["FeaturedItemMediaType"];
     $post_featured_item_embed_type = $data["FeaturedItemEmbedType"];
     $post_featured_item_embed_provider = $data["FeaturedItemEmbedProvider"];
@@ -126,6 +127,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
         "post_tags" => $post_tags,
         "post_image_url" => $post_image_url,
         "post_featured_item_html" => $post_featured_item_html,
+        "post_featured_item_position" => $post_featured_item_position,
         "post_featured_item_media_type" => $post_featured_item_media_type,
         "post_featured_item_embed_type" => $post_featured_item_embed_type,
         "post_featured_item_embed_provider" => $post_featured_item_embed_provider,
