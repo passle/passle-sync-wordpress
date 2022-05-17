@@ -3,6 +3,7 @@
 namespace Passle\PassleSync\Controllers;
 
 use Exception;
+use \WP_REST_Request;
 use Passle\PassleSync\Models\Admin\Options;
 use Passle\PassleSync\Services\OptionsService;
 
@@ -13,7 +14,7 @@ class SettingsController extends ControllerBase
     $this->register_route("/settings/update", "POST", "update_api_settings");
   }
 
-  public function update_api_settings($request)
+  public function update_api_settings(WP_REST_Request $request)
   {
     $params = $request->get_params();
 

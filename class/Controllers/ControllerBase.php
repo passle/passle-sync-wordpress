@@ -2,8 +2,8 @@
 
 namespace Passle\PassleSync\Controllers;
 
-use Passle\PassleSync\Services\OptionsService;
 use \WP_REST_Request;
+use Passle\PassleSync\Services\OptionsService;
 
 abstract class ControllerBase
 {

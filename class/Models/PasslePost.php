@@ -91,13 +91,14 @@ class PasslePost
    * Construct a new instance of the `PasslePost` class from the Wordpress post object.
    * 
    * @param WP_Post $wp_post The Wordpress post object.
+   * @param bool $load_authors Whether or not the author objects should be loaded along with the post.
    * @return void
    */
-  public function __construct(WP_Post $wp_post)
+  public function __construct(WP_Post $wp_post, bool $load_authors = true)
   {
     $this->wp_post = $wp_post;
     $this->meta = get_post_meta($wp_post->ID);
-    $this->initialize();
+    $this->initialize($load_authors);
   }
 
   /**
@@ -127,7 +128,7 @@ class PasslePost
    */
 
   /** @internal */
-  private function initialize()
+  private function initialize(bool $load_authors)
   {
     $this->shortcode = $this->meta["post_shortcode"][0] ?? "";
     $this->passle_shortcode = $this->meta["passle_shortcode"][0] ?? "";
@@ -153,7 +154,10 @@ class PasslePost
     $this->quote_text = $this->meta["post_quote_text"][0] ?? "";
     $this->quote_url = $this->meta["post_quote_url"][0] ?? "";
 
-    $this->initialize_authors();
+    if ($load_authors) {
+      $this->initialize_authors();
+    }
+
     $this->initialize_share_views();
     $this->initialize_tweets();
   }

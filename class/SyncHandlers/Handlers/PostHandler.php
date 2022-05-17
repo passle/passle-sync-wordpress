@@ -6,6 +6,7 @@ use Passle\PassleSync\SyncHandlers\SyncHandlerBase;
 use Passle\PassleSync\SyncHandlers\ISyncHandler;
 use Passle\PassleSync\Services\Content\PostsWordpressContentService;
 use Passle\PassleSync\Services\PassleContentService;
+use Passle\PassleSync\Utils\Utils;
 
 class PostHandler extends SyncHandlerBase implements ISyncHandler
 {
@@ -18,6 +19,12 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
   ) {
     parent::__construct($passle_content_service);
     $this->wordpress_content_service = $wordpress_content_service;
+  }
+
+  public function sync_all()
+  {
+    Utils::clear_featured_posts();
+    $this->sync_all();
   }
 
   protected function sync_all_impl()
@@ -136,6 +143,14 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
         "post_quote_url" => $post_quote_url,
       ],
     ];
+
+    if ($data["IsFeaturedOnPasslePage"]) {
+      $new_item["meta_input"]["post_is_featured_on_passle_page"] = true;
+    }
+
+    if ($data["IsFeaturedOnPostPage"]) {
+      $new_item["meta_input"]["post_is_featured_on_post_page"] = true;
+    }
 
     $new_id = $this->insert_post($new_item, true);
     if ($new_id != $id) {

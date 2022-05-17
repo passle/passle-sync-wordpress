@@ -2,6 +2,7 @@
 
 namespace Passle\PassleSync;
 
+use Passle\PassleSync\Controllers\FeaturedPostController;
 use Passle\PassleSync\Controllers\Resources\PostsController;
 use Passle\PassleSync\Controllers\Resources\PeopleController;
 use Passle\PassleSync\Controllers\SettingsController;
@@ -22,11 +23,13 @@ class PassleSync
     PostsController $posts_controller,
     PeopleController $people_controller,
     SettingsController $settings_controller,
+    FeaturedPostController $featured_post_controller,
     MenuService $menu_service
   ) {
     $this->posts_controller = $posts_controller;
     $this->people_controller = $people_controller;
     $this->settings_controller = $settings_controller;
+    $this->featured_post_controller = $featured_post_controller;
     $this->menu_service = $menu_service;
   }
 
@@ -35,6 +38,7 @@ class PassleSync
     add_action("rest_api_init", [$this->posts_controller, "register_routes"]);
     add_action("rest_api_init", [$this->people_controller, "register_routes"]);
     add_action("rest_api_init", [$this->settings_controller, "register_routes"]);
+    add_action("rest_api_init", [$this->featured_post_controller, "register_routes"]);
 
     register_activation_hook(__FILE__, [$this, "activate"]);
     register_deactivation_hook(__FILE__, [$this, "deactivate"]);

@@ -45,4 +45,10 @@ class Utils
   {
     return max($min, min($max, $number));
   }
+
+  static function clear_featured_posts()
+  {
+    delete_metadata("post", 0, "post_is_featured_on_passle_page", "", true);
+    delete_metadata("post", 0, "post_is_featured_on_post_page", "", true);
+  }
 }

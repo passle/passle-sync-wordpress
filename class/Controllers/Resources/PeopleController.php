@@ -3,6 +3,7 @@
 namespace Passle\PassleSync\Controllers\Resources;
 
 use Exception;
+use \WP_REST_Request;
 use Passle\PassleSync\Controllers\Resources\ResourceControllerBase;
 use Passle\PassleSync\Models\Admin\PaginatedResponse;
 use Passle\PassleSync\Models\Admin\Person;
@@ -38,7 +39,7 @@ class PeopleController extends ResourceControllerBase
     $this->passle_content_service->update_all_passle_authors_from_api();
   }
 
-  public function get_all($request)
+  public function get_all(WP_REST_Request $request)
   {
     $wp_people = $this->wordpress_content_service->get_items();
     $api_people = $this->passle_content_service->get_stored_passle_authors_from_api();
@@ -62,17 +63,17 @@ class PeopleController extends ResourceControllerBase
     return PaginatedResponse::make($unique_models, $current_page, $items_per_page);
   }
 
-  public function sync_all($request)
+  public function sync_all(WP_REST_Request $request)
   {
     $this->sync_handler->sync_all();
   }
 
-  public function delete_all($request)
+  public function delete_all(WP_REST_Request $request)
   {
     $this->sync_handler->delete_all();
   }
 
-  public function sync_many($request)
+  public function sync_many(WP_REST_Request $request)
   {
     $data = $request->get_json_params();
 
@@ -87,7 +88,7 @@ class PeopleController extends ResourceControllerBase
     $this->sync_handler->sync_many($people);
   }
 
-  public function delete_many($request)
+  public function delete_many(WP_REST_Request $request)
   {
     $data = $request->get_json_params();
 
@@ -106,7 +107,7 @@ class PeopleController extends ResourceControllerBase
    * Webhooks
    */
 
-  public function update($request)
+  public function update(WP_REST_Request $request)
   {
     $data = $request->get_json_params();
 
@@ -116,7 +117,7 @@ class PeopleController extends ResourceControllerBase
     $this->sync_handler->sync_many($people);
   }
 
-  public function delete($request)
+  public function delete(WP_REST_Request $request)
   {
     $data = $request->get_json_params();
 
