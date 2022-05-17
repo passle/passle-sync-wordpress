@@ -16,10 +16,10 @@ Passle share view networks that have been saved to the Wordpress database.
 
 ### social_network
 
-The social media channel this object represents. 0 - None; 1 - LinkedIn; 2 - Twitter; 4 - Facebook; 7 - LinkedIn, Twitter and Facebook combined; 16 -  Xing; 32 - Email.
+The social media channel this object represents. One of None; LinkedIn; Twitter; Facebook; DefaultShareButtons = LinkedIn, Twitter and Facebook combined; Xing; Email.
 
 ```php
-public int $social_network
+public string $social_network
 ```
 
 
@@ -47,4 +47,4 @@ public int $total_views
 
 
 ***
-> Automatically generated from source code comments on 2022-05-09 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
+> Automatically generated from source code comments on 2022-05-17 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)

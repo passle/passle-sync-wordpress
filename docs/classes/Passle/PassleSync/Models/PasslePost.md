@@ -314,6 +314,21 @@ public string $featured_item_html
 
 ***
 
+### featured_item_position
+
+An integer showing where the featured media is shown in the post. Values are: 0 - None; 1 - At the bottom of the post; 2 - At the top of the post; 3 - In the post’s header.
+
+```php
+public int $featured_item_position
+```
+
+
+
+
+
+
+***
+
 ### featured_item_media_type
 
 An integer showing what type of media the post's featured media is. 0 - None; 1 - Image; 2 - Video; 3 - Audio; 4 - Embedded link / item; 5 - Font; 6 - Document.
@@ -427,7 +442,7 @@ public string $quote_url
 Construct a new instance of the `PasslePost` class from the Wordpress post object.
 
 ```php
-public __construct(\WP_Post $wp_post): void
+public __construct(\WP_Post $wp_post, bool $load_authors = true): void
 ```
 
 
@@ -442,6 +457,7 @@ public __construct(\WP_Post $wp_post): void
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$wp_post` | **\WP_Post** | The Wordpress post object. |
+| `$load_authors` | **bool** | Whether or not the author objects should be loaded along with the post. |
 
 
 
@@ -496,4 +512,4 @@ public get_joined_tags(): string
 
 
 ***
-> Automatically generated from source code comments on 2022-05-09 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
+> Automatically generated from source code comments on 2022-05-17 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
