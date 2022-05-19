@@ -4,6 +4,11 @@ Passle Sync is a plugin for Wordpress which syncs your [Passle](https://home.pas
 
 Get started with the section below, or jump straight to the [API documentation](./docs/index.md).
 
+A great example of how to use the plugin is our demo theme:
+
+- [📂 Theme source](https://github.com/passle/passle-sync-wordpress-demo-theme)
+- [🌍 Live demo](http://mercierandvelezviewpoints.com/)
+
 ## 🚀 Getting started
 
 Get started by installing the plugin and activating it.
@@ -45,6 +50,16 @@ To display Passle posts and authors, you should create custom templates as part 
 This plugin provides the `PasslePost` and `PassleAuthor` helper classes, which you should use in your templates to access the custom Passle fields attached to a post or author more easily. They also ensure you're using the most up to date version of the data available.
 
 For detailed documentation on the available classes, jump to the [API documentation](./docs/index.md).
+
+### 📰 Handling Featured Posts
+
+Post meta is used to identify the featured post, on both the content hub page and the post page, with the keys `post_is_featured_on_passle_page`, and `post_is_featured_on_post_page`.
+
+You can query for featured posts, or exclude them from a query, using one of these values as the meta query `key` parameter, and either `EXISTS` or `NOT EXISTS` as the meta query `compare` parameter.
+
+An example of how to exclude the post featured on the content hub page from your main query can be found in our demo theme's [functions.php](https://github.com/passle/passle-sync-wordpress-demo-theme/blob/master/functions.php#L124).
+
+An example of how to get the content hub featured post in order to display it separately from the rest of the posts can be found in our demo theme's [index.php](https://github.com/passle/passle-sync-wordpress-demo-theme/blob/master/index.php#L9).
 
 ## 🔧 Requirements
 
