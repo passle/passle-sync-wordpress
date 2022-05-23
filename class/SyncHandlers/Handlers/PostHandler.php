@@ -24,7 +24,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
   public function sync_all()
   {
     Utils::clear_featured_posts();
-    $this->sync_all();
+    parent::sync_all();
   }
 
   protected function sync_all_impl()
