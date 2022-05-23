@@ -106,7 +106,7 @@ To develop the frontend, use the `watch` script available in [frontend/package.j
 <details>
 <summary>Building the plugin zip</summary>
 
-To build the plugin zip file, use the `build:staging` and `build:production` scripts available in [package.json](./package.json). This will install dependencies (excluding dev dependencies), build the frontend, and create a zip contain all necessary output files.
+To build the plugin zip file, use the `build:staging` and `build:production` scripts available in [package.json](./package.json). This will install all dependencies (excluding Composer dev dependencies), build the frontend, and create a zip containing all necessary output files.
 
 </details>
 
