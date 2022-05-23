@@ -70,7 +70,9 @@ TBD
 <details>
 <summary>Prerequisites</summary>
 
-You will need a development environment running a Wordpress instance.
+- [NPM](https://www.npmjs.com/)
+- [Composer](https://getcomposer.org/)
+- Development environment running a Wordpress instance
 
 To build documentation, you will need to ensure `extension=fileinfo` is enabled in your `php.ini`. This extension is disabled by default on Windows.
 
@@ -85,24 +87,33 @@ To develop this plugin, first clone the repository:
 git clone https://github.com/passle/passle-sync-wordpress
 ```
 
-Then install all dependencies with [Composer](https://getcomposer.org/):
+Next, install all dependencies and build the frontend with the following commands:
 
 ```
-composer install
+npm install
+npm run init
 ```
 
-To build the frontend, use the `watch` and `build` scripts availabile in `frontend/package.json`.
+</details>
+
+<details>
+<summary>Developing the frontend</summary>
+
+To develop the frontend, use the `watch` script available in [frontend/package.json](./frontend/package.json).
+
+</details>
+
+<details>
+<summary>Building the plugin zip</summary>
+
+To build the plugin zip file, use the `build:staging` and `build:production` scripts available in [package.json](./package.json). This will install dependencies (excluding dev dependencies), build the frontend, and create a zip contain all necessary output files.
 
 </details>
 
 <details>
 <summary>Generating docs</summary>
 
-Documentation is automatically generated with [phpDocumentor](https://github.com/phpDocumentor/phpDocumentor) and [phpDocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown). To generate documentation, run the Composer script:
-
-```
-composer run generate-docs
-```
+Documentation is automatically generated with [phpDocumentor](https://github.com/phpDocumentor/phpDocumentor) and [phpDocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown). To generate documentation, run the `docs` script available in [package.json](./package.json).
 
 </details>
 

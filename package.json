@@ -7,7 +7,10 @@
     "doc": "docs"
   },
   "scripts": {
-    "build-zip": "gulp buildZip"
+    "init": "gulp init",
+    "docs": "gulp generateDocs",
+    "build:staging": "cross-env PASSLE_ENV=it gulp buildZip",
+    "build:production": "cross-env PASSLE_ENV=net gulp buildZip"
   },
   "repository": {
     "type": "git",
@@ -20,9 +23,11 @@
   },
   "homepage": "https://github.com/passle/passle-sync-wordpress#readme",
   "devDependencies": {
-    "chalk": "^4.1.2",
+    "cross-env": "^7.0.3",
+    "event-stream": "^4.0.1",
     "gulp": "^4.0.2",
     "gulp-cli": "^2.3.0",
+    "gulp-replace": "^1.1.3",
     "gulp-zip": "^5.1.0"
   }
 }
