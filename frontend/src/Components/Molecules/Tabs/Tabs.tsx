@@ -10,6 +10,7 @@ type TabType = {
 
 export type TabsProps = {
   tabs: TabType[];
+  loading: boolean;
 };
 
 const Tabs = (props: TabsProps) => {
@@ -23,7 +24,9 @@ const Tabs = (props: TabsProps) => {
             key={tab.label}
             text={tab.label}
             active={activeIdx === idx}
-            disabled={tab.disabled ?? false}
+            disabled={
+              (props.loading && activeIdx !== idx) || (tab.disabled ?? false)
+            }
             onClick={() => setActiveIdx(idx)}
           />
         ))}

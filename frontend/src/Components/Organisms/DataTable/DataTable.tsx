@@ -3,7 +3,10 @@ import { Syncable } from "_API/Types/Syncable";
 import Button from "_Components/Atoms/Button/Button";
 import Modal from "_Components/Molecules/Modal/Modal";
 import Table from "_Components/Molecules/Table/Table";
-import { DataContextType } from "_Contexts/PassleDataContext";
+import {
+  DataContextType,
+  PassleDataContext,
+} from "_Contexts/PassleDataContext";
 import {
   deleteAll,
   deleteMany,
@@ -16,11 +19,12 @@ export type DataTableProps<T extends Syncable> = {
   itemSingular: string;
   itemPlural: string;
   context: Context<DataContextType<T>>;
-  TableHeadings: ReactNode;
+  TableHeadings: JSX.Element;
   RenderItem: (item: T) => ReactNode;
 };
 
 const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
+  const { setLoading } = useContext(PassleDataContext);
   const { data, refreshItems, setCurrentPage } = useContext(props.context);
 
   const [working, setWorking] = useState(false);
@@ -63,14 +67,19 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
     });
   };
 
+  const setLoadingStatus = (isLoading: boolean) => {
+    setWorking(isLoading);
+    setLoading(isLoading);
+  };
+
   const doWork = async (fn: () => Promise<void>, cb: () => void) => {
     try {
-      setWorking(true);
+      setLoadingStatus(true);
 
       await fn();
       await refreshItems();
 
-      setWorking(false);
+      setLoadingStatus(false);
       setSelectedItems([]);
 
       setShowDeleteAllModal(false);
@@ -78,7 +87,7 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
 
       cb();
     } catch (e) {
-      setWorking(false);
+      setLoadingStatus(false);
       cb();
 
       setShowErrorModal(true);
@@ -246,7 +255,9 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
             ))
           ) : (
             <tr className="no-items">
-              <td colSpan={4}>No {props.itemPlural.toLowerCase()} found.</td>
+              <td colSpan={props.TableHeadings.props.children.length + 1}>
+                No {props.itemPlural.toLowerCase()} found.
+              </td>
             </tr>
           )
         }

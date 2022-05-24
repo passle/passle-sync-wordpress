@@ -25,11 +25,6 @@ const PeopleTable = () => {
         </>
       }
       RenderItem={(item) => {
-        const description = useMemo(
-          () => htmlDecode(item.description),
-          [item.description],
-        );
-
         return (
           <>
             <td style={{ display: "flex", alignItems: "flex-start" }}>
@@ -52,7 +47,7 @@ const PeopleTable = () => {
             <td>{item.role || "—"}</td>
             <td
               dangerouslySetInnerHTML={{
-                __html: description || "—",
+                __html: htmlDecode(item.description) || "—",
               }}
             />
             <td>

@@ -2,6 +2,7 @@ import { useState } from "react";
 import classNames from "_Utils/classNames";
 import Spinner from "_Components/Atoms/Spinner/Spinner";
 import styles from "./Button.module.scss";
+import useIsMounted from "_Hooks/useIsMounted";
 
 type ButtonVariant = "primary" | "secondary";
 
@@ -27,6 +28,7 @@ const Button = ({
   disabled = false,
   ...props
 }: ButtonProps) => {
+  const isMounted = useIsMounted();
   const [loading, setLoading] = useState(false);
 
   const onClick = () => {
@@ -41,6 +43,7 @@ const Button = ({
   };
 
   const finishLoading = () => {
+    if (!isMounted.current) return;
     setLoading(false);
   };
 

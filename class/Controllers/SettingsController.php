@@ -32,6 +32,6 @@ class SettingsController extends ControllerBase
 
     OptionsService::set($options);
 
-    return true;
+    return $options;
   }
 }

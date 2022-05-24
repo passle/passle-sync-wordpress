@@ -7,14 +7,5 @@ const passleSyncSettingsPageRoot = document.getElementById(
 );
 
 if (passleSyncSettingsPageRoot) {
-  ReactDOM.render(
-    <App
-      {...{
-        options: JSON.parse(
-          passleSyncSettingsPageRoot.dataset.passlesyncOptions,
-        ),
-      }}
-    />,
-    passleSyncSettingsPageRoot,
-  );
+  ReactDOM.render(<App />, passleSyncSettingsPageRoot);
 }

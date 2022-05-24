@@ -1,7 +1,8 @@
-import { useState } from "react";
+import { useContext, useMemo, useState } from "react";
 import { Options } from "_API/Types/Options";
 import Button from "_Components/Atoms/Button/Button";
 import SettingsInput from "_Components/Molecules/SettingsInput/SettingsInput";
+import { PassleDataContext } from "_Contexts/PassleDataContext";
 import { updateSettings } from "_Services/SyncService";
 import classNames from "_Utils/classNames";
 
@@ -10,38 +11,52 @@ type Notice = {
   success: boolean;
 };
 
-export type SyncSettingsProps = {
-  options: Options;
-};
-
-const SyncSettings = (props: SyncSettingsProps) => {
+const SyncSettings = () => {
+  const { setLoading } = useContext(PassleDataContext);
   const [notice, setNotice] = useState<Notice>(null);
 
-  const [passleApiKey, setPassleApiKey] = useState(props.options.passleApiKey);
-  const [pluginApiKey, setPluginApiKey] = useState(props.options.pluginApiKey);
+  const options = useMemo<Options>(
+    () =>
+      JSON.parse(
+        document.getElementById("passle-sync-settings-root").dataset
+          .passlesyncOptions,
+      ),
+    [],
+  );
+
+  const [passleApiKey, setPassleApiKey] = useState(options.passleApiKey);
+  const [pluginApiKey, setPluginApiKey] = useState(options.pluginApiKey);
   const [passleShortcodes, setPassleShortcodes] = useState(
-    props.options.passleShortcodes,
+    options.passleShortcodes,
   );
   const [postPermalinkPrefix, setPostPermalinkPrefix] = useState(
-    props.options.postPermalinkPrefix,
+    options.postPermalinkPrefix,
   );
   const [personPermalinkPrefix, setPersonPermalinkPrefix] = useState(
-    props.options.personPermalinkPrefix,
+    options.personPermalinkPrefix,
   );
 
   const saveSettings = (finishLoadingCallback: () => void) => {
+    setLoading(true);
+
     updateSettings({
       passleApiKey,
       pluginApiKey,
       passleShortcodes,
       postPermalinkPrefix,
       personPermalinkPrefix,
-    }).then((success) => {
-      if (success) {
+    }).then((options) => {
+      setLoading(false);
+
+      if (options) {
         setNotice({
           text: "Successfully updated settings.",
           success: true,
         });
+
+        document.getElementById(
+          "passle-sync-settings-root",
+        ).dataset.passlesyncOptions = JSON.stringify(options);
       } else {
         setNotice({
           text: "Failed to update settings.",

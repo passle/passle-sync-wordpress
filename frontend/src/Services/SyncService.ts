@@ -1,3 +1,4 @@
+import { Options } from "_API/Types/Options";
 import { PaginatedResponse } from "_API/Types/PaginatedResponse";
 import { get, post } from "./ApiService";
 
@@ -28,4 +29,4 @@ export const deleteMany = async (
 ) => post<void>(`/${path}/delete-many`, options);
 
 export const updateSettings = async (data: object) =>
-  post<boolean>("/settings/update", data);
+  post<Options>("/settings/update", data);

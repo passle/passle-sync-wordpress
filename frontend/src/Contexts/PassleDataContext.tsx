@@ -5,6 +5,16 @@ import { Post } from "_API/Types/Post";
 import { Syncable } from "_API/Types/Syncable";
 import { getAll } from "_Services/SyncService";
 
+export type PassleDataContextType = {
+  loading: boolean;
+  setLoading: (loading: boolean) => void;
+};
+
+export const PassleDataContext = createContext<PassleDataContextType>({
+  loading: false,
+  setLoading: () => {},
+});
+
 export type DataContextType<T extends Syncable> = {
   data?: PaginatedResponse<T>;
   setCurrentPage: (page: number) => Promise<void>;
@@ -33,6 +43,8 @@ export type PassleDataContextProviderProps = {
 export const PassleDataContextProvider = (
   props: PassleDataContextProviderProps,
 ) => {
+  const [loading, setLoading] = useState(false);
+
   const [postData, setPostData] = useState<PaginatedResponse<Post>>();
   const [personData, setPersonData] = useState<PaginatedResponse<Person>>();
 
@@ -80,22 +92,24 @@ export const PassleDataContextProvider = (
   }, []);
 
   return (
-    <PostDataContext.Provider
-      value={{
-        data: postData,
-        setCurrentPage: setCurrentPostPage,
-        setItemsPerPage: setPostItemsPerPage,
-        refreshItems: refreshPostData,
-      }}>
-      <PersonDataContext.Provider
+    <PassleDataContext.Provider value={{ loading, setLoading }}>
+      <PostDataContext.Provider
         value={{
-          data: personData,
-          setCurrentPage: setCurrentPeoplePage,
-          setItemsPerPage: setPeopleItemsPerPage,
-          refreshItems: refreshPersonData,
+          data: postData,
+          setCurrentPage: setCurrentPostPage,
+          setItemsPerPage: setPostItemsPerPage,
+          refreshItems: refreshPostData,
         }}>
-        {props.children}
-      </PersonDataContext.Provider>
-    </PostDataContext.Provider>
+        <PersonDataContext.Provider
+          value={{
+            data: personData,
+            setCurrentPage: setCurrentPeoplePage,
+            setItemsPerPage: setPeopleItemsPerPage,
+            refreshItems: refreshPersonData,
+          }}>
+          {props.children}
+        </PersonDataContext.Provider>
+      </PostDataContext.Provider>
+    </PassleDataContext.Provider>
   );
 };
