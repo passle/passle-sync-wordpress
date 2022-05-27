@@ -116,6 +116,7 @@ class PostHandler extends SyncHandlerBase implements ISyncHandler
       "post_excerpt" => $post_excerpt,
       "post_status" => "publish",
       "comment_status" => "closed",
+      "tags_input" => $post_tags,
       "meta_input" => [
         "post_shortcode" => $post_shortcode,
         "passle_shortcode" => $passle_shortcode,

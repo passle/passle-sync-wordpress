@@ -197,9 +197,6 @@ class PasslePost
    * Mapping methods
    */
 
-  /** @param string[] $shortcodes */
-  /** @param object[] $wp_authors */
-  /** @param array[] $post_authors */
   private function map_authors(string $shortcode_meta_key, string $author_meta_key, array $wp_authors)
   {
     $post_authors = array_map(fn ($author) => unserialize($author), $this->meta[$author_meta_key] ?? []);

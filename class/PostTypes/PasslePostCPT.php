@@ -50,6 +50,7 @@ class PasslePostCPT
       ],
       "hierarchical" => false,
       "supports" => ["title", "custom-fields"],
+      "taxonomies" => ["post_tag"],
       "has_archive" => true,
       "rewrite" => false,
       "query_var" => true,
