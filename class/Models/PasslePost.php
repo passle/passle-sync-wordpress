@@ -54,7 +54,7 @@ class PasslePost
   public DateTime $date;
   /**
    * A list of tags for this post.
-   * @var string[]|null
+   * @var PassleTag[]|null
    */
   public ?array $tags;
   /** A boolean value showing whether this post is a repost of an original post. */
@@ -84,6 +84,10 @@ class PasslePost
   /** The URL for the post's quote. */
   public string $quote_url;
 
+  /* Options */
+  private bool $load_authors;
+  private bool $load_tags;
+
   private WP_Post $wp_post;
   private array $meta;
 
@@ -91,14 +95,28 @@ class PasslePost
    * Construct a new instance of the `PasslePost` class from the Wordpress post object.
    * 
    * @param WP_Post $wp_post The Wordpress post object.
-   * @param bool $load_authors Whether or not the author objects should be loaded along with the post.
+   * @param array $options {
+   *    Optional. Array containing options to be used when constructing the class.
+   *    
+   *    @type bool $load_authors Whether authors should be loaded. Default 'true'.
+   * 
+   *    @type bool $tags Whether tags  should be loaded. Default 'true'.
+   * }
    * @return void
    */
-  public function __construct(WP_Post $wp_post, bool $load_authors = true)
+  public function __construct(WP_Post $wp_post, array $options = [])
   {
+    $options = wp_parse_args($options, [
+      "load_authors" => true,
+      "load_tags" => true,
+    ]);
+
+    $this->load_authors = $options["load_authors"];
+    $this->load_tags = $options["load_tags"];
+
     $this->wp_post = $wp_post;
     $this->meta = get_post_meta($wp_post->ID);
-    $this->initialize($load_authors);
+    $this->initialize();
   }
 
   /**
@@ -114,13 +132,23 @@ class PasslePost
   }
 
   /**
+   * Get an array containing the name of each tag.
+   * 
+   * @return string[]
+   */
+  public function get_tag_names()
+  {
+    return array_map(fn ($tag) => $tag->name, $this->tags);
+  }
+
+  /**
    * Get the tags as a comma separated string.
    * 
    * @return string
    */
   public function get_joined_tags()
   {
-    return implode(", ", $this->tags);
+    return implode(", ", $this->get_tag_names());
   }
 
   /*
@@ -128,8 +156,9 @@ class PasslePost
    */
 
   /** @internal */
-  private function initialize(bool $load_authors)
+  private function initialize()
   {
+    // Load post data
     $this->shortcode = $this->meta["post_shortcode"][0] ?? "";
     $this->passle_shortcode = $this->meta["passle_shortcode"][0] ?? "";
     $this->url = $this->meta["post_url"][0] ?? "";
@@ -154,8 +183,12 @@ class PasslePost
     $this->quote_text = $this->meta["post_quote_text"][0] ?? "";
     $this->quote_url = $this->meta["post_quote_url"][0] ?? "";
 
-    if ($load_authors) {
+    if ($this->load_authors) {
       $this->initialize_authors();
+    }
+
+    if ($this->load_tags) {
+      $this->initialize_tags();
     }
 
     $this->initialize_share_views();
@@ -179,6 +212,14 @@ class PasslePost
     $this->coauthors = $this->map_authors("post_coauthor_shortcodes", "post_coauthors", $wp_authors);
 
     $this->primary_author = $this->authors[0];
+  }
+
+  private function initialize_tags()
+  {
+    $wp_tags = get_the_tags() ?: [];
+    $tags = $this->meta["post_tags"] ?? [];
+
+    $this->tags = $this->map_tags($tags, $wp_tags);
   }
 
   private function initialize_share_views()
@@ -211,6 +252,14 @@ class PasslePost
     }, $this->meta[$shortcode_meta_key] ?? []);
 
     return array_map(fn ($author) => new PassleAuthor($author), $authors);
+  }
+
+  private function map_tags(array $tags, array $wp_tags)
+  {
+    return array_map(function ($tag) use ($wp_tags) {
+      $matching_wp_tag = Utils::array_first($wp_tags, fn ($wp_tag) => $wp_tag->name === $tag) ?: null;
+      return new PassleTag($tag, $matching_wp_tag);
+    }, $tags);
   }
 
   private function map_share_views(array $share_views)

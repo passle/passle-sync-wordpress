@@ -1,25 +1,25 @@
 ***
 
-# PassleLink
+# PassleTag
 
 This class provides a simple interface for accessing properties of
-Passle author personal links that have been saved to the Wordpress database.
+Passle tags that have been saved to the Wordpress database.
 
 
 
-* Full name: `\Passle\PassleSync\Models\PassleLink`
+* Full name: `\Passle\PassleSync\Models\PassleTag`
 
 
 
 ## Properties
 
 
-### title
+### name
 
-The title of the link.
+The name of the tag.
 
 ```php
-public string $title
+public string $name
 ```
 
 
@@ -31,7 +31,7 @@ public string $title
 
 ### url
 
-The URL of the link.
+The link to view posts associated with the tag.
 
 ```php
 public string $url

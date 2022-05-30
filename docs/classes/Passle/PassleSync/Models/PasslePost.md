@@ -442,7 +442,7 @@ public string $quote_url
 Construct a new instance of the `PasslePost` class from the Wordpress post object.
 
 ```php
-public __construct(\WP_Post $wp_post, bool $load_authors = true): void
+public __construct(\WP_Post $wp_post, array $options = []): void
 ```
 
 
@@ -457,7 +457,7 @@ public __construct(\WP_Post $wp_post, bool $load_authors = true): void
 | Parameter | Type | Description |
 |-----------|------|-------------|
 | `$wp_post` | **\WP_Post** | The Wordpress post object. |
-| `$load_authors` | **bool** | Whether or not the author objects should be loaded along with the post. |
+| `$options` | **array** | {<br />   Optional. Array containing options to be used when constructing the class.<br /><br />   @type bool $load_authors Whether authors should be loaded. Default &#039;true&#039;.<br /><br />   @type bool $tags Whether tags  should be loaded. Default &#039;true&#039;.<br />} |
 
 
 
@@ -490,6 +490,26 @@ Format string should use [standard PHP formatting options](https://www.php.net/m
 
 ***
 
+### get_tag_names
+
+Get an array containing the name of each tag.
+
+```php
+public get_tag_names(): string[]
+```
+
+
+
+
+
+
+
+
+
+
+
+***
+
 ### get_joined_tags
 
 Get the tags as a comma separated string.
@@ -512,4 +532,4 @@ public get_joined_tags(): string
 
 
 ***
-> Automatically generated from source code comments on 2022-05-17 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
+> Automatically generated from source code comments on 2022-05-30 using [phpDocumentor](http://www.phpdoc.org/) and [saggre/phpdocumentor-markdown](https://github.com/Saggre/phpDocumentor-markdown)
