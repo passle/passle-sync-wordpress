@@ -38,7 +38,7 @@ class Post
 
   public static function fromPasslePost(array $from)
   {
-    $authors = join(", ", array_map(fn ($author) => $author["Name"], $from["Authors"]));
+    $authors = join(", ", array_map(fn ($author) => $author["Name"], $from["Authors"])) ?? "";
 
     return new self(
       $from["PostShortcode"],
@@ -55,7 +55,7 @@ class Post
 
   public static function fromWordpressPost(object $from)
   {
-    $authors = join(", ", array_map(fn ($author) => unserialize($author)["name"], $from->post_authors));
+    $authors = join(", ", array_map(fn ($author) => unserialize($author)["name"], $from->post_authors)) ?? "";
 
     return new self(
       $from->post_shortcode[0],
