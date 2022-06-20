@@ -9,12 +9,12 @@ use Passle\PassleSync\Services\OptionsService;
 
 class SettingsController extends ControllerBase
 {
-  public function register_routes()
+  public static function init()
   {
-    $this->register_route("/settings/update", "POST", "update_api_settings");
+    static::register_route("/settings/update", "POST", "update_api_settings");
   }
 
-  public function update_api_settings(WP_REST_Request $request)
+  public static function update_api_settings(WP_REST_Request $request)
   {
     $params = $request->get_params();
 

@@ -1,19 +1,15 @@
 import { useContext, useMemo, useState } from "react";
+import { NoticeType } from "_API/Types/NoticeType";
 import { Options } from "_API/Types/Options";
 import Button from "_Components/Atoms/Button/Button";
+import Notice from "_Components/Atoms/Notice/Notice";
 import SettingsInput from "_Components/Molecules/SettingsInput/SettingsInput";
 import { PassleDataContext } from "_Contexts/PassleDataContext";
 import { updateSettings } from "_Services/SyncService";
-import classNames from "_Utils/classNames";
-
-type Notice = {
-  text: string;
-  success: boolean;
-};
 
 const SyncSettings = () => {
   const { setLoading } = useContext(PassleDataContext);
-  const [notice, setNotice] = useState<Notice>(null);
+  const [notice, setNotice] = useState<NoticeType>(null);
 
   const options = useMemo<Options>(
     () =>
@@ -50,7 +46,7 @@ const SyncSettings = () => {
 
       if (options) {
         setNotice({
-          text: "Successfully updated settings.",
+          content: "Successfully updated settings.",
           success: true,
         });
 
@@ -59,7 +55,7 @@ const SyncSettings = () => {
         ).dataset.passlesyncOptions = JSON.stringify(options);
       } else {
         setNotice({
-          text: "Failed to update settings.",
+          content: "Failed to update settings.",
           success: false,
         });
       }
@@ -70,20 +66,11 @@ const SyncSettings = () => {
   return (
     <div>
       {notice && (
-        <div
-          id="message"
-          className={classNames(
-            "notice is-dismissible",
-            notice.success ? "notice-success" : "notice-error",
-          )}>
-          <p>{notice.text}</p>
-          <button
-            type="button"
-            className="notice-dismiss"
-            onClick={() => setNotice(null)}>
-            <span className="screen-reader-text">Dismiss this notice.</span>
-          </button>
-        </div>
+        <Notice
+          success={notice.success}
+          content={notice.content}
+          onDismiss={() => setNotice(null)}
+        />
       )}
 
       <table className="form-table">
@@ -124,9 +111,9 @@ const SyncSettings = () => {
 
       <p className="submit">
         <Button
-          text="Save Changes"
+          content="Save Changes"
           onClick={saveSettings}
-          loadingText={"Saving..."}
+          loadingContent={"Saving..."}
         />
       </p>
     </div>

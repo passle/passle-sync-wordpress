@@ -9,19 +9,20 @@ use Passle\PassleSync\Utils\Utils;
 
 class FeaturedPostController extends ControllerBase
 {
-  protected string $resource_url = "featured-post";
+  const RESOURCE_NAME = "featured-post";
 
-  public function register_routes()
+  public static function init()
   {
-    $this->register_route("/{$this->resource_url}/update", "POST", "update", "validate_passle_webhook_request");
+    $resource_name = static::RESOURCE_NAME;
+
+    static::register_route("/{$resource_name}/update", "POST", "update", "validate_passle_webhook_request");
   }
 
   public function update(WP_REST_Request $request)
   {
     $data = $request->get_json_params();
 
-    $post_shortcode = $data["PostShortcode"];
-    if (empty($post_shortcode)) return new WP_Error("400", "Missing required parameter 'PostShortcode'");
+    $post_shortcode = static::get_required_parameter($request, "PostShortcode");
 
     $posts = get_posts([
       "post_type" => PASSLESYNC_POST_TYPE,

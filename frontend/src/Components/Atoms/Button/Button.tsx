@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { ReactNode, useState } from "react";
 import classNames from "_Utils/classNames";
 import Spinner from "_Components/Atoms/Spinner/Spinner";
 import styles from "./Button.module.scss";
@@ -7,25 +7,27 @@ import useIsMounted from "_Hooks/useIsMounted";
 type ButtonVariant = "primary" | "secondary";
 
 type RegularButtonProps = {
-  loadingText?: never;
+  loadingContent?: never;
   onClick: () => void;
 };
 
 type LoadingButtonProps = {
-  loadingText: string;
+  loadingContent: ReactNode;
   onClick: (cb: () => void) => void;
 };
 
 export type ButtonProps = (RegularButtonProps | LoadingButtonProps) & {
-  text: string;
+  content: ReactNode;
   variant?: ButtonVariant;
   className?: string;
   disabled?: boolean;
+  hideSpinner?: boolean;
 };
 
 const Button = ({
   variant = "primary",
   disabled = false,
+  hideSpinner = false,
   ...props
 }: ButtonProps) => {
   const isMounted = useIsMounted();
@@ -34,7 +36,7 @@ const Button = ({
   const onClick = () => {
     if (loading || disabled) return;
 
-    if ("loadingText" in props) {
+    if ("loadingContent" in props) {
       setLoading(true);
       props.onClick(finishLoading);
     } else {
@@ -60,11 +62,11 @@ const Button = ({
       onClick={onClick}>
       {loading ? (
         <>
-          <Spinner />
-          {props.loadingText}
+          {!hideSpinner && <Spinner />}
+          {props.loadingContent}
         </>
       ) : (
-        <>{props.text}</>
+        <>{props.content}</>
       )}
     </button>
   );

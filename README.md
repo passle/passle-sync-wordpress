@@ -33,11 +33,11 @@ Once the plugin has been configured correctly, posts and people can be synced us
 
 **1. Fetch from API**
 
-First, the plugin has to fetch posts and authors from the Passle API. Use the **Refresh Posts** and **Refresh People** buttons to do so. Once the plugin has done the initial fetches from the API, the API responses will be cached, so if you reload the page, the posts and authors you have fetched will be remembered.
+First, the plugin has to fetch posts and authors from the Passle API. Use the **Fetch Passle Posts** and **Fetch Passle People** buttons to do so. Once the plugin has done the initial fetches from the API, the API responses will be cached, so if you reload the page, the posts and authors you have fetched will be remembered.
 
 **2. Sync to Wordpress**
 
-To sync the posts and and authors to Wordpress, use the **Sync All Posts** and **Sync All People** buttons. This will create a new Wordpress post for each post/author under a custom post type. Once all posts/authors have been synced, their statuses will update. Synced posts and authors can be viewed, but not edited, under the Passle Posts and Passle Authors menu items in the sidebar.
+To sync the posts and authors to Wordpress, use the **Sync All Posts** and **Sync All People** buttons. This will create a new Wordpress post for each post/author under a custom post type. Once all posts/authors have been synced, their statuses will update. Synced posts and authors can be viewed, but not edited, under the Passle Posts and Passle Authors menu items in the sidebar.
 
 **3. Webhooks**
 

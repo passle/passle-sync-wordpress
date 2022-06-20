@@ -2,61 +2,34 @@
 
 namespace Passle\PassleSync;
 
-use Passle\PassleSync\Controllers\FeaturedPostController;
-use Passle\PassleSync\Controllers\Resources\PostsController;
-use Passle\PassleSync\Controllers\Resources\PeopleController;
-use Passle\PassleSync\Controllers\SettingsController;
-use Passle\PassleSync\PostTypes\PasslePostCPT;
-use Passle\PassleSync\PostTypes\PasslePersonCPT;
+use Passle\PassleSync\Services\CptRegistryService;
 use Passle\PassleSync\Services\EmbedService;
 use Passle\PassleSync\Services\MenuService;
 use Passle\PassleSync\Services\OptionsService;
+use Passle\PassleSync\Services\RouteRegistryService;
+use Passle\PassleSync\Services\SchedulerService;
 
 class PassleSync
 {
-  private $posts_controller;
-  private $people_controller;
-  private $settings_controller;
-  private $menu_service;
-
-  public function __construct(
-    PostsController $posts_controller,
-    PeopleController $people_controller,
-    SettingsController $settings_controller,
-    FeaturedPostController $featured_post_controller,
-    MenuService $menu_service
-  ) {
-    $this->posts_controller = $posts_controller;
-    $this->people_controller = $people_controller;
-    $this->settings_controller = $settings_controller;
-    $this->featured_post_controller = $featured_post_controller;
-    $this->menu_service = $menu_service;
-  }
-
-  public function initialize()
+  public static function initialize()
   {
-    add_action("rest_api_init", [$this->posts_controller, "register_routes"]);
-    add_action("rest_api_init", [$this->people_controller, "register_routes"]);
-    add_action("rest_api_init", [$this->settings_controller, "register_routes"]);
-    add_action("rest_api_init", [$this->featured_post_controller, "register_routes"]);
-
-    register_activation_hook(__FILE__, [$this, "activate"]);
-    register_deactivation_hook(__FILE__, [$this, "deactivate"]);
-
-    add_action("admin_menu", [$this->menu_service, "register_menus"]);
-
+    MenuService::init();
+    RouteRegistryService::init();
+    CptRegistryService::init();
     EmbedService::init();
     OptionsService::init();
-    PasslePostCPT::init();
-    PasslePersonCPT::init();
+    SchedulerService::init();
+
+    register_activation_hook(__FILE__, [static::class, "activate"]);
+    register_deactivation_hook(__FILE__, [static::class, "deactivate"]);
   }
 
-  public function activate()
+  public static function activate()
   {
     flush_rewrite_rules();
   }
 
-  public function deactivate()
+  public static function deactivate()
   {
     flush_rewrite_rules();
   }

@@ -30,7 +30,7 @@ class Person
     $this->synced = $synced;
   }
 
-  public static function fromPasslePerson(array $from)
+  public static function fromApiEntity(array $from)
   {
     return new self(
       $from["Shortcode"],
@@ -43,7 +43,7 @@ class Person
     );
   }
 
-  public static function fromWordpressPerson(object $from)
+  public static function fromWordpressEntity(object $from)
   {
     return new self(
       $from->author_shortcode[0],

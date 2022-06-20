@@ -27,11 +27,9 @@ const Post = (props: PostProps) => {
       <div className={styles.Post_SyncStatus}>
         {!hasSynced && (
           <Button
-            text={"Sync post"}
-            onClick={(finishLoadingCallback) =>
-              props.syncPost(props.id, finishLoadingCallback)
-            }
-            loadingText={"Syncing..."}
+            content="Sync post"
+            onClick={(cb) => props.syncPost(props.id, cb)}
+            loadingContent="Syncing..."
           />
         )}
       </div>

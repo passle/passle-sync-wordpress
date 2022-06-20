@@ -8,12 +8,12 @@ class OptionsService
 {
   public static function init()
   {
-    add_option(PASSLESYNC_OPTIONS_KEY, self::get_default_options());
+    add_option(PASSLESYNC_OPTIONS_KEY, static::get_default_options());
   }
 
   public static function get(): Options
   {
-    return get_option(PASSLESYNC_OPTIONS_KEY) ?: self::get_default_options();
+    return get_option(PASSLESYNC_OPTIONS_KEY) ?: static::get_default_options();
   }
 
   public static function set(Options $options)

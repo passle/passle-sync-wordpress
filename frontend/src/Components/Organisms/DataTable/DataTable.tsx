@@ -1,6 +1,8 @@
 import { Context, ReactNode, useContext, useMemo, useState } from "react";
+import { NoticeType } from "_API/Types/NoticeType";
 import { Syncable } from "_API/Types/Syncable";
 import Button from "_Components/Atoms/Button/Button";
+import Notice from "_Components/Atoms/Notice/Notice";
 import Modal from "_Components/Molecules/Modal/Modal";
 import Table from "_Components/Molecules/Table/Table";
 import {
@@ -26,6 +28,7 @@ export type DataTableProps<T extends Syncable> = {
 const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
   const { setLoading } = useContext(PassleDataContext);
   const { data, refreshItems, setCurrentPage } = useContext(props.context);
+  const [notice, setNotice] = useState<NoticeType>(null);
 
   const [working, setWorking] = useState(false);
 
@@ -72,7 +75,12 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
     setLoading(isLoading);
   };
 
-  const doWork = async (fn: () => Promise<void>, cb: () => void) => {
+  const doWork = async (
+    fn: () => Promise<void>,
+    cb?: () => void,
+    successMessage?: string,
+    isQueuedAction?: boolean,
+  ) => {
     try {
       setLoadingStatus(true);
 
@@ -85,12 +93,34 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
       setShowDeleteAllModal(false);
       setShowDeleteMultipleModal(false);
 
-      cb();
+      if (successMessage) {
+        const noticeContent = isQueuedAction ? (
+          <>
+            {successMessage}{" "}
+            <a
+              target="_blank"
+              rel="noopener noreferrer"
+              href="/wp-admin/tools.php?page=action-scheduler&orderby=schedule&order=desc&status=pending">
+              View pending tasks &#187;
+            </a>
+          </>
+        ) : (
+          successMessage
+        );
+
+        setNotice({ success: true, content: noticeContent });
+      }
+
+      if (cb) cb();
     } catch (e) {
       setLoadingStatus(false);
-      cb();
 
-      setShowErrorModal(true);
+      setNotice({
+        success: false,
+        content: "Oops, something went wrong. Please try again.",
+      });
+
+      if (cb) cb();
     }
   };
 
@@ -99,19 +129,25 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
       {/* Delete all modal */}
       <Modal
         title={`Delete all ${props.itemPlural.toLowerCase()}`}
-        text={`Are you sure you want to delete all synced ${props.itemPlural.toLowerCase()}? They will be deleted
-        immediately. You cannot undo this action.`}
+        text={`Are you sure you want to delete all synced ${props.itemPlural.toLowerCase()}? You cannot undo this action.`}
         buttons={
           <>
             <Button
-              text={`Delete ${props.itemPlural}`}
-              loadingText={`Deleting ${props.itemPlural}...`}
+              content={`Delete ${props.itemPlural}`}
+              loadingContent={`Deleting ${props.itemPlural}...`}
               disabled={working}
-              onClick={(cb) => doWork(deleteAllItems, cb)}
+              onClick={(cb) =>
+                doWork(
+                  deleteAllItems,
+                  cb,
+                  `Successfully queued all ${props.itemPlural.toLowerCase()} for deletion.`,
+                  true,
+                )
+              }
             />
             <Button
               variant="secondary"
-              text="Cancel"
+              content="Cancel"
               disabled={working}
               onClick={() => setShowDeleteAllModal(false)}
             />
@@ -129,20 +165,29 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
           selectedItems.length
         } selected ${
           selectedItems.length === 1 ? props.itemSingular : props.itemPlural
-        }? ${
-          selectedItems.length === 1 ? "It" : "They"
-        } will be deleted immediately. You cannot undo this action.`}
+        }? You cannot undo this action.`}
         buttons={
           <>
             <Button
-              text={`Delete ${props.itemPlural}`}
-              loadingText={`Deleting ${props.itemPlural}...`}
+              content={`Delete ${props.itemPlural}`}
+              loadingContent={`Deleting ${props.itemPlural}...`}
               disabled={working}
-              onClick={(cb) => doWork(deleteSelectedItems, cb)}
+              onClick={(cb) =>
+                doWork(
+                  deleteSelectedItems,
+                  cb,
+                  `Successfully queued ${selectedItems.length} ${
+                    selectedItems.length === 1
+                      ? props.itemSingular
+                      : props.itemPlural
+                  } for deletion.`,
+                  true,
+                )
+              }
             />
             <Button
               variant="secondary"
-              text="Cancel"
+              content="Cancel"
               disabled={working}
               onClick={() => setShowDeleteMultipleModal(false)}
             />
@@ -157,10 +202,19 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
       <Modal
         title="Oops"
         text="Something went wrong, please try again."
-        buttons={<Button text="OK" onClick={() => setShowErrorModal(false)} />}
+        buttons={
+          <Button content="OK" onClick={() => setShowErrorModal(false)} />
+        }
         open={showErrorModal}
         onCancel={() => setShowErrorModal(false)}
       />
+      {notice && (
+        <Notice
+          success={notice.success}
+          content={notice.content}
+          onDismiss={() => setNotice(null)}
+        />
+      )}
       <Table
         currentPage={data.current_page}
         itemsPerPage={data.items_per_page}
@@ -171,28 +225,66 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
           <>
             <Button
               variant="secondary"
-              text={`Refresh ${props.itemPlural}`}
-              loadingText={`Refreshing ${props.itemPlural}...`}
+              content={`Fetch Passle ${props.itemPlural}`}
+              loadingContent={`Fetching Passle ${props.itemPlural}...`}
               disabled={working}
-              onClick={(cb) => doWork(refreshList, cb)}
+              onClick={(cb) =>
+                doWork(
+                  refreshList,
+                  cb,
+                  `Successfully fetched all ${props.itemPlural} from the Passle API.`,
+                  false,
+                )
+              }
             />
             {selectedItems.length ? (
               <Button
                 variant="secondary"
-                text={`Sync Selected ${props.itemPlural}`}
-                loadingText={`Syncing ${props.itemPlural}...`}
+                content={`Sync Selected ${props.itemPlural}`}
+                loadingContent={`Syncing ${props.itemPlural}...`}
                 disabled={working}
-                onClick={(cb) => doWork(syncSelectedItems, cb)}
+                onClick={(cb) =>
+                  doWork(
+                    syncSelectedItems,
+                    cb,
+                    `Successfully queued ${selectedItems.length} ${
+                      selectedItems.length === 1
+                        ? props.itemSingular
+                        : props.itemPlural
+                    } to be synced.`,
+                    true,
+                  )
+                }
               />
             ) : (
               <Button
                 variant="secondary"
-                text={`Sync All ${props.itemPlural}`}
-                loadingText={`Syncing ${props.itemPlural}...`}
+                content={`Sync All ${props.itemPlural}`}
+                loadingContent={`Syncing ${props.itemPlural}...`}
                 disabled={working}
-                onClick={(cb) => doWork(syncAllItems, cb)}
+                onClick={(cb) =>
+                  doWork(
+                    syncAllItems,
+                    cb,
+                    `Successfully queued all ${props.itemPlural} to be synced.`,
+                    true,
+                  )
+                }
               />
             )}
+            <Button
+              variant="secondary"
+              content={<span className="dashicons dashicons-update" />}
+              loadingContent={
+                <span
+                  className="dashicons dashicons-update"
+                  style={{ animation: "spin 1s linear infinite" }}
+                />
+              }
+              hideSpinner={true}
+              disabled={working}
+              onClick={(cb) => doWork(refreshList, cb)}
+            />
           </>
         }
         ActionsRight={
@@ -200,14 +292,14 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
             {selectedItems.length ? (
               <Button
                 variant="secondary"
-                text={`Delete Selected ${props.itemPlural}`}
+                content={`Delete Selected ${props.itemPlural}`}
                 disabled={!allSelectedItemsAreSynced || working}
                 onClick={() => setShowDeleteMultipleModal(true)}
               />
             ) : (
               <Button
                 variant="secondary"
-                text={`Delete All Synced ${props.itemPlural}`}
+                content={`Delete All Synced ${props.itemPlural}`}
                 disabled={!data.data.length || working}
                 onClick={() => setShowDeleteAllModal(true)}
               />
@@ -220,7 +312,10 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
               <input
                 id="cb-select-all-1"
                 type="checkbox"
-                checked={selectedItems.length === data.data.length}
+                checked={
+                  selectedItems.length === data.data.length &&
+                  data.data.length > 0
+                }
                 onChange={(e) =>
                   setSelectedItems(
                     e.target.checked ? data.data.map((x) => x.shortcode) : [],

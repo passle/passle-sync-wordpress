@@ -36,7 +36,7 @@ class Post
     $this->synced = $synced;
   }
 
-  public static function fromPasslePost(array $from)
+  public static function fromApiEntity(array $from)
   {
     $authors = join(", ", array_map(fn ($author) => $author["Name"], $from["Authors"])) ?? "";
 
@@ -53,7 +53,7 @@ class Post
     );
   }
 
-  public static function fromWordpressPost(object $from)
+  public static function fromWordpressEntity(object $from)
   {
     $authors = join(", ", array_map(fn ($author) => unserialize($author)["name"], $from->post_authors)) ?? "";
 

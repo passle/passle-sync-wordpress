@@ -2,30 +2,129 @@
 
 namespace Passle\PassleSync\Controllers\Resources;
 
+use Passle\PassleSync\Actions\QueueJobAction;
+use Passle\PassleSync\Actions\RefreshAllAction;
 use Passle\PassleSync\Controllers\ControllerBase;
+use Passle\PassleSync\Services\ResourceRegistryService;
+use WP_REST_Request;
 
-class ResourceControllerBase extends ControllerBase
+abstract class ResourceControllerBase extends ControllerBase
 {
-  protected string $resource_url;
+  const RESOURCE = "";
 
-  public function __construct(string $resource_url)
+  public static function refresh_all()
   {
-    parent::__construct();
-    $this->resource_url = $resource_url;
+    $resource = static::get_resource_instance();
+
+    RefreshAllAction::execute($resource);
   }
 
-  public function register_routes()
+  public static function get_all(WP_REST_Request $request)
   {
+    $response_factory_name = static::get_resource_instance()->response_factory_name;
+
+    $response = call_user_func([$response_factory_name, "make"], $request);
+
+    return $response;
+  }
+
+  public static function sync_all(WP_REST_Request $request)
+  {
+    $resource = static::get_resource_instance();
+
+    QueueJobAction::execute("passle_{$resource->name_plural}_sync_all", [], $resource->get_schedule_group_name());
+  }
+
+  public static function delete_all(WP_REST_Request $request)
+  {
+    $resource = static::get_resource_instance();
+
+    QueueJobAction::execute("passle_{$resource->name_plural}_delete_all", [], $resource->get_schedule_group_name());
+  }
+
+  public static function sync_many(WP_REST_Request $request)
+  {
+    $entities = static::get_entities_for_request($request);
+
+    if (method_exists(static::class, "filter_entities_before_sync")) {
+      $entities = call_user_func([static::class, "filter_entities_before_sync"], $entities);
+    }
+
+    $shortcodes = static::map_entities_to_shortcodes($entities);
+
+    $resource = static::get_resource_instance();
+
+    QueueJobAction::execute("passle_{$resource->name_plural}_sync_many", [$shortcodes], $resource->get_schedule_group_name());
+  }
+
+  public static function delete_many(WP_REST_Request $request)
+  {
+    $entities = static::get_entities_for_request($request);
+
+    $shortcodes = static::map_entities_to_shortcodes($entities);
+
+    $resource = static::get_resource_instance();
+
+    QueueJobAction::execute("passle_{$resource->name_plural}_delete_many", [$shortcodes], $resource->get_schedule_group_name());
+  }
+
+  public static function update(WP_REST_Request $request)
+  {
+    $resource = static::get_resource_instance();
+
+    $entities = static::get_entities_for_request($request);
+
+    call_user_func([$resource->sync_handler_name, "sync_many"], $entities);
+  }
+
+  public static function delete(WP_REST_Request $request)
+  {
+    $resource = static::get_resource_instance();
+
+    $entities = static::get_entities_for_request($request);
+
+    call_user_func([$resource->sync_handler_name, "delete_many"], $entities);
+  }
+
+  public static function init()
+  {
+    $resource_name_plural = static::get_resource_instance()->name_plural;
+
     // Admin dashboard routes
-    $this->register_route("/{$this->resource_url}", "GET", "get_all");
-    $this->register_route("/{$this->resource_url}/sync-all", "POST", "sync_all");
-    $this->register_route("/{$this->resource_url}/delete-all", "POST", "delete_all");
-    $this->register_route("/{$this->resource_url}/sync-many", "POST", "sync_many");
-    $this->register_route("/{$this->resource_url}/delete-many", "POST", "delete_many");
-    $this->register_route("/{$this->resource_url}/refresh-all", "GET", "refresh_all");
+    static::register_route("/{$resource_name_plural}", "GET", "get_all");
+    static::register_route("/{$resource_name_plural}/sync-all", "POST", "sync_all");
+    static::register_route("/{$resource_name_plural}/delete-all", "POST", "delete_all");
+    static::register_route("/{$resource_name_plural}/sync-many", "POST", "sync_many");
+    static::register_route("/{$resource_name_plural}/delete-many", "POST", "delete_many");
+    static::register_route("/{$resource_name_plural}/refresh-all", "GET", "refresh_all");
 
     // Webhooks
-    $this->register_route("/{$this->resource_url}/update", "POST", "update", "validate_passle_webhook_request");
-    $this->register_route("/{$this->resource_url}/delete", "POST", "delete", "validate_passle_webhook_request");
+    static::register_route("/{$resource_name_plural}/update", "POST", "update", "validate_passle_webhook_request");
+    static::register_route("/{$resource_name_plural}/delete", "POST", "delete", "validate_passle_webhook_request");
+  }
+
+  protected static function get_resource_instance()
+  {
+    return ResourceRegistryService::get_resource_instance(static::RESOURCE);
+  }
+
+  private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes")
+  {
+    $resource_passle_content_service = static::get_resource_instance()->passle_content_service_name;
+
+    $shortcodes = static::get_required_parameter($request, $shortcode_name);
+
+    $entities = call_user_func([$resource_passle_content_service, "fetch_multiple_by_shortcode"], $shortcodes);
+
+    return $entities;
+  }
+
+  private static function map_entities_to_shortcodes(array $entities)
+  {
+    $resource_shortcode_name = static::get_resource_instance()->get_shortcode_name();
+
+    $entities = array_map(fn ($entity) => $entity[$resource_shortcode_name], $entities);
+
+    return $entities;
   }
 }

@@ -2,129 +2,116 @@
 
 namespace Passle\PassleSync\SyncHandlers;
 
-use Passle\PassleSync\Services\PassleContentService;
+use Passle\PassleSync\Utils\ResourceClassBase;
 use Passle\PassleSync\Utils\Utils;
 
-abstract class SyncHandlerBase
+abstract class SyncHandlerBase extends ResourceClassBase
 {
-  protected $passle_content_service;
+  protected abstract static function map_data(array $data, int $entity_id);
 
-  public function __construct(PassleContentService $passle_content_service)
+  public static function sync_all()
   {
-    $this->passle_content_service = $passle_content_service;
+    if (method_exists(static::class, "pre_sync_all_hook")) {
+      call_user_func([static::class, "pre_sync_all_hook"]);
+    }
+
+    $resource = static::get_resource_instance();
+
+    $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
+
+    $api_entities = call_user_func([$resource->passle_content_service_name, "get_or_update_cache"]);
+
+    static::compare_items($wp_entities, $api_entities);
   }
 
-  protected abstract function sync_all_impl();
-  protected abstract function sync_one_impl(array $data);
-  protected abstract function delete_all_impl();
-  protected abstract function delete_one_impl(array $data);
-  protected abstract function sync(?object $entity, array $data);
-  protected abstract function delete(object $entity);
-
-  public function sync_all()
+  public static function sync_many(array $shortcodes)
   {
-    try {
-      return $this->sync_all_impl();
-    } catch (\Exception $ex) {
-      error_log("Failed to sync all items: {$ex->getMessage()}");
+    $resource = static::get_resource_instance();
+
+    $api_entities = call_user_func([$resource->passle_content_service_name, "get_or_update_cache"]);
+
+    foreach ($shortcodes as $shortcode) {
+      $data = Utils::array_first($api_entities, fn ($entity) => $entity[$resource->get_shortcode_name()] === $shortcode);
+
+      if (!empty($data)) {
+        static::create_or_update($data);
+      }
     }
   }
 
-  public function sync_many(array $data)
+  public static function delete_all()
   {
-    foreach ($data as $item) {
-      $this->sync_one($item);
+    $resource = static::get_resource_instance();
+
+    $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
+
+    foreach ($wp_entities as $entity) {
+      static::delete($entity->ID);
     }
   }
 
-  public function sync_one(array $data)
+  public static function delete_many(array $shortcodes)
   {
-    try {
-      return $this->sync_one_impl($data);
-    } catch (\Exception $ex) {
-      error_log("Failed to sync item: {$ex->getMessage()}");
+    $resource = static::get_resource_instance();
+
+    $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"], $shortcodes);
+
+    foreach ($wp_entities as $entity) {
+      static::delete($entity->ID);
     }
   }
 
-  public function delete_all()
+  private static function compare_items(array $wp_entities, array $api_entities)
   {
-    try {
-      return $this->delete_all_impl();
-    } catch (\Exception $ex) {
-      error_log("Failed to delete all items: {$ex->getMessage()}");
-    }
-  }
+    $resource = static::get_resource_instance();
+    $resource_shortcode_name = $resource->get_shortcode_name();
+    $meta_shortcode_name = "{$resource->name_singular}_shortcode";
 
-  public function delete_many(array $data)
-  {
-    foreach ($data as $item) {
-      $this->delete_one($item);
-    }
-  }
-
-  public function delete_one(array $data)
-  {
-    try {
-      return $this->delete_one_impl($data);
-    } catch (\Exception $ex) {
-      error_log("Failed to delete item: {$ex->getMessage()}");
-    }
-  }
-
-  public function compare_items(array $passle_items, array $existing_items, string $passle_item_shortcode_property, string $existing_item_shortcode_property)
-  {
-    $passle_shortcodes = Utils::array_select($passle_items, $passle_item_shortcode_property);
-
-    $existing_shortcodes = [];
-    // Create a dict for easier access later
-    $existing_items_by_shortcode = [];
-
-    foreach ($existing_items as $item) {
-      $item_shortcode = $item->{$existing_item_shortcode_property}[0];
-      array_push($existing_shortcodes, $item_shortcode);
-      $existing_items_by_shortcode[$item_shortcode] = $item;
-    }
-
+    $passle_shortcodes = Utils::array_select($api_entities, $resource_shortcode_name);
+    $existing_shortcodes = array_map(fn ($item) => $item->{$meta_shortcode_name}, $wp_entities);
     $all_shortcodes = array_unique(array_merge($passle_shortcodes, $existing_shortcodes));
 
-    $shortcodes_to_add = array_filter($passle_shortcodes, fn ($shortcode) => !in_array($shortcode, $existing_shortcodes));
-    $shortcodes_to_remove = array_filter($existing_shortcodes, fn ($shortcode) => !in_array($shortcode, $passle_shortcodes));
-    $shortcodes_to_update = array_filter($all_shortcodes, fn ($shortcode) => !in_array($shortcode, $shortcodes_to_add) && !in_array($shortcode, $shortcodes_to_remove));
+    $shortcodes_to_delete = array_filter($existing_shortcodes, fn ($shortcode) => !in_array($shortcode, $passle_shortcodes));
+    $shortcodes_to_sync = array_filter($all_shortcodes, fn ($shortcode) => !in_array($shortcode, $shortcodes_to_delete));
 
-    $response = [
-      "added" => [],
-      "updated" => [],
-      "removed" => [],
-    ];
-
-    // Add
-    $items_to_add = array_filter($passle_items, fn ($item) => in_array($item[$passle_item_shortcode_property], $shortcodes_to_add));
-    foreach ($items_to_add as $item) {
-      array_push($response["added"], $this->sync(null, $item));
+    // Delete
+    $items_to_delete = array_filter($wp_entities, fn ($item) => in_array($item->{$meta_shortcode_name}, $shortcodes_to_delete));
+    foreach ($items_to_delete as $item) {
+      static::delete($item->ID);
     }
 
-    // Update
-    $items_to_update = array_filter($passle_items, fn ($item) => in_array($item[$passle_item_shortcode_property], $shortcodes_to_update));
-    foreach ($items_to_update as $item) {
-      $existing_item = $existing_items_by_shortcode[$item[$passle_item_shortcode_property]];
-      array_push($response["updated"], $this->sync($existing_item, $item));
+    // Add/update
+    $items_to_sync = array_filter($api_entities, fn ($item) => in_array($item[$resource_shortcode_name], $shortcodes_to_sync));
+    foreach ($items_to_sync as $item) {
+      static::create_or_update($item);
     }
-
-    // Remove
-    $items_to_remove = array_filter($existing_items, fn ($item) => in_array($item->{$existing_item_shortcode_property}, $shortcodes_to_remove));
-    foreach ($items_to_remove as $item) {
-      array_push($response["removed"], $this->delete($item));
-    }
-
-    return $response;
   }
 
-  protected function delete_item(int $id)
+  protected static function delete(int $id)
   {
     return wp_delete_post($id, true);
   }
 
-  protected function insert_post(array $postarr, $wp_error = \false, $fire_after_hooks = \true)
+  protected static function create_or_update(array $data)
+  {
+    $resource = static::get_resource_instance();
+
+    $existing_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"], [
+      $data[$resource->get_shortcode_name()],
+    ]);
+
+    $entity_id = 0;
+
+    if (!empty($existing_entities)) {
+      $entity_id = $existing_entities[0]->ID;
+    }
+
+    $postarr = static::map_data($data, $entity_id);
+
+    static::insert_post($postarr, true);
+  }
+
+  protected static function insert_post(array $postarr, $wp_error = \false, $fire_after_hooks = \true)
   {
     if (empty($postarr["meta_input"])) {
       return wp_insert_post($postarr, $wp_error, $fire_after_hooks);
@@ -151,6 +138,8 @@ abstract class SyncHandlerBase
       }
     }
 
-    return $post_id;
+    $postarr["ID"] = $post_id;
+
+    return $postarr;
   }
 }

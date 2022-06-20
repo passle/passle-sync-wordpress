@@ -1,6 +1,5 @@
-import { ReactNode, useContext, useEffect, useState } from "react";
+import { ReactNode, useEffect, useState } from "react";
 import Button from "_Components/Atoms/Button/Button";
-import { PostDataContext } from "_Contexts/PassleDataContext";
 import classNames from "_Utils/classNames";
 import styles from "./TableNav.module.scss";
 
@@ -44,7 +43,7 @@ const TableNav = (props: TableNavProps) => {
             variant="secondary"
             disabled={props.currentPage === 1}
             onClick={async () => await props.setCurrentPage(1)}
-            text="«"
+            content="«"
           />
           <Button
             variant="secondary"
@@ -52,7 +51,7 @@ const TableNav = (props: TableNavProps) => {
             onClick={async () =>
               await props.setCurrentPage(props.currentPage - 1)
             }
-            text="‹"
+            content="‹"
           />
           <span className="paging-input">
             <label
@@ -90,13 +89,13 @@ const TableNav = (props: TableNavProps) => {
             onClick={async () =>
               await props.setCurrentPage(props.currentPage + 1)
             }
-            text="›"
+            content="›"
           />
           <Button
             variant="secondary"
             disabled={props.currentPage === props.totalPages}
             onClick={async () => await props.setCurrentPage(props.totalPages)}
-            text="»"
+            content="»"
           />
         </span>
       </div>

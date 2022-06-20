@@ -6,7 +6,7 @@ class EmbedService
 {
   public static function init()
   {
-    add_action("wp_enqueue_scripts", [self::class, "enqueue_scripts"]);
+    add_action("wp_enqueue_scripts", [static::class, "enqueue_scripts"]);
   }
 
   public static function enqueue_scripts()

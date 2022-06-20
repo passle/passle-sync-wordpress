@@ -8,7 +8,7 @@ function passle_constants($constant_name, $value)
         define($constant_name, $value);
 }
 
-/* !! DO NOT EDIT THIS. IT WILL BE AUTOMATICALLY REPLACED BY GULP. !! */
+/* !! DO NOT EDIT THIS LINE. IT WILL BE AUTOMATICALLY REPLACED BY GULP. !! */
 passle_constants("DOMAIN_EXT", "localhost");
 
 passle_constants("REST_API_BASE", "passlesync/v1");

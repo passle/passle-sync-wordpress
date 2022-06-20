@@ -2,7 +2,7 @@
   "name": "passle/passle-sync",
   "type": "wordpress-plugin",
   "require": {
-    "php-di/php-di": "^6.3"
+    "woocommerce/action-scheduler": "^3.4"
   },
   "autoload": {
     "psr-4": {

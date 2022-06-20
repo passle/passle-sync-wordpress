@@ -4,7 +4,12 @@ namespace Passle\PassleSync\Services;
 
 class MenuService
 {
-  public function register_menus()
+  public static function init()
+  {
+    add_action("admin_menu", [static::class, "register_menus"]);
+  }
+
+  public static function register_menus()
   {
     add_submenu_page(
       "options-general.php",
@@ -12,11 +17,11 @@ class MenuService
       "Passle Sync",
       "administrator",
       "passlesync",
-      [$this, "render_settings_menu"]
+      [static::class, "render_settings_menu"]
     );
   }
 
-  public function render_settings_menu()
+  public static function render_settings_menu()
   {
 
     $options = htmlspecialchars(

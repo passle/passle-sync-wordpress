@@ -3,7 +3,6 @@ import FeaturedItem from "_Components/Atoms/FeaturedItem/FeaturedItem";
 import Badge from "_Components/Atoms/Badge/Badge";
 import DataTable from "_Components/Organisms/DataTable/DataTable";
 import { PersonDataContext } from "_Contexts/PassleDataContext";
-import { useMemo } from "react";
 
 const PeopleTable = () => {
   const htmlDecode = (html: string) => {
