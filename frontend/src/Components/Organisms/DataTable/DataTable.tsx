@@ -27,7 +27,9 @@ export type DataTableProps<T extends Syncable> = {
 
 const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
   const { setLoading } = useContext(PassleDataContext);
-  const { data, refreshItems, setCurrentPage } = useContext(props.context);
+  const { data, pollingQueue, refreshItems, setCurrentPage } = useContext(
+    props.context,
+  );
   const [notice, setNotice] = useState<NoticeType>(null);
 
   const [working, setWorking] = useState(false);
@@ -210,11 +212,19 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
       />
       {notice && (
         <Notice
-          success={notice.success}
+          type="success"
           content={notice.content}
           onDismiss={() => setNotice(null)}
         />
       )}
+      {data.pending_sync_count ? (
+        <Notice
+          type="info"
+          content={`Processing ${data.pending_sync_count} ${
+            data.pending_sync_count === 1 ? "task" : "tasks"
+          }, page will refresh automatically...`}
+        />
+      ) : null}
       <Table
         currentPage={data.current_page}
         itemsPerPage={data.items_per_page}
@@ -274,7 +284,14 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
             )}
             <Button
               variant="secondary"
-              content={<span className="dashicons dashicons-update" />}
+              content={
+                <span
+                  className="dashicons dashicons-update"
+                  style={{
+                    animation: pollingQueue ? "spin 1s linear infinite" : "",
+                  }}
+                />
+              }
               loadingContent={
                 <span
                   className="dashicons dashicons-update"
@@ -282,7 +299,7 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
                 />
               }
               hideSpinner={true}
-              disabled={working}
+              disabled={working || pollingQueue}
               onClick={(cb) => doWork(refreshList, cb)}
             />
           </>

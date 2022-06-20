@@ -2,9 +2,9 @@ import { ReactNode } from "react";
 import classNames from "_Utils/classNames";
 
 export type NoticeProps = {
-  success: boolean;
+  type: "success" | "error" | "info";
   content: ReactNode;
-  onDismiss: () => void;
+  onDismiss?: () => void;
 };
 
 const Notice = (props: NoticeProps) => {
@@ -12,16 +12,18 @@ const Notice = (props: NoticeProps) => {
     <div
       id="message"
       className={classNames(
-        "notice is-dismissible",
-        props.success ? "notice-success" : "notice-error",
+        `notice notice-${props.type}`,
+        props.onDismiss && "is-dismissible",
       )}>
       <p>{props.content}</p>
-      <button
-        type="button"
-        className="notice-dismiss"
-        onClick={() => props.onDismiss()}>
-        <span className="screen-reader-text">Dismiss this notice.</span>
-      </button>
+      {props.onDismiss && (
+        <button
+          type="button"
+          className="notice-dismiss"
+          onClick={() => props.onDismiss()}>
+          <span className="screen-reader-text">Dismiss this notice.</span>
+        </button>
+      )}
     </div>
   );
 };

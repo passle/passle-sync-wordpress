@@ -67,7 +67,7 @@ const SyncSettings = () => {
     <div>
       {notice && (
         <Notice
-          success={notice.success}
+          type="success"
           content={notice.content}
           onDismiss={() => setNotice(null)}
         />
