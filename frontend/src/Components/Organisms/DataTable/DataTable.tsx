@@ -2,7 +2,7 @@ import { Context, ReactNode, useContext, useMemo, useState } from "react";
 import { NoticeType } from "_API/Types/NoticeType";
 import { Syncable } from "_API/Types/Syncable";
 import Button from "_Components/Atoms/Button/Button";
-import Notice from "_Components/Atoms/Notice/Notice";
+import Notice, { NoticeProps } from "_Components/Atoms/Notice/Notice";
 import Modal from "_Components/Molecules/Modal/Modal";
 import Table from "_Components/Molecules/Table/Table";
 import {
@@ -30,7 +30,7 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
   const { data, pollingQueue, refreshItems, setCurrentPage } = useContext(
     props.context,
   );
-  const [notice, setNotice] = useState<NoticeType>(null);
+  const [notice, setNotice] = useState<NoticeProps>(null);
 
   const [working, setWorking] = useState(false);
 
@@ -110,7 +110,7 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
           successMessage
         );
 
-        setNotice({ success: true, content: noticeContent });
+        setNotice({ type: "success", content: noticeContent });
       }
 
       if (cb) cb();
@@ -118,7 +118,7 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
       setLoadingStatus(false);
 
       setNotice({
-        success: false,
+        type: "error",
         content: "Oops, something went wrong. Please try again.",
       });
 
