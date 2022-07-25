@@ -210,13 +210,7 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
         open={showErrorModal}
         onCancel={() => setShowErrorModal(false)}
       />
-      {notice && (
-        <Notice
-          type="success"
-          content={notice.content}
-          onDismiss={() => setNotice(null)}
-        />
-      )}
+      {notice && <Notice {...notice} onDismiss={() => setNotice(null)} />}
       {data.pending_sync_count ? (
         <Notice
           type="info"
