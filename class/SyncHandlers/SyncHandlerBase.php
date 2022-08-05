@@ -142,4 +142,9 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     return $postarr;
   }
+
+  protected static function extract_slug_from_url(string $url)
+  {
+    return basename($url);
+  }
 }

@@ -100,9 +100,4 @@ class PostHandler extends SyncHandlerBase
       "screen_name" => $tweet["ScreenName"],
     ], $tweets);
   }
-
-  private static function extract_slug_from_url(string $url)
-  {
-    return basename($url);
-  }
 }

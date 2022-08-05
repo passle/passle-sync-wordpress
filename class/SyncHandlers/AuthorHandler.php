@@ -22,6 +22,7 @@ class AuthorHandler extends SyncHandlerBase
       "comment_status" => "closed",
       "meta_input" => [
         "author_shortcode" => $data["Shortcode"],
+        "author_slug" => static::extract_slug_from_url($data["ProfileUrl"]),
         "avatar_url" => $data["AvatarUrl"],
         "profile_url" => $data["ProfileUrl"],
         "subscribe_link" => $data["SubscribeLink"],

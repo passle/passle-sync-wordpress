@@ -72,6 +72,13 @@ class ResourceBase
     return $meta_shortcode_name;
   }
 
+  public function get_meta_slug_name()
+  {
+    $meta_slug_name = "{$this->display_name_singular}_slug";
+
+    return $meta_slug_name;
+  }
+
   public function get_cache_storage_key()
   {
     $cache_storage_key = "passlesync_{$this->name_plural}_cache";

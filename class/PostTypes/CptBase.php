@@ -3,6 +3,7 @@
 namespace Passle\PassleSync\PostTypes;
 
 use Passle\PassleSync\Utils\ResourceClassBase;
+use UnexpectedValueException;
 
 abstract class CptBase extends ResourceClassBase
 {
@@ -86,8 +87,8 @@ abstract class CptBase extends ResourceClassBase
 
     if ($post->post_type !== $resource->get_post_type()) return $permalink;
 
-    $post_shortcode = get_post_meta($post->ID, "post_shortcode", true);
-    $post_slug = get_post_meta($post->ID, "post_slug", true);
+    $post_shortcode = get_post_meta($post->ID, $resource->get_meta_shortcode_name(), true);
+    $post_slug = get_post_meta($post->ID, $resource->get_meta_slug_name(), true);
 
     $post_permalink_prefix = static::get_permalink_prefix();
     return home_url($post_permalink_prefix . "/$post_shortcode/$post_slug");
