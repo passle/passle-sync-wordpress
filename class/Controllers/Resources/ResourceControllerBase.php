@@ -72,7 +72,7 @@ abstract class ResourceControllerBase extends ControllerBase
   {
     $resource = static::get_resource_instance();
 
-    $entities = static::get_entities_for_request($request);
+    $entities = static::get_entities_for_request($request, "Shortcodes");
 
     call_user_func([$resource->sync_handler_name, "sync_many"], $entities);
   }
