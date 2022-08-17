@@ -24,6 +24,6 @@ class OptionsService
 
   private static function get_default_options(): Options
   {
-    return new Options("", wp_generate_uuid4(), [], "p", "u");
+    return new Options("", wp_generate_uuid4(), [], "p", "u", false, false);
   }
 }
