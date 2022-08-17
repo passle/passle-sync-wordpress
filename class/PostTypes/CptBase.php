@@ -87,6 +87,11 @@ abstract class CptBase extends ResourceClassBase
 
     if ($post->post_type !== $resource->get_post_type()) return $permalink;
 
+    return static::rewrite_permalink($resource, $post);
+  }
+
+  public static function rewrite_permalink($resource, $post)
+  {
     $post_shortcode = get_post_meta($post->ID, $resource->get_meta_shortcode_name(), true);
     $post_slug = get_post_meta($post->ID, $resource->get_meta_slug_name(), true);
 
