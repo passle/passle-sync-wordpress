@@ -13,6 +13,8 @@ class ThemeService
     add_filter('author_link', [static::class, 'modified_author_link']);
     add_filter('get_avatar_url', [static::class, 'modified_get_avatar_url']);
     add_filter('the_content', [static::class, 'modified_the_content']);
+    add_filter('get_post_metadata', [static::class, 'modified_post_layout'], 10, 5);
+    add_filter('get_post_metadata', [static::class, 'modified_post_sidebar'], 10, 5);
   }
 
   public static function modified_the_author_name($display_name)
@@ -48,6 +50,34 @@ class ThemeService
     $passle_post = new PasslePost($post);
     $url = $passle_post->primary_author->avatar_url;
     return $url;
+  }
+
+  public static function modified_post_layout($value, $id, $key, $single, $meta_type)
+  {
+    if ($meta_type !== "post") return $value;
+
+    global $post;
+
+    if (is_null($post)) return $value;
+    if (get_post_type($post) != PASSLESYNC_POST_TYPE) return $value;
+    if ($post->ID !== $id) return $value;
+    if ($key !== "_layout") return $value;
+
+    return 'left';
+  }
+
+  public static function modified_post_sidebar($value, $id, $key, $single, $meta_type)
+  {
+    if ($meta_type !== "post") return $value;
+
+    global $post;
+
+    if (is_null($post)) return $value;
+    if (get_post_type($post) != PASSLESYNC_POST_TYPE) return $value;
+    if ($post->ID !== $id) return $value;
+    if ($key !== "_sidebar") return $value;
+
+    return 18;
   }
 
   public static function modified_the_content($content)
