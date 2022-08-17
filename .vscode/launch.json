@@ -7,7 +7,7 @@
       "request": "launch",
       "port": 9003,
       "pathMappings": {
-        "/srv/www/wordpress-demo": "${workspaceFolder}/../"
+        "/srv/www/wordpress-demo": "${workspaceFolder}/../../../../"
       }
     }
   ]
