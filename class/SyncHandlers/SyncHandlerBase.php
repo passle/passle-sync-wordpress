@@ -140,6 +140,17 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     $postarr["ID"] = $post_id;
 
+
+    $terms = get_terms(array(
+      'taxonomy' => 'custom-tax-name',
+      "hide_empty" => false
+    ));
+
+    $tags_in_custom_tax = array_filter($terms, fn ($t) => in_array($t->name, $postarr['tags_input']));
+    $custom_tax_ids = array_map(fn ($t) => $t->term_id, $tags_in_custom_tax);
+
+    wp_set_post_terms($post_id, $custom_tax_ids, 'custom-tax-name');
+
     return $postarr;
   }
 
