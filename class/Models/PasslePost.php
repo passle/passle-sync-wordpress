@@ -211,7 +211,18 @@ class PasslePost
     $this->authors = $this->map_authors("post_author_shortcodes", "post_authors", $wp_authors);
     $this->coauthors = $this->map_authors("post_coauthor_shortcodes", "post_coauthors", $wp_authors);
 
-    $this->primary_author = $this->authors[0];
+    if (count($this->authors) > 0) {
+      $this->primary_author = $this->authors[0];
+    } else {
+      $default_author = new PassleAuthor(array(
+        'name' => 'Deleted',
+        'shortcode' => '',
+        'profile_url' => '/',
+        'image_url' => 'http://s3.amazonaws.com/passle-public/fb_passle_app_250.png',
+        'role' => ''
+      ));
+      $this->primary_author = $default_author;
+    }
   }
 
   private function initialize_tags()
