@@ -218,7 +218,7 @@ class PasslePost
         'name' => 'Deleted',
         'shortcode' => '',
         'profile_url' => '/',
-        'image_url' => 'http://s3.amazonaws.com/passle-public/fb_passle_app_250.png',
+        'image_url' => PASSLESYNC_DEFAULT_PROFILE_IMAGE,
         'role' => ''
       ));
       $this->primary_author = $default_author;

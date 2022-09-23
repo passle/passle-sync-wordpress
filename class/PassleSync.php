@@ -11,6 +11,8 @@ use Passle\PassleSync\Services\SchedulerService;
 use Passle\PassleSync\Services\ConfigService;
 use Passle\PassleSync\Services\ThemeService;
 
+include "Widgets/PassleAuthorWidget.php";
+
 class PassleSync
 {
   public static function initialize()
