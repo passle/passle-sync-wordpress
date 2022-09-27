@@ -50,11 +50,9 @@ abstract class ResourceControllerBase extends ControllerBase
       $entities = call_user_func([static::class, "filter_entities_before_sync"], $entities);
     }
 
-    $shortcodes = static::map_entities_to_shortcodes($entities);
-
     $resource = static::get_resource_instance();
 
-    QueueJobAction::execute("passle_{$resource->name_plural}_sync_many", [$shortcodes], $resource->get_schedule_group_name());
+    QueueJobAction::execute("passle_{$resource->name_plural}_sync_many", [$entities], $resource->get_schedule_group_name());
   }
 
   public static function delete_many(WP_REST_Request $request)
@@ -72,7 +70,7 @@ abstract class ResourceControllerBase extends ControllerBase
   {
     $resource = static::get_resource_instance();
 
-    $entities = static::get_entities_for_request($request);
+    $entities = static::get_entities_for_request($request, $resource->get_shortcode_name(), "fetch_by_shortcode");
 
     call_user_func([$resource->sync_handler_name, "sync_many"], $entities);
   }
@@ -108,13 +106,13 @@ abstract class ResourceControllerBase extends ControllerBase
     return ResourceRegistryService::get_resource_instance(static::RESOURCE);
   }
 
-  private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes")
+  private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes", string $function_to_call = "fetch_multiple_by_shortcode")
   {
     $resource_passle_content_service = static::get_resource_instance()->passle_content_service_name;
 
     $shortcodes = static::get_required_parameter($request, $shortcode_name);
 
-    $entities = call_user_func([$resource_passle_content_service, "fetch_multiple_by_shortcode"], $shortcodes);
+    $entities = call_user_func([$resource_passle_content_service, $function_to_call], $shortcodes);
 
     return $entities;
   }
