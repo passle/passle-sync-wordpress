@@ -19,19 +19,19 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
 
-    $api_entities = call_user_func([$resource->passle_content_service_name, "get_or_update_cache"]);
+    $api_entities = call_user_func([$resource->passle_content_service_name, "get_cache"]);
 
     static::compare_items($wp_entities, $api_entities);
   }
 
-  public static function sync_many(array $api_entities)
+  public static function sync_many(array $shortcodes)
   {
     $resource = static::get_resource_instance();
 
-    $cached_entities = call_user_func([$resource->passle_content_service_name, "get_or_update_cache"]);
+    $api_entities = call_user_func([$resource->passle_content_service_name, "get_cache"]);
 
-    foreach ($api_entities as $api_entity) {
-      $data = Utils::array_first($cached_entities, fn ($entity) => $entity[$resource->get_shortcode_name()] === $api_entity[$resource->get_shortcode_name()]);
+    foreach ($shortcodes as $shortcode) {
+      $data = Utils::array_first($api_entities, fn ($entity) => $entity[$resource->get_shortcode_name()] === $shortcode);
 
       if (!empty($data)) {
         static::create_or_update($data);

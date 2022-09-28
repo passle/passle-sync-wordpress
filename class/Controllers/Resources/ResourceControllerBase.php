@@ -50,9 +50,11 @@ abstract class ResourceControllerBase extends ControllerBase
       $entities = call_user_func([static::class, "filter_entities_before_sync"], $entities);
     }
 
+    $shortcodes = static::map_entities_to_shortcodes($entities);
+
     $resource = static::get_resource_instance();
 
-    QueueJobAction::execute("passle_{$resource->name_plural}_sync_many", [$entities], $resource->get_schedule_group_name());
+    QueueJobAction::execute("passle_{$resource->name_plural}_sync_many", [$shortcodes], $resource->get_schedule_group_name());
   }
 
   public static function delete_many(WP_REST_Request $request)
@@ -70,9 +72,12 @@ abstract class ResourceControllerBase extends ControllerBase
   {
     $resource = static::get_resource_instance();
 
+    // Getting the entities here allows for filtering, but it also updates the cache for when the sync job runs
     $entities = static::get_entities_for_request($request, $resource->get_shortcode_name(), "fetch_by_shortcode");
 
-    call_user_func([$resource->sync_handler_name, "sync_many"], $entities);
+    $shortcodes = static::map_entities_to_shortcodes($entities);
+
+    call_user_func([$resource->sync_handler_name, "sync_many"], $shortcodes);
   }
 
   public static function delete(WP_REST_Request $request)
