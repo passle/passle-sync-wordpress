@@ -125,11 +125,6 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     return $data;
   }
 
-  public static function fetch_by_shortcode(string $entity_shortcode)
-  {
-    return static::fetch_multiple_by_shortcode(array($entity_shortcode));
-  }
-
   public static function get_all_paginated(string $url, int $page_number = 1)
   {
     $result = [];
