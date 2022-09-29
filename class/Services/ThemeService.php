@@ -79,6 +79,7 @@ class ThemeService
             width: 640px;
             padding-bottom: min(56.25%, 480px);
             position: relative;
+            margin-bottom: 20px;
           }
           .featured-item--video .psl-media-player-iframe-container,
           .featured-item--audio .psl-media-player-iframe-container,
@@ -100,6 +101,6 @@ class ThemeService
       ';
     }
 
-    return $content . $quote_html . $featured_item_styles . $featured_item;
+    return $featured_item_styles . $featured_item . $content . $quote_html;
   }
 }
