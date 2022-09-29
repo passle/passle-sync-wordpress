@@ -13,15 +13,6 @@ class ThemeService
     add_filter('author_link', [static::class, 'modified_author_link']);
     add_filter('get_avatar_url', [static::class, 'modified_get_avatar_url']);
     add_filter('the_content', [static::class, 'modified_the_content']);
-    add_filter('get_post_metadata', [static::class, 'modified_post_sidebar'], 10, 5);
-
-    add_action('widgets_init', [static::class, 'register_passle_author_sidebar']);
-    add_action('widgets_init', [static::class, 'load_passle_author_widget']);
-  }
-
-  public static function load_passle_author_widget()
-  {
-    register_widget('PassleAuthorWidget');
   }
 
   public static function modified_the_author_name($display_name)
@@ -110,32 +101,5 @@ class ThemeService
     }
 
     return $content . $quote_html . $featured_item_styles . $featured_item;
-  }
-
-  public static function register_passle_author_sidebar()
-  {
-    register_sidebar(array(
-      'name' => __('Passle Sidebar', 'wpb'),
-      'id' => 'passle-sidebar',
-      'description' => __('The Passle sidebar shows author details for a Passle post.', 'wpb'),
-      'before_widget' => '<aside id="%1$s" class="widget %2$s">',
-      'after_widget' => '</aside>',
-      'before_title' => '<h3 class="widget-title">',
-      'after_title' => '</h3>',
-    ));
-  }
-
-  public static function modified_post_sidebar($value, $id, $key, $single, $meta_type)
-  {
-    if ($meta_type !== "post") return $value;
-
-    global $post;
-
-    if (is_null($post)) return $value;
-    if (get_post_type($post) != PASSLESYNC_POST_TYPE) return $value;
-    if ($post->ID !== $id) return $value;
-    if ($key !== "_cryout_layout") return $value;
-
-    return 'passle-sidebar';
   }
 }
