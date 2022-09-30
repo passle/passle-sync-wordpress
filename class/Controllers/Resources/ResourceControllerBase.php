@@ -45,13 +45,13 @@ abstract class ResourceControllerBase extends ControllerBase
 
   public static function sync_many(WP_REST_Request $request)
   {
+    $resource = static::get_resource_instance();
+
     $entities = static::get_entities_for_request($request);
 
-    $entities = static::filter_entities_before_sync($entities);
+    $entities = static::filter_entities_before_sync($entities, $resource->name_singular);
 
     $shortcodes = static::map_entities_to_shortcodes($entities);
-
-    $resource = static::get_resource_instance();
 
     QueueJobAction::execute("passle_{$resource->name_plural}_sync_many", [$shortcodes], $resource->get_schedule_group_name());
   }
@@ -74,7 +74,7 @@ abstract class ResourceControllerBase extends ControllerBase
     // Getting the entities here allows for filtering, but it also updates the cache for when the sync job runs
     $entities = static::get_entities_for_request($request, $resource->get_shortcode_name(), "fetch_by_shortcode");
 
-    $entities = static::filter_entities_before_sync($entities);
+    $entities = static::filter_entities_before_sync($entities, $resource->name_singular);
 
     $shortcodes = static::map_entities_to_shortcodes($entities);
 
@@ -115,14 +115,25 @@ abstract class ResourceControllerBase extends ControllerBase
   /**
    * Filter out posts and authors that do not belong to the list of Passle shortcodes we want to sync content from
    */
-  protected static function filter_entities_before_sync(array $entities)
+  protected static function filter_entities_before_sync(array $entities, string $entity_name)
   {
     $passle_shortcodes = OptionsService::get()->passle_shortcodes;
 
-    // Temporary: Will be removed on the next commit (ignore filtering authors for now)
-    if ($entities[0]["PassleShortcode"] == null) return $entities;
-
-    $entities = array_filter($entities, fn ($entity) => in_array($entity["PassleShortcode"], $passle_shortcodes));
+    if ($entity_name == "person") {
+      // Filter authors
+      $filtered_entities = [];
+      foreach ($entities as $entity) {
+        foreach ($entity["PassleShortcodes"] as $shortcode) {
+          in_array($shortcode, $passle_shortcodes) ? array_push($filtered_entities, $entity) : null;
+        }
+      }
+      $entities = array_unique($filtered_entities);
+    } else if ($entity_name == "post") {
+      // Filter posts
+      $entities = array_filter($entities, fn ($entity) => in_array($entity["PassleShortcode"], $passle_shortcodes));
+    } else {
+      return null;
+    }
 
     return $entities;
   }
