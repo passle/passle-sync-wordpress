@@ -6,6 +6,7 @@ use Passle\PassleSync\Actions\QueueJobAction;
 use Passle\PassleSync\Actions\RefreshAllAction;
 use Passle\PassleSync\Controllers\ControllerBase;
 use Passle\PassleSync\Services\ResourceRegistryService;
+use Passle\PassleSync\Services\OptionsService;
 use WP_REST_Request;
 
 abstract class ResourceControllerBase extends ControllerBase
@@ -44,15 +45,13 @@ abstract class ResourceControllerBase extends ControllerBase
 
   public static function sync_many(WP_REST_Request $request)
   {
+    $resource = static::get_resource_instance();
+
     $entities = static::get_entities_for_request($request);
 
-    if (method_exists(static::class, "filter_entities_before_sync")) {
-      $entities = call_user_func([static::class, "filter_entities_before_sync"], $entities);
-    }
+    $entities = static::filter_entities_before_sync($entities, $resource->name_singular);
 
     $shortcodes = static::map_entities_to_shortcodes($entities);
-
-    $resource = static::get_resource_instance();
 
     QueueJobAction::execute("passle_{$resource->name_plural}_sync_many", [$shortcodes], $resource->get_schedule_group_name());
   }
@@ -72,9 +71,14 @@ abstract class ResourceControllerBase extends ControllerBase
   {
     $resource = static::get_resource_instance();
 
-    $entities = static::get_entities_for_request($request);
+    // Getting the entities here allows for filtering, but it also updates the cache for when the sync job runs
+    $entities = static::get_entities_for_request($request, $resource->get_shortcode_name(), "fetch_by_shortcode");
 
-    call_user_func([$resource->sync_handler_name, "sync_many"], $entities);
+    $entities = static::filter_entities_before_sync($entities, $resource->name_singular);
+
+    $shortcodes = static::map_entities_to_shortcodes($entities);
+
+    call_user_func([$resource->sync_handler_name, "sync_many"], $shortcodes);
   }
 
   public static function delete(WP_REST_Request $request)
@@ -108,13 +112,39 @@ abstract class ResourceControllerBase extends ControllerBase
     return ResourceRegistryService::get_resource_instance(static::RESOURCE);
   }
 
-  private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes")
+  /**
+   * Filter out posts and authors that do not belong to the list of Passle shortcodes we want to sync content from
+   */
+  protected static function filter_entities_before_sync(array $entities, string $entity_name)
+  {
+    $passle_shortcodes = OptionsService::get()->passle_shortcodes;
+
+    if ($entity_name == "person") {
+      // Filter authors
+      $filtered_entities = [];
+      foreach ($entities as $entity) {
+        foreach ($entity["PassleShortcodes"] as $shortcode) {
+          in_array($shortcode, $passle_shortcodes) ? array_push($filtered_entities, $entity) : null;
+        }
+      }
+      $entities = array_unique($filtered_entities);
+    } else if ($entity_name == "post") {
+      // Filter posts
+      $entities = array_filter($entities, fn ($entity) => in_array($entity["PassleShortcode"], $passle_shortcodes));
+    } else {
+      return null;
+    }
+
+    return $entities;
+  }
+
+  private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes", string $function_to_call = "fetch_multiple_by_shortcode")
   {
     $resource_passle_content_service = static::get_resource_instance()->passle_content_service_name;
 
     $shortcodes = static::get_required_parameter($request, $shortcode_name);
 
-    $entities = call_user_func([$resource_passle_content_service, "fetch_multiple_by_shortcode"], $shortcodes);
+    $entities = call_user_func([$resource_passle_content_service, $function_to_call], $shortcodes);
 
     return $entities;
   }
