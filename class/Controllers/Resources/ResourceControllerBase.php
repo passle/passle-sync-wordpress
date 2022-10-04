@@ -72,9 +72,16 @@ abstract class ResourceControllerBase extends ControllerBase
   {
     $resource = static::get_resource_instance();
 
-    $entities = static::get_entities_for_request($request);
+    // Getting the entities here allows for filtering, but it also updates the cache for when the sync job runs
+    $entities = static::get_entities_for_request($request, $resource->get_shortcode_name(), "fetch_by_shortcode");
 
-    call_user_func([$resource->sync_handler_name, "sync_many"], $entities);
+    if (method_exists(static::class, "filter_entities_before_sync")) {
+      $entities = call_user_func([static::class, "filter_entities_before_sync"], $entities);
+    }
+
+    $shortcodes = static::map_entities_to_shortcodes($entities);
+
+    call_user_func([$resource->sync_handler_name, "sync_many"], $shortcodes);
   }
 
   public static function delete(WP_REST_Request $request)
@@ -108,13 +115,13 @@ abstract class ResourceControllerBase extends ControllerBase
     return ResourceRegistryService::get_resource_instance(static::RESOURCE);
   }
 
-  private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes")
+  private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes", string $function_to_call = "fetch_multiple_by_shortcode")
   {
     $resource_passle_content_service = static::get_resource_instance()->passle_content_service_name;
 
     $shortcodes = static::get_required_parameter($request, $shortcode_name);
 
-    $entities = call_user_func([$resource_passle_content_service, "fetch_multiple_by_shortcode"], $shortcodes);
+    $entities = call_user_func([$resource_passle_content_service, $function_to_call], $shortcodes);
 
     return $entities;
   }

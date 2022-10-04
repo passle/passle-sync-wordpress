@@ -15,7 +15,7 @@ abstract class ResourceResponseFactoryBase extends ResourceClassBase
     $resource = static::get_resource_instance();
 
     $wp_posts = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
-    $api_posts = call_user_func([$resource->passle_content_service_name, "get_or_update_cache"]);
+    $api_posts = call_user_func([$resource->passle_content_service_name, "get_cache"]);
 
     $entities = static::get_models($wp_posts, $api_posts);
 
