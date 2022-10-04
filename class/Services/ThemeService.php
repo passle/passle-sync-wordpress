@@ -75,11 +75,17 @@ class ThemeService
     if ($featured_item !== "") {
       $featured_item_styles = '
         <style>
+          .featured-item--video,
+          .featured-item--audio,
+          .featured-item--image,
+          .featured-item--document,
+          .featured-item--embed.legacy {
+            margin-bottom: 20px;
+          }
           .featured-item--video, .featured-item--audio, .featured-item--embed.legacy {
             width: 640px;
             padding-bottom: min(56.25%, 480px);
             position: relative;
-            margin-bottom: 20px;
           }
           .featured-item--video .psl-media-player-iframe-container,
           .featured-item--audio .psl-media-player-iframe-container,
