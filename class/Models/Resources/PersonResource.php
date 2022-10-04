@@ -5,6 +5,7 @@ namespace Passle\PassleSync\Models\Resources;
 use Passle\PassleSync\Controllers\Resources\PeopleController;
 use Passle\PassleSync\Models\Admin\Person;
 use Passle\PassleSync\Models\Resources\ResourceBase;
+use Passle\PassleSync\PostTypes\PasslePersonCpt;
 use Passle\PassleSync\ResponseFactories\Resources\PeopleResponseFactory;
 use Passle\PassleSync\Services\Content\Passle\PasslePeopleContentService;
 use Passle\PassleSync\Services\Content\Wordpress\WordpressPeopleContentService;
@@ -22,6 +23,7 @@ class PersonResource extends ResourceBase
   const WORDPRESS_CONTENT_SERVICE_NAME = WordpressPeopleContentService::class;
   const SYNC_HANDLER_NAME = AuthorHandler::class;
   const ADMIN_MODEL_NAME = Person::class;
+  const CPT_NAME = PasslePersonCpt::class;
 
   public function get_shortcode_name()
   {

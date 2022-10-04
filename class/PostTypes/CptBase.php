@@ -3,7 +3,6 @@
 namespace Passle\PassleSync\PostTypes;
 
 use Passle\PassleSync\Utils\ResourceClassBase;
-use UnexpectedValueException;
 
 abstract class CptBase extends ResourceClassBase
 {
@@ -74,9 +73,21 @@ abstract class CptBase extends ResourceClassBase
 
     $post_permalink_prefix = static::get_permalink_prefix();
 
+    $regex = '^' . $post_permalink_prefix . '/([^/]*)/([^/]*)/?$';
+    $query = 'index.php?post_type=' . $resource->get_post_type() . '&name=$matches[1]';
+
+    // Remove existing rewrite rules that match query
+    global $wp_rewrite;
+    foreach ($wp_rewrite->extra_rules_top as $ruleRegex => $ruleQuery) {
+      if (false !== strpos($ruleQuery, $query)) {
+        unset($wp_rewrite->extra_rules_top[$ruleRegex]);
+      }
+    }
+
+    // Add new rewrite rule
     add_rewrite_rule(
-      '^' . $post_permalink_prefix . '/([^/]*)/([^/]*)/?$',
-      'index.php?post_type=' . $resource->get_post_type() . '&name=$matches[1]',
+      $regex,
+      $query,
       'top'
     );
   }

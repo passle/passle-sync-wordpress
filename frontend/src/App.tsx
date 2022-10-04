@@ -8,6 +8,7 @@ import Tabs from "_Components/Molecules/Tabs/Tabs";
 import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
 import PostsTable from "_Components/Organisms/PostsTable/PostsTable";
 import PeopleTable from "_Components/Organisms/PeopleTable/PeopleTable";
+import HealthCheck from "_Components/Organisms/HealthCheck/HealthCheck";
 
 const App = () => {
   return (
@@ -39,6 +40,10 @@ const App = () => {
                             label: "People",
                             disabled: personData == null,
                             Content: <PeopleTable />,
+                          },
+                          {
+                            label: "Health Check",
+                            Content: <HealthCheck />,
                           },
                         ]}
                       />
