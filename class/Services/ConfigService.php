@@ -19,14 +19,18 @@ class ConfigService
   public static function modify_home_posts_query($query)
   {
     if (!is_admin() && $query->is_home() && $query->is_main_query()) {
-      $query->set('post_type', array('post', PASSLESYNC_POST_TYPE));
+      if ($query->get('post_type') == 'post') {
+        $query->set('post_type', array('post', PASSLESYNC_POST_TYPE));
+      }
     }
   }
 
   public static function modify_tag_posts_query($query)
   {
     if (!is_admin() && $query->is_tag() && $query->is_main_query()) {
-      $query->set('post_type', array('post', PASSLESYNC_POST_TYPE));
+      if ($query->get('post_type') == 'post') {
+        $query->set('post_type', array('post', PASSLESYNC_POST_TYPE));
+      }
     }
   }
 }
