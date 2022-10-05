@@ -6,7 +6,7 @@ import styles from "./HealthCheck.module.scss";
 const HealthCheck = () => {
   const iframeContainer = useRef<HTMLDivElement>(null);
 
-  const options = useOptions();
+  const { options } = useOptions();
 
   useEffect(() => {
     Penpal.connectToChild({
