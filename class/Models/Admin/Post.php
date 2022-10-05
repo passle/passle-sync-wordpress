@@ -55,12 +55,31 @@ class Post
 
   public static function fromWordpressEntity(object $from)
   {
-    $authors = join(", ", array_map(fn ($author) => unserialize($author)["name"], $from->post_authors)) ?? "";
+    $authors = "";
+    if (!empty($from->post_authors)) {
+      $authors = join(", ", array_map(fn ($author) => unserialize($author)["name"], $from->post_authors));
+    }
+
+    $shortcode = "";
+    if (!empty($from->post_shortcode) && count($from->post_shortcode) > 0) {
+      $shortcode = $from->post_shortcode[0];
+    }
+
+    $post_url = "";
+    if (!empty($from->post_url) && count($from->post_url) > 0) {
+      $post_url = $from->post_url[0];
+    }
+
+    $post_image_url = "";
+    if (!empty($from->post_image_url) && count($from->post_image_url) > 0) {
+      $post_image_url = $from->post_image_url[0];
+    }
+
 
     return new self(
-      $from->post_shortcode[0],
-      $from->post_url[0],
-      $from->post_image_url[0],
+      $shortcode,
+      $post_url,
+      $post_image_url,
       $from->post_title,
       $authors,
       $from->post_excerpt,

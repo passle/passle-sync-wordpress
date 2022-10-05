@@ -10,17 +10,45 @@ use Passle\PassleSync\Utils\Utils;
 
 abstract class PassleContentServiceBase extends ResourceClassBase
 {
-  public static function get_or_update_cache()
+  public static function get_cache()
   {
     $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
 
     $items = get_option($cache_storage_key);
 
     if (gettype($items) != "array" || count($items) == 0 || reset($items) == null) {
-      $items = static::fetch_all();
+      $items = array();
     }
 
     return $items;
+  }
+
+  public static function overwite_cache(array $data)
+  {
+    $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
+
+    update_option($cache_storage_key, $data, true);
+  }
+
+  public static function update_cache(array $data)
+  {
+    $shortcode_prop = static::get_resource_instance()->get_api_parameter_shortcode_name();
+    $existing_items = static::get_cache();
+
+    foreach ($data as $item) {
+      $exists = false;
+      foreach ($existing_items as $i => $existing_item) {
+        if ($item[$shortcode_prop] == $existing_item[$shortcode_prop]) {
+          $existing_items[$i] = $item;
+          $exists = true;
+        }
+      }
+      if (!$exists) {
+        array_push($existing_items, $item);
+      }
+    }
+
+    static::overwite_cache($existing_items);
   }
 
   public static function fetch_all()
@@ -42,9 +70,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     // Set the default sync state to unsynced
     array_walk($result, fn (&$i) => $i["SyncState"] = 0);
 
-    $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
-
-    update_option($cache_storage_key, $result, false);
+    static::overwite_cache($result);
 
     return $result;
   }
@@ -72,6 +98,11 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     return $result;
   }
 
+  public static function fetch_by_shortcode(string $entity_shortcode)
+  {
+    return static::fetch_multiple_by_shortcode(array($entity_shortcode));
+  }
+
   public static function fetch_multiple_by_shortcode(array $entity_shortcodes)
   {
     $resource = static::get_resource_instance();
@@ -87,7 +118,11 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       ->build();
 
     $response = static::get($url);
-    return $response[ucfirst($resource->name_plural)];
+    $data = $response[ucfirst($resource->name_plural)];
+
+    static::update_cache($data);
+
+    return $data;
   }
 
   public static function get_all_paginated(string $url, int $page_number = 1)

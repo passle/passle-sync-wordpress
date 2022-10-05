@@ -3,7 +3,9 @@ import { NoticeType } from "_API/Types/NoticeType";
 import { Options } from "_API/Types/Options";
 import Button from "_Components/Atoms/Button/Button";
 import Notice from "_Components/Atoms/Notice/Notice";
+import BoolSettingsInput from "_Components/Molecules/SettingsInput/BoolSettingsInput";
 import SettingsInput from "_Components/Molecules/SettingsInput/SettingsInput";
+import TextSettingsInput from "_Components/Molecules/SettingsInput/TextSettingsInput";
 import { PassleDataContext } from "_Contexts/PassleDataContext";
 import useOptions from "_Hooks/useOptions";
 import { updateSettings } from "_Services/SyncService";
@@ -25,6 +27,10 @@ const SyncSettings = () => {
   const [personPermalinkPrefix, setPersonPermalinkPrefix] = useState(
     options.personPermalinkPrefix,
   );
+  const [includePasslePostsOnHomePage, setIncludePasslePostsOnHomePage] =
+    useState(options.includePasslePostsOnHomePage);
+  const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] =
+    useState(options.includePasslePostsOnTagPage);
 
   const saveSettings = (finishLoadingCallback: () => void) => {
     setLoading(true);
@@ -35,6 +41,8 @@ const SyncSettings = () => {
       passleShortcodes,
       postPermalinkPrefix,
       personPermalinkPrefix,
+      includePasslePostsOnHomePage,
+      includePasslePostsOnTagPage,
     }).then((options) => {
       setLoading(false);
 
@@ -69,17 +77,17 @@ const SyncSettings = () => {
 
       <table className="form-table">
         <tbody>
-          <SettingsInput
+          <TextSettingsInput
             label="Passle API Key"
             value={passleApiKey}
             onChange={(e) => setPassleApiKey(e.target.value)}
           />
-          <SettingsInput
+          <TextSettingsInput
             label="Plugin API Key"
             value={pluginApiKey}
             onChange={(e) => setPluginApiKey(e.target.value)}
           />
-          <SettingsInput
+          <TextSettingsInput
             label="Passle Shortcodes"
             description="A comma-separated list of the shortcodes of the Passles you want
                 to sync content from."
@@ -88,17 +96,29 @@ const SyncSettings = () => {
               setPassleShortcodes(e.target.value.replace(/\s/g, "").split(","))
             }
           />
-          <SettingsInput
+          <TextSettingsInput
             label="Post Permalink Prefix"
             description="The prefix that will be used for post permalink URLs."
             value={postPermalinkPrefix}
             onChange={(e) => setPostPermalinkPrefix(e.target.value)}
           />
-          <SettingsInput
+          <TextSettingsInput
             label="Person Permalink Prefix"
             description="The prefix that will be used for person permalink URLs."
             value={personPermalinkPrefix}
             onChange={(e) => setPersonPermalinkPrefix(e.target.value)}
+          />
+          <BoolSettingsInput
+            label="Include Passle Posts on the Home Page?"
+            description="Whether or not to include Passle posts in the WordPress query that generates the home page."
+            checked={includePasslePostsOnHomePage}
+            onChange={(e) => setIncludePasslePostsOnHomePage(e.target.checked)}
+          />
+          <BoolSettingsInput
+            label="Include Passle Posts on the Tag Page?"
+            description="Whether or not to include Passle posts in the WordPress query that generates the tag page."
+            checked={includePasslePostsOnTagPage}
+            onChange={(e) => setIncludePasslePostsOnTagPage(e.target.checked)}
           />
         </tbody>
       </table>

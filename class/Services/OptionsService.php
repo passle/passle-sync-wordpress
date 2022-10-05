@@ -38,7 +38,7 @@ class OptionsService
 
   private static function get_default_options(): Options
   {
-    return new Options("", wp_generate_uuid4(), [], "p", "u", PASSLESYNC_DOMAIN_EXT);
+    return new Options("", wp_generate_uuid4(), [], "p", "u", false, false, PASSLESYNC_DOMAIN_EXT);
   }
 
   private static function get_resource_cpts()

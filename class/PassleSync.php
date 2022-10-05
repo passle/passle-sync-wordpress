@@ -8,6 +8,10 @@ use Passle\PassleSync\Services\MenuService;
 use Passle\PassleSync\Services\OptionsService;
 use Passle\PassleSync\Services\RouteRegistryService;
 use Passle\PassleSync\Services\SchedulerService;
+use Passle\PassleSync\Services\ConfigService;
+use Passle\PassleSync\Services\ThemeService;
+
+include "Widgets/PassleAuthorWidget.php";
 
 class PassleSync
 {
@@ -19,6 +23,8 @@ class PassleSync
     EmbedService::init();
     OptionsService::init();
     SchedulerService::init();
+    ConfigService::init();
+    ThemeService::init();
 
     register_activation_hook(__FILE__, [static::class, "activate"]);
     register_deactivation_hook(__FILE__, [static::class, "deactivate"]);
