@@ -1,30 +1,16 @@
 import Penpal from "penpal";
-import { useEffect, useMemo, useRef } from "react";
-import { Options } from "_API/Types/Options";
+import { useEffect, useRef } from "react";
+import useOptions from "_Hooks/useOptions";
 import styles from "./HealthCheck.module.scss";
 
 const HealthCheck = () => {
   const iframeContainer = useRef<HTMLDivElement>(null);
 
-  const options = useMemo<Options>(
-    () =>
-      JSON.parse(
-        document.getElementById("passle-sync-settings-root").dataset
-          .passlesyncOptions,
-      ),
-    [],
-  );
-
-  const domainExt = useMemo<string>(
-    () =>
-      document.getElementById("passle-sync-settings-root").dataset
-        .passlesyncDomainExt,
-    [],
-  );
+  const options = useOptions();
 
   useEffect(() => {
     Penpal.connectToChild({
-      url: `https://www.passle.${domainExt}/cms-integration-health-check`,
+      url: `https://www.passle.${options.domainExt}/cms-integration-health-check`,
       appendTo: iframeContainer.current,
       methods: {
         getOptions() {

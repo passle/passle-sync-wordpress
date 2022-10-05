@@ -13,7 +13,14 @@ class OptionsService
 
   public static function get(): Options
   {
-    return get_option(PASSLESYNC_OPTIONS_KEY) ?: static::get_default_options();
+    $default_options = static::get_default_options();
+    $saved_options = get_option(PASSLESYNC_OPTIONS_KEY);
+
+    foreach ($saved_options as $key => $value) {
+      $default_options->$key = $value;
+    }
+
+    return $default_options;
   }
 
   public static function set(Options $options)
@@ -31,7 +38,7 @@ class OptionsService
 
   private static function get_default_options(): Options
   {
-    return new Options("", wp_generate_uuid4(), [], "p", "u");
+    return new Options("", wp_generate_uuid4(), [], "p", "u", PASSLESYNC_DOMAIN_EXT);
   }
 
   private static function get_resource_cpts()

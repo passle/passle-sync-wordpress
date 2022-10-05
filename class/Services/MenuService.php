@@ -31,7 +31,7 @@ class MenuService
     );
 
 ?>
-    <div id="passle-sync-settings-root" data-passlesync-options="<?php echo $options; ?>" data-passlesync-domain-ext="<?php echo PASSLESYNC_DOMAIN_EXT; ?>" data-wp-nonce="<?php echo wp_create_nonce("wp_rest"); ?>"></div>
+    <div id="passle-sync-settings-root" data-passlesync-options="<?php echo $options; ?>" data-wp-nonce="<?php echo wp_create_nonce("wp_rest"); ?>"></div>
 <?php
   }
 }

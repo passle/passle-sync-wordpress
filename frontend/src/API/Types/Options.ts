@@ -4,4 +4,5 @@ export type Options = {
   passleShortcodes: string[];
   postPermalinkPrefix: string;
   personPermalinkPrefix: string;
+  domainExt: string;
 };

@@ -5,20 +5,14 @@ import Button from "_Components/Atoms/Button/Button";
 import Notice from "_Components/Atoms/Notice/Notice";
 import SettingsInput from "_Components/Molecules/SettingsInput/SettingsInput";
 import { PassleDataContext } from "_Contexts/PassleDataContext";
+import useOptions from "_Hooks/useOptions";
 import { updateSettings } from "_Services/SyncService";
 
 const SyncSettings = () => {
   const { setLoading } = useContext(PassleDataContext);
   const [notice, setNotice] = useState<NoticeType>(null);
 
-  const options = useMemo<Options>(
-    () =>
-      JSON.parse(
-        document.getElementById("passle-sync-settings-root").dataset
-          .passlesyncOptions,
-      ),
-    [],
-  );
+  const options = useOptions();
 
   const [passleApiKey, setPassleApiKey] = useState(options.passleApiKey);
   const [pluginApiKey, setPluginApiKey] = useState(options.pluginApiKey);
