@@ -22,14 +22,14 @@ class PasslePersonCpt extends CptBase
     return OptionsService::get()->person_permalink_prefix;
   }
 
-  // public static function rewrite_permalink($resource, $post): string
-  // {
-  //   $passle_author = new PassleAuthor($post);
+  public static function rewrite_permalink($resource, $post): string
+  {
+    $passle_author = new PassleAuthor($post);
 
-  //   if (!is_null($passle_author)) {
-  //     return $passle_author->profile_url;
-  //   } else {
-  //     return parent::rewrite_permalink($resource, $post);
-  //   }
-  // }
+    if (!is_null($passle_author)) {
+      return $passle_author->profile_url;
+    } else {
+      return parent::rewrite_permalink($resource, $post);
+    }
+  }
 }
