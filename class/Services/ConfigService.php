@@ -19,7 +19,7 @@ class ConfigService
   public static function modify_home_posts_query($query)
   {
     if (!is_admin() && $query->is_home() && $query->is_main_query()) {
-      if ($query->get('post_type') == 'post') {
+      if ($query->get('post_type') == 'post' || $query->get('post_type') == '') {
         $query->set('post_type', array('post', PASSLESYNC_POST_TYPE));
       }
     }
@@ -28,7 +28,7 @@ class ConfigService
   public static function modify_tag_posts_query($query)
   {
     if (!is_admin() && $query->is_tag() && $query->is_main_query()) {
-      if ($query->get('post_type') == 'post') {
+      if ($query->get('post_type') == 'post' || $query->get('post_type') == '') {
         $query->set('post_type', array('post', PASSLESYNC_POST_TYPE));
       }
     }
