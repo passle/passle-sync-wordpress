@@ -6,7 +6,6 @@ use Passle\PassleSync\Actions\QueueJobAction;
 use Passle\PassleSync\Actions\RefreshAllAction;
 use Passle\PassleSync\Controllers\ControllerBase;
 use Passle\PassleSync\Services\ResourceRegistryService;
-use Passle\PassleSync\Services\OptionsService;
 use WP_REST_Request;
 
 abstract class ResourceControllerBase extends ControllerBase
@@ -49,7 +48,7 @@ abstract class ResourceControllerBase extends ControllerBase
 
     $entities = static::get_entities_for_request($request);
 
-    $entities = static::filter_entities_before_sync($entities, $resource->name_singular);
+    $entities = static::filter_entities_before_sync($entities);
 
     $shortcodes = static::map_entities_to_shortcodes($entities);
 
@@ -74,7 +73,7 @@ abstract class ResourceControllerBase extends ControllerBase
     // Getting the entities here allows for filtering, but it also updates the cache for when the sync job runs
     $entities = static::get_entities_for_request($request, $resource->get_shortcode_name(), "fetch_by_shortcode");
 
-    $entities = static::filter_entities_before_sync($entities, $resource->name_singular);
+    $entities = static::filter_entities_before_sync($entities);
 
     $shortcodes = static::map_entities_to_shortcodes($entities);
 
@@ -115,28 +114,7 @@ abstract class ResourceControllerBase extends ControllerBase
   /**
    * Filter out posts and authors that do not belong to the list of Passle shortcodes we want to sync content from
    */
-  protected static function filter_entities_before_sync(array $entities, string $entity_name)
-  {
-    $passle_shortcodes = OptionsService::get()->passle_shortcodes;
-
-    if ($entity_name == "person") {
-      // Filter authors
-      $filtered_entities = [];
-      foreach ($entities as $entity) {
-        foreach ($entity["PassleShortcodes"] as $shortcode) {
-          in_array($shortcode, $passle_shortcodes) ? array_push($filtered_entities, $entity) : null;
-        }
-      }
-      $entities = array_unique($filtered_entities);
-    } else if ($entity_name == "post") {
-      // Filter posts
-      $entities = array_filter($entities, fn ($entity) => in_array($entity["PassleShortcode"], $passle_shortcodes));
-    } else {
-      return null;
-    }
-
-    return $entities;
-  }
+  protected static abstract function filter_entities_before_sync(array $entities);
 
   private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes", string $function_to_call = "fetch_multiple_by_shortcode")
   {
