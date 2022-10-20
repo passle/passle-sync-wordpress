@@ -17,7 +17,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     $items = get_option($cache_storage_key);
 
     if (gettype($items) != "array" || count($items) == 0 || reset($items) == null) {
-      $items = array();
+      $items = static::fetch_all();
     }
 
     return $items;
