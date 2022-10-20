@@ -24,11 +24,7 @@ abstract class ControllerBase
   {
     $data = $request->get_json_params();
 
-    $parameter = $data[$parameter_name] ?? null;
-
-    if ($parameter == null) {
-      throw new Exception("Missing $parameter_name parameter", 400);
-    }
+    $parameter = $data[$parameter_name] ?? array();
 
     return $parameter;
   }
