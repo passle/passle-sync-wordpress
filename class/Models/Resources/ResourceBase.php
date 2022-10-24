@@ -16,6 +16,7 @@ class ResourceBase
   const WORDPRESS_CONTENT_SERVICE_NAME = "";
   const SYNC_HANDLER_NAME = "";
   const ADMIN_MODEL_NAME = "";
+  const CPT_NAME = "";
 
   public string $name_singular;
   public string $name_plural;
@@ -27,6 +28,7 @@ class ResourceBase
   public string $wordpress_content_service_name;
   public string $sync_handler_name;
   public string $admin_model_name;
+  public string $cpt_name;
 
   final public function __construct()
   {
@@ -40,6 +42,7 @@ class ResourceBase
     if (self::WORDPRESS_CONTENT_SERVICE_NAME === static::WORDPRESS_CONTENT_SERVICE_NAME) throw new UnexpectedValueException("WORDPRESS_CONTENT_SERVICE_NAME const not implemented");
     if (self::WORDPRESS_CONTENT_SERVICE_NAME === static::WORDPRESS_CONTENT_SERVICE_NAME) throw new UnexpectedValueException("WORDPRESS_CONTENT_SERVICE_NAME const not implemented");
     if (self::ADMIN_MODEL_NAME === static::ADMIN_MODEL_NAME) throw new UnexpectedValueException("ADMIN_MODEL_NAME const not implemented");
+    if (self::CPT_NAME === static::CPT_NAME) throw new UnexpectedValueException("CPT_NAME const not implemented");
 
     $this->name_singular = static::NAME_SINGULAR;
     $this->name_plural = static::NAME_PLURAL;
@@ -51,6 +54,7 @@ class ResourceBase
     $this->wordpress_content_service_name = static::WORDPRESS_CONTENT_SERVICE_NAME;
     $this->sync_handler_name = static::SYNC_HANDLER_NAME;
     $this->admin_model_name = static::ADMIN_MODEL_NAME;
+    $this->cpt_name = static::CPT_NAME;
   }
 
   public function get_shortcode_name()

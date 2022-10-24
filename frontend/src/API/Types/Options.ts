@@ -6,4 +6,5 @@ export type Options = {
   personPermalinkPrefix: string;
   includePasslePostsOnHomePage: boolean;
   includePasslePostsOnTagPage: boolean;
+  domainExt: string;
 };

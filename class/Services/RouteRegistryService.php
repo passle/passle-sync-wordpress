@@ -3,6 +3,7 @@
 namespace Passle\PassleSync\Services;
 
 use Passle\PassleSync\Controllers\FeaturedPostController;
+use Passle\PassleSync\Controllers\HealthCheckController;
 use Passle\PassleSync\Controllers\SettingsController;
 
 class RouteRegistryService
@@ -10,6 +11,7 @@ class RouteRegistryService
   const NON_RESOURCE_CONTROLLERS = [
     SettingsController::class,
     FeaturedPostController::class,
+    HealthCheckController::class,
   ];
 
   public static function init()

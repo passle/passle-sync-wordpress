@@ -1,26 +1,18 @@
-import { useContext, useMemo, useState } from "react";
+import { useContext, useState } from "react";
 import { NoticeType } from "_API/Types/NoticeType";
-import { Options } from "_API/Types/Options";
 import Button from "_Components/Atoms/Button/Button";
 import Notice from "_Components/Atoms/Notice/Notice";
 import BoolSettingsInput from "_Components/Molecules/SettingsInput/BoolSettingsInput";
-import SettingsInput from "_Components/Molecules/SettingsInput/SettingsInput";
 import TextSettingsInput from "_Components/Molecules/SettingsInput/TextSettingsInput";
 import { PassleDataContext } from "_Contexts/PassleDataContext";
+import useOptions from "_Hooks/useOptions";
 import { updateSettings } from "_Services/SyncService";
 
 const SyncSettings = () => {
   const { setLoading } = useContext(PassleDataContext);
   const [notice, setNotice] = useState<NoticeType>(null);
 
-  const options = useMemo<Options>(
-    () =>
-      JSON.parse(
-        document.getElementById("passle-sync-settings-root").dataset
-          .passlesyncOptions,
-      ),
-    [],
-  );
+  const { options, setOptions } = useOptions();
 
   const [passleApiKey, setPassleApiKey] = useState(options.passleApiKey);
   const [pluginApiKey, setPluginApiKey] = useState(options.pluginApiKey);
@@ -58,9 +50,7 @@ const SyncSettings = () => {
           success: true,
         });
 
-        document.getElementById(
-          "passle-sync-settings-root",
-        ).dataset.passlesyncOptions = JSON.stringify(options);
+        setOptions(options);
       } else {
         setNotice({
           content: "Failed to update settings.",

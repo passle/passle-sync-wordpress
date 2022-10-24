@@ -14,7 +14,7 @@ class EmbedService
     wp_register_script(
       "passle-remote-hosting-bundle",
       "https://clientweb.passle." . PASSLESYNC_DOMAIN_EXT . "/v1/RemoteHostingBundle",
-      ["jquery"],
+      [],
       false,
       true
     );
