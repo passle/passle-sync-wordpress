@@ -4,8 +4,16 @@ const passleSyncSettingsPageRoot = document.getElementById(
   "passle-sync-settings-root",
 );
 
+let baseUrl: string;
+
+try {
+  baseUrl = JSON.parse(
+    passleSyncSettingsPageRoot?.dataset.passlesyncOptions,
+  ).siteUrl;
+} catch {}
+
 const instance = axios.create({
-  baseURL: "/wp-json/passlesync/v1",
+  baseURL: baseUrl + "/wp-json/passlesync/v1",
   headers: {
     "X-WP-Nonce": passleSyncSettingsPageRoot?.dataset.wpNonce ?? "",
   },

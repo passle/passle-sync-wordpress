@@ -8,6 +8,8 @@ namespace Passle\PassleSync\Models;
  */
 class PassleAuthor
 {
+  /** Whether the author has been synced, or is coming from the data of a synced post. */
+  public bool $synced;
   /** The person's full name. */
   public string $name;
   /** The shortcode for the person. */
@@ -96,6 +98,7 @@ class PassleAuthor
 
   private function initialize_wp_author()
   {
+    $this->synced = true;
     $this->name = $this->wp_author->post_title ?? "";
     $this->shortcode = $this->wp_author->post_name ?? "";
     $this->profile_url = $this->meta["profile_url"][0] ?? "";
@@ -138,6 +141,7 @@ class PassleAuthor
 
   private function initialize_post_author()
   {
+    $this->synced = false;
     $this->name = $this->post_author["name"] ?? "";
     $this->shortcode = $this->post_author["shortcode"] ?? "";
     $this->profile_url = $this->post_author["profile_url"] ?? "";
