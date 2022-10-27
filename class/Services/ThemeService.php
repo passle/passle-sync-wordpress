@@ -11,7 +11,7 @@ class ThemeService
     add_filter('the_author', [static::class, 'modified_the_author_name']);
     add_filter('get_the_author_display_name', [static::class, 'modified_the_author_name']);
     add_filter('author_link', [static::class, 'modified_author_link']);
-    add_filter('get_avatar_url', [static::class, 'modified_get_avatar_url']);
+    add_filter('get_avatar_url', [static::class, 'modified_get_avatar_url'], 10, 2);
     add_filter('the_content', [static::class, 'modified_the_content']);
   }
 
@@ -21,6 +21,9 @@ class ThemeService
 
     if (is_null($post)) return $display_name;
     if (get_post_type($post) != PASSLESYNC_POST_TYPE) return $display_name;
+
+    // NB: The avatar url modifications below seemingly aren't needed for the author's name
+    // (Or at least I've not seen any issues from this yet)
 
     $passle_post = new PasslePost($post);
     return $passle_post->primary_author->name;
@@ -33,17 +36,26 @@ class ThemeService
     if (is_null($post)) return $link;
     if (get_post_type($post) != PASSLESYNC_POST_TYPE) return $link;
 
+    // NB: The avatar url modifications below seemingly aren't needed for the author link
+    // (Or at least I've not seen any issues from this yet)
+
     $passle_post = new PasslePost($post);
     $link = $passle_post->primary_author->profile_url;
     return $link;
   }
 
-  public static function modified_get_avatar_url($url)
+  public static function modified_get_avatar_url($url, $id_or_email)
   {
     global $post;
 
     if (is_null($post)) return $url;
     if (get_post_type($post) != PASSLESYNC_POST_TYPE) return $url;
+
+    // Check if the current page is in WP Admin to prevent overwriting the wrong avatars
+    if (is_admin()) return $url;
+    // The WP Admin bar isn't covered by is_admin(), so manually check whether this is for the current user
+    $current_user_id = get_current_user_id();
+    if ($current_user_id == $id_or_email) return $url;
 
     $passle_post = new PasslePost($post);
     $url = $passle_post->primary_author->avatar_url;
