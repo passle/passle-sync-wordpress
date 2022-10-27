@@ -175,6 +175,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       'sslverify' => false,
       'headers' => [
         "apiKey" => $passle_api_key,
+        "X-PassleSimulateRemoteHosting" => "true",
       ]
     ]);
 
