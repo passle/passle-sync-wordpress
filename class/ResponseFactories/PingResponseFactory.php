@@ -12,7 +12,7 @@ class PingResponseFactory
     $options = OptionsService::get();
 
     return [
-      "RemoteHostingType" => 2, // WordPress
+      "RemoteHostingType" => PASSLESYNC_REMOTE_HOSTING_TYPE,
       "PostPermalinkPrefix" => $options->post_permalink_prefix,
       "PersonPermalinkPrefix" => $options->person_permalink_prefix,
     ];
