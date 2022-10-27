@@ -2,9 +2,9 @@
 
 namespace Passle\PassleSync\Controllers;
 
-use Exception;
 use \WP_REST_Request;
 use Passle\PassleSync\Services\OptionsService;
+use WP_Error;
 
 abstract class ControllerBase
 {
@@ -24,13 +24,11 @@ abstract class ControllerBase
   {
     $data = $request->get_json_params();
 
-    $parameter = $data[$parameter_name] ?? null;
-
-    if ($parameter == null) {
-      throw new Exception("Missing $parameter_name parameter", 400);
+    if (!array_key_exists($parameter_name, $data)) {
+      return new WP_Error("missing_required_parameter", "Missing $parameter_name parameter", ["status" => 400]);
     }
 
-    return $parameter;
+    return $data[$parameter_name];
   }
 
   public static function validate_admin_dashboard_request(): bool

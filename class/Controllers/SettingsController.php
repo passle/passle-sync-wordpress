@@ -31,6 +31,7 @@ class SettingsController extends ControllerBase
       $params["includePasslePostsOnHomePage"],
       $params["includePasslePostsOnTagPage"],
       PASSLESYNC_DOMAIN_EXT,
+      get_site_url(),
     );
 
     OptionsService::set($options);

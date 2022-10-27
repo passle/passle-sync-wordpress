@@ -12,21 +12,23 @@ code {
     monospace;
 }
 
-#wpwrap,
-#wpcontent,
-#wpbody,
-#wpbody-content,
-#passle-sync-settings-root,
-#passle-sync-settings-root > .App,
-#passle-sync-settings-root > .App > .wrap {
-  display: flex;
-  flex-direction: column;
-  flex: 1;
-}
+.settings_page_passlesync {
+  #wpwrap,
+  #wpcontent,
+  #wpbody,
+  #wpbody-content,
+  #passle-sync-settings-root,
+  #passle-sync-settings-root > .App,
+  #passle-sync-settings-root > .App > .wrap {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
 
-#wpbody {
-  &-content {
-    box-sizing: border-box;
+  #wpbody {
+    &-content {
+      box-sizing: border-box;
+    }
   }
 }
 
