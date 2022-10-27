@@ -7,6 +7,7 @@ use Passle\PassleSync\Actions\Resources\PostsWebhookActions;
 use Passle\PassleSync\Actions\UpdateFeaturedPostAction;
 use Passle\PassleSync\Models\WebhookAction;
 use Passle\PassleSync\ResponseFactories\PingResponseFactory;
+use WP_Error;
 use WP_REST_Request;
 
 class WebhookController extends ControllerBase
@@ -41,6 +42,8 @@ class WebhookController extends ControllerBase
         return UpdateFeaturedPostAction::execute($data["Shortcode"], $data["IsFeaturedOnPasslePage"], $data["IsFeaturedOnPostPage"]);
       case WebhookAction::PING:
         return PingResponseFactory::make($request);
+      default:
+        return new WP_Error("invalid_action", "The action specified is not supported", ["status" => 400]);
     }
   }
 }
