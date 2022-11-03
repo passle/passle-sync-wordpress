@@ -1,5 +1,9 @@
 # Passle Sync for Wordpress
 
+> **Warning**
+>
+> There's a breaking change on the way. Once this change has been deployed to the Passle backend, the plugin won't auto-sync until you've updated to the latest version.
+
 Passle Sync is a plugin for Wordpress which syncs your [Passle](https://home.passle.net/) posts and authors into your Wordpress instance.
 
 Get started with the section below, or jump straight to the [API documentation](./docs/index.md).
