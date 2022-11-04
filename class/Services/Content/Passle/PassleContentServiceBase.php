@@ -98,7 +98,6 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     $responses = static::get_all_paginated($url);
 
     if (is_null($responses) || in_array(null, $responses)) {
-      // throw new Exception("Failed to get data from the API", 500);
       return array();
     }
 
