@@ -11,6 +11,7 @@ function passle_constants($constant_name, $value)
 /* !! DO NOT EDIT THIS LINE. IT WILL BE AUTOMATICALLY REPLACED BY GULP. !! */
 passle_constants("DOMAIN_EXT", "localhost");
 
+passle_constants("REMOTE_HOSTING_TYPE", 2); // WordPress
 passle_constants("REST_API_BASE", "passlesync/v1");
 passle_constants("OPTIONS_KEY", "passlesync_options");
 passle_constants("POSTS_CACHE", "passlesync_posts_cache");

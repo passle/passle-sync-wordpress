@@ -2,14 +2,14 @@
 
 namespace Passle\PassleSync\Services;
 
-use Passle\PassleSync\Controllers\FeaturedPostController;
 use Passle\PassleSync\Controllers\SettingsController;
+use Passle\PassleSync\Controllers\WebhookController;
 
 class RouteRegistryService
 {
   const NON_RESOURCE_CONTROLLERS = [
     SettingsController::class,
-    FeaturedPostController::class,
+    WebhookController::class,
   ];
 
   public static function init()

@@ -4,3 +4,9 @@
   padding-top: 9px;
   line-height: inherit;
 }
+
+.TabContent {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}

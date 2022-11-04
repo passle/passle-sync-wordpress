@@ -36,7 +36,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
   public static function update_cache(array $data)
   {
-    $shortcode_prop = static::get_resource_instance()->get_api_parameter_shortcode_name();
+    $shortcode_prop = static::get_resource_instance()->get_shortcode_name();
     $existing_items = static::get_cache();
 
     foreach ($data as $item) {
@@ -184,6 +184,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       'sslverify' => false,
       'headers' => [
         "apiKey" => $passle_api_key,
+        "X-PassleSimulateRemoteHosting" => "true",
       ]
     ]);
 
