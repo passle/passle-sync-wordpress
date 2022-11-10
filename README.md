@@ -67,7 +67,8 @@ An example of how to get the content hub featured post in order to display it se
 
 ## 🔧 Requirements
 
-TBD
+- Permalinks: Permalink Settings must be set to something other than 'Plain'.
+- TBD
 
 ## 👨‍💻 Development
 
@@ -77,6 +78,7 @@ TBD
 - [NPM](https://www.npmjs.com/)
 - [Composer](https://getcomposer.org/)
 - Development environment running a Wordpress instance
+  - Including a correctly set `/etc/hosts` config.
 
 To build documentation, you will need to ensure `extension=fileinfo` is enabled in your `php.ini`. This extension is disabled by default on Windows.
 

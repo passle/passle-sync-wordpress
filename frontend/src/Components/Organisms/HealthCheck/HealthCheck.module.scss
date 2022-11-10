@@ -1,0 +1,6 @@
+.IframeContainer,
+.IframeContainer > iframe {
+  display: flex;
+  flex-direction: column;
+  flex: 1;
+}

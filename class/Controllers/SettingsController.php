@@ -28,6 +28,10 @@ class SettingsController extends ControllerBase
       $params["passleShortcodes"],
       $params["postPermalinkPrefix"],
       $params["personPermalinkPrefix"],
+      $params["includePasslePostsOnHomePage"],
+      $params["includePasslePostsOnTagPage"],
+      PASSLESYNC_DOMAIN_EXT,
+      get_site_url(),
     );
 
     OptionsService::set($options);

@@ -17,7 +17,7 @@ const Tabs = (props: TabsProps) => {
   const [activeIdx, setActiveIdx] = useState(0);
 
   return (
-    <div>
+    <>
       <div className={styles.TabList}>
         {props.tabs.map((tab, idx) => (
           <Tab
@@ -31,8 +31,8 @@ const Tabs = (props: TabsProps) => {
           />
         ))}
       </div>
-      <div className="tab-content">{props.tabs[activeIdx].Content}</div>
-    </div>
+      <div className={styles.TabContent}>{props.tabs[activeIdx].Content}</div>
+    </>
   );
 };
 

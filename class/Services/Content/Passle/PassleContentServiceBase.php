@@ -10,7 +10,7 @@ use Passle\PassleSync\Utils\Utils;
 
 abstract class PassleContentServiceBase extends ResourceClassBase
 {
-  public static function get_or_update_cache()
+  public static function get_cache()
   {
     $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
 
@@ -21,6 +21,38 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     }
 
     return $items;
+  }
+
+  public static function overwite_cache(array $data)
+  {
+    $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
+
+    $success = update_option($cache_storage_key, $data, false);
+
+    if (!$success) {
+      error_log('Failed to overwrite cache: ' . $cache_storage_key);
+    }
+  }
+
+  public static function update_cache(array $data)
+  {
+    $shortcode_prop = static::get_resource_instance()->get_shortcode_name();
+    $existing_items = static::get_cache();
+
+    foreach ($data as $item) {
+      $exists = false;
+      foreach ($existing_items as $i => $existing_item) {
+        if ($item[$shortcode_prop] == $existing_item[$shortcode_prop]) {
+          $existing_items[$i] = $item;
+          $exists = true;
+        }
+      }
+      if (!$exists) {
+        array_push($existing_items, $item);
+      }
+    }
+
+    static::overwite_cache($existing_items);
   }
 
   public static function fetch_all()
@@ -39,14 +71,16 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
     $result = array_merge(...$results);
 
-    // Set the default sync state to unsynced
-    array_walk($result, fn (&$i) => $i["SyncState"] = 0);
+    if (!is_null($result)) {
+      // Set the default sync state to unsynced
+      array_walk($result, fn (&$i) => $i["SyncState"] = 0);
 
-    $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
-
-    update_option($cache_storage_key, $result, false);
-
-    return $result;
+      static::overwite_cache($result);
+      return $result;
+    } else {
+      static::overwite_cache(array());
+      return array();
+    }
   }
 
   public static function fetch_all_by_passle(string $passle_shortcode)
@@ -63,13 +97,18 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
     $responses = static::get_all_paginated($url);
 
-    if (in_array(null, $responses)) {
-      throw new Exception("Failed to get data from the API", 500);
+    if (is_null($responses) || in_array(null, $responses)) {
+      return array();
     }
 
     $result = Utils::array_select_multiple($responses, ucfirst($resource->name_plural));
 
     return $result;
+  }
+
+  public static function fetch_by_shortcode(string $entity_shortcode)
+  {
+    return static::fetch_multiple_by_shortcode(array($entity_shortcode));
   }
 
   public static function fetch_multiple_by_shortcode(array $entity_shortcodes)
@@ -87,7 +126,11 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       ->build();
 
     $response = static::get($url);
-    return $response[ucfirst($resource->name_plural)];
+    $data = $response[ucfirst($resource->name_plural)];
+
+    static::update_cache($data);
+
+    return $data;
   }
 
   public static function get_all_paginated(string $url, int $page_number = 1)
@@ -140,6 +183,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       'sslverify' => false,
       'headers' => [
         "apiKey" => $passle_api_key,
+        "X-PassleSimulateRemoteHosting" => "true",
       ]
     ]);
 

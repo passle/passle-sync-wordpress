@@ -14,6 +14,9 @@ class Utils
   static function array_select_multiple(array $array, string $key)
   {
     // TODO: Check if $key is set
+    if (is_null($array)) {
+      return array();
+    }
     $result = array_merge(...array_map(fn ($x) => $x[$key], $array));
     return $result;
   }

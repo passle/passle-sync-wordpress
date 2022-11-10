@@ -1,4 +1,4 @@
-import { createContext, useState, ReactNode, useEffect, useRef } from "react";
+import { createContext, useState, ReactNode, useEffect } from "react";
 import { useInterval } from "usehooks-ts";
 import { PaginatedResponse } from "_API/Types/PaginatedResponse";
 import { Person } from "_API/Types/Person";
@@ -51,9 +51,6 @@ export const PassleDataContextProvider = (
 
   const [postPollingQueue, setPostPollingQueue] = useState(false);
   const [personPollingQueue, setPersonPollingQueue] = useState(false);
-
-  const postTimeoutRef = useRef<NodeJS.Timer>();
-  const personTimeoutRef = useRef<NodeJS.Timer>();
 
   const [postData, setPostData] = useState<PaginatedResponse<Post>>();
   const [personData, setPersonData] = useState<PaginatedResponse<Person>>();

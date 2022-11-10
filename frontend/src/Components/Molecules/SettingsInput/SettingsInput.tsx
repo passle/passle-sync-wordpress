@@ -8,6 +8,7 @@ export type SettingsInputProps = InputHTMLAttributes<HTMLInputElement> & {
 const SettingsInput = ({
   label,
   description,
+  type,
   ...props
 }: SettingsInputProps) => {
   const name = useMemo(
@@ -21,7 +22,7 @@ const SettingsInput = ({
         <label htmlFor={name}>{label}</label>
       </th>
       <td>
-        <input type="text" id={name} className="regular-text code" {...props} />
+        <input type={type} id={name} className="regular-text code" {...props} />
         {description && (
           <p className="description" id={`${name}-description`}>
             {description}

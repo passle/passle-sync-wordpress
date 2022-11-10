@@ -44,15 +44,11 @@ abstract class ResourceControllerBase extends ControllerBase
 
   public static function sync_many(WP_REST_Request $request)
   {
+    $resource = static::get_resource_instance();
+
     $entities = static::get_entities_for_request($request);
 
-    if (method_exists(static::class, "filter_entities_before_sync")) {
-      $entities = call_user_func([static::class, "filter_entities_before_sync"], $entities);
-    }
-
     $shortcodes = static::map_entities_to_shortcodes($entities);
-
-    $resource = static::get_resource_instance();
 
     QueueJobAction::execute("passle_{$resource->name_plural}_sync_many", [$shortcodes], $resource->get_schedule_group_name());
   }
@@ -68,24 +64,6 @@ abstract class ResourceControllerBase extends ControllerBase
     QueueJobAction::execute("passle_{$resource->name_plural}_delete_many", [$shortcodes], $resource->get_schedule_group_name());
   }
 
-  public static function update(WP_REST_Request $request)
-  {
-    $resource = static::get_resource_instance();
-
-    $entities = static::get_entities_for_request($request);
-
-    call_user_func([$resource->sync_handler_name, "sync_many"], $entities);
-  }
-
-  public static function delete(WP_REST_Request $request)
-  {
-    $resource = static::get_resource_instance();
-
-    $entities = static::get_entities_for_request($request);
-
-    call_user_func([$resource->sync_handler_name, "delete_many"], $entities);
-  }
-
   public static function init()
   {
     $resource_name_plural = static::get_resource_instance()->name_plural;
@@ -97,10 +75,6 @@ abstract class ResourceControllerBase extends ControllerBase
     static::register_route("/{$resource_name_plural}/sync-many", "POST", "sync_many");
     static::register_route("/{$resource_name_plural}/delete-many", "POST", "delete_many");
     static::register_route("/{$resource_name_plural}/refresh-all", "GET", "refresh_all");
-
-    // Webhooks
-    static::register_route("/{$resource_name_plural}/update", "POST", "update", "validate_passle_webhook_request");
-    static::register_route("/{$resource_name_plural}/delete", "POST", "delete", "validate_passle_webhook_request");
   }
 
   protected static function get_resource_instance()
@@ -108,13 +82,13 @@ abstract class ResourceControllerBase extends ControllerBase
     return ResourceRegistryService::get_resource_instance(static::RESOURCE);
   }
 
-  private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes")
+  private static function get_entities_for_request(WP_REST_Request $request, string $shortcode_name = "shortcodes", string $function_to_call = "fetch_multiple_by_shortcode")
   {
     $resource_passle_content_service = static::get_resource_instance()->passle_content_service_name;
 
     $shortcodes = static::get_required_parameter($request, $shortcode_name);
 
-    $entities = call_user_func([$resource_passle_content_service, "fetch_multiple_by_shortcode"], $shortcodes);
+    $entities = call_user_func([$resource_passle_content_service, $function_to_call], $shortcodes);
 
     return $entities;
   }
