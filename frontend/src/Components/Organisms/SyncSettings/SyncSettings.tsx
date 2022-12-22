@@ -34,6 +34,7 @@ const SyncSettings = () => {
     setLoading(true);
 
     updateSettings({
+      ...options,
       passleApiKey,
       pluginApiKey,
       passleShortcodes,

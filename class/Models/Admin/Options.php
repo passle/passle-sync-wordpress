@@ -14,6 +14,10 @@ class Options implements JsonSerializable
   public string $person_permalink_prefix;
   public bool $include_passle_posts_on_home_page;
   public bool $include_passle_posts_on_tag_page;
+  public bool $simulate_remote_hosting;
+  public bool $use_https;
+  public string $custom_domain;
+  public string $passle_permalink_prefix;
   public string $domain_ext;
   public string $site_url;
 
@@ -26,6 +30,10 @@ class Options implements JsonSerializable
     string $person_permalink_prefix,
     bool $include_passle_posts_on_home_page,
     bool $include_passle_posts_on_tag_page,
+    bool $simulate_remote_hosting,
+    bool $use_https,
+    string $custom_domain,
+    string $passle_permalink_prefix,
     string $domain_ext,
     string $site_url
   ) {
@@ -36,6 +44,10 @@ class Options implements JsonSerializable
     $this->person_permalink_prefix = $person_permalink_prefix;
     $this->include_passle_posts_on_home_page = $include_passle_posts_on_home_page;
     $this->include_passle_posts_on_tag_page = $include_passle_posts_on_tag_page;
+    $this->simulate_remote_hosting = $simulate_remote_hosting;
+    $this->use_https = $use_https;
+    $this->custom_domain = $custom_domain;
+    $this->passle_permalink_prefix = $passle_permalink_prefix;
     $this->domain_ext = $domain_ext;
     $this->site_url = $site_url;
   }
@@ -50,6 +62,10 @@ class Options implements JsonSerializable
       "personPermalinkPrefix" => $this->person_permalink_prefix,
       "includePasslePostsOnHomePage" => isset($this->include_passle_posts_on_home_page) ? $this->include_passle_posts_on_home_page : false,
       "includePasslePostsOnTagPage" => isset($this->include_passle_posts_on_tag_page) ? $this->include_passle_posts_on_tag_page : false,
+      "simulateRemoteHosting" => isset($this->simulate_remote_hosting) ? $this->simulate_remote_hosting : false,
+      "useHttps" => isset($this->use_https) ? $this->use_https : false,
+      "customDomain" => $this->custom_domain,
+      "passlePermalinkPrefix" => $this->passle_permalink_prefix,
       "domainExt" => $this->domain_ext,
       "siteUrl" => $this->site_url,
     ];

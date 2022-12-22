@@ -9,6 +9,7 @@ import SyncSettings from "_Components/Organisms/SyncSettings/SyncSettings";
 import PostsTable from "_Components/Organisms/PostsTable/PostsTable";
 import PeopleTable from "_Components/Organisms/PeopleTable/PeopleTable";
 import HealthCheck from "_Components/Organisms/HealthCheck/HealthCheck";
+import RemoteHostingSetup from "_Components/Organisms/RemoteHostingSetup/RemoteHostingSetup";
 import { OptionsContextProvider } from "_Contexts/OptionsContext";
 
 const App = () => {
@@ -46,6 +47,10 @@ const App = () => {
                             {
                               label: "Health Check",
                               Content: <HealthCheck />,
+                            },
+                            {
+                              label: "Setup",
+                              Content: <RemoteHostingSetup />,
                             },
                           ]}
                         />

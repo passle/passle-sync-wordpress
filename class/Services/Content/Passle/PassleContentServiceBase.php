@@ -177,14 +177,36 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
   private static function get(string $url)
   {
-    $passle_api_key = OptionsService::get()->passle_api_key;
+    $options = OptionsService::get();
+
+    $headers = [
+      "apiKey" => $options->passle_api_key,
+      "X-PassleSimulateRemoteHosting" => $options->simulate_remote_hosting,
+    ];
+
+    if ($options->simulate_remote_hosting) {
+      $headers["X-PassleRemoteHostingUseHttps"] = $options->use_https;
+
+      if (isset($options->custom_domain) && $options->custom_domain !== "") {
+        $headers["X-PassleRemoteHostingCustomDomain"] = $options->custom_domain;
+      }
+
+      if (isset($options->passle_permalink_prefix) && $options->passle_permalink_prefix !== "") {
+        $headers["X-PassleRemoteHostingPasslePath"] = $options->passle_permalink_prefix;
+      }
+
+      if (isset($options->post_permalink_prefix) && $options->post_permalink_prefix !== "") {
+        $headers["X-PassleRemoteHostingPostPath"] = $options->post_permalink_prefix;
+      }
+
+      if (isset($options->person_permalink_prefix) && $options->person_permalink_prefix !== "") {
+        $headers["X-PassleRemoteHostingProfilePath"] = $options->person_permalink_prefix;
+      }
+    }
 
     $request = wp_remote_get($url, [
       'sslverify' => false,
-      'headers' => [
-        "apiKey" => $passle_api_key,
-        "X-PassleSimulateRemoteHosting" => "true",
-      ]
+      'headers' => $headers
     ]);
 
     $body = wp_remote_retrieve_body($request);

@@ -30,6 +30,10 @@ class SettingsController extends ControllerBase
       $params["personPermalinkPrefix"],
       $params["includePasslePostsOnHomePage"],
       $params["includePasslePostsOnTagPage"],
+      $params["simulateRemoteHosting"],
+      $params["useHttps"],
+      $params["customDomain"],
+      $params["passlePermalinkPrefix"],
       PASSLESYNC_DOMAIN_EXT,
       get_site_url(),
     );
