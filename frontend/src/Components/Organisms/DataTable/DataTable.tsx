@@ -192,12 +192,10 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
                 doWork(
                   deleteSelectedItems,
                   cb,
-                  `Successfully queued ${selectedItems.length} ${
-                    selectedItems.length === 1
-                      ? props.itemSingular
-                      : props.itemPlural
-                  } for deletion.`,
-                  true,
+                  selectedItems.length > 1
+                    ? `Successfully queued ${selectedItems.length} ${props.itemPlural} for deletion.`
+                    : `Successfully deleted 1 ${props.itemSingular}.`,
+                  selectedItems.length > 1,
                 )
               }
             />
@@ -265,12 +263,10 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
                   doWork(
                     syncSelectedItems,
                     cb,
-                    `Successfully queued ${selectedItems.length} ${
-                      selectedItems.length === 1
-                        ? props.itemSingular
-                        : props.itemPlural
-                    } to be synced.`,
-                    true,
+                    selectedItems.length > 1
+                      ? `Successfully queued ${selectedItems.length} ${props.itemPlural} to be synced.`
+                      : `Successfully synced 1 ${props.itemSingular}.`,
+                    selectedItems.length > 1,
                   )
                 }
               />
