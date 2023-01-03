@@ -12,9 +12,11 @@ import {
 import {
   deleteAll,
   deleteMany,
+  deleteOne,
   refreshAll,
   syncAll,
   syncMany,
+  syncOne,
 } from "_Services/SyncService";
 
 export type DataTableProps<T extends Syncable> = {
@@ -57,9 +59,15 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
   };
 
   const syncSelectedItems = async () => {
-    await syncMany(props.itemPlural, {
-      shortcodes: selectedItems,
-    });
+    if (selectedItems.length === 1) {
+      await syncOne(props.itemPlural, {
+        shortcode: selectedItems[0],
+      });
+    } else {
+      await syncMany(props.itemPlural, {
+        shortcodes: selectedItems,
+      });
+    }
   };
 
   const deleteAllItems = async () => {
@@ -67,9 +75,15 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
   };
 
   const deleteSelectedItems = async () => {
-    await deleteMany(props.itemPlural, {
-      shortcodes: selectedItems,
-    });
+    if (selectedItems.length === 1) {
+      await deleteOne(props.itemPlural, {
+        shortcode: selectedItems[0],
+      });
+    } else {
+      await deleteMany(props.itemPlural, {
+        shortcodes: selectedItems,
+      });
+    }
   };
 
   const setLoadingStatus = (isLoading: boolean) => {
