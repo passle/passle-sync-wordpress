@@ -25,6 +25,9 @@ const SyncSettings = () => {
   const [personPermalinkPrefix, setPersonPermalinkPrefix] = useState(
     options.personPermalinkPrefix,
   );
+  const [previewPermalinkPrefix, setPreviewPermalinkPrefix] = useState(
+    options.previewPermalinkPrefix,
+  );
   const [includePasslePostsOnHomePage, setIncludePasslePostsOnHomePage] =
     useState(options.includePasslePostsOnHomePage);
   const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] =
@@ -39,6 +42,7 @@ const SyncSettings = () => {
       passleShortcodes,
       postPermalinkPrefix,
       personPermalinkPrefix,
+      previewPermalinkPrefix,
       includePasslePostsOnHomePage,
       includePasslePostsOnTagPage,
     }).then((options) => {
@@ -103,6 +107,12 @@ const SyncSettings = () => {
             description="The prefix that will be used for person permalink URLs."
             value={personPermalinkPrefix}
             onChange={(e) => setPersonPermalinkPrefix(e.target.value)}
+          />
+          <TextSettingsInput
+            label="Preview Permalink Prefix"
+            description="The prefix that will be used for preview permalink URLs."
+            value={previewPermalinkPrefix}
+            onChange={(e) => setPreviewPermalinkPrefix(e.target.value)}
           />
           <BoolSettingsInput
             label="Include Passle Posts on the Home Page?"

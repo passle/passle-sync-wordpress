@@ -88,7 +88,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     $resource = static::get_resource_instance();
 
     $url = (new UrlFactory())
-      ->path("/passlesync/{$resource->name_plural}")
+      ->path("passlesync/{$resource->name_plural}")
       ->parameters([
         "PassleShortcode" => $passle_shortcode,
         "ItemsPerPage" => "100"
@@ -121,7 +121,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
     $factory = new UrlFactory();
     $url = $factory
-      ->path("/passlesync/{$resource->name_plural}")
+      ->path("passlesync/{$resource->name_plural}")
       ->parameters($params)
       ->build();
 
@@ -175,7 +175,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     return $next_url;
   }
 
-  private static function get(string $url)
+  protected static function get(string $url)
   {
     $passle_api_key = OptionsService::get()->passle_api_key;
 

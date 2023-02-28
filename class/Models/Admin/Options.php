@@ -12,6 +12,7 @@ class Options implements JsonSerializable
   public array $passle_shortcodes;
   public string $post_permalink_prefix;
   public string $person_permalink_prefix;
+  public string $preview_permalink_prefix;
   public bool $include_passle_posts_on_home_page;
   public bool $include_passle_posts_on_tag_page;
   public string $domain_ext;
@@ -24,6 +25,7 @@ class Options implements JsonSerializable
     array $passle_shortcodes,
     string $post_permalink_prefix,
     string $person_permalink_prefix,
+    string $preview_permalink_prefix,
     bool $include_passle_posts_on_home_page,
     bool $include_passle_posts_on_tag_page,
     string $domain_ext,
@@ -34,6 +36,7 @@ class Options implements JsonSerializable
     $this->passle_shortcodes = $passle_shortcodes;
     $this->post_permalink_prefix = $post_permalink_prefix;
     $this->person_permalink_prefix = $person_permalink_prefix;
+    $this->preview_permalink_prefix = $preview_permalink_prefix;
     $this->include_passle_posts_on_home_page = $include_passle_posts_on_home_page;
     $this->include_passle_posts_on_tag_page = $include_passle_posts_on_tag_page;
     $this->domain_ext = $domain_ext;
@@ -48,6 +51,7 @@ class Options implements JsonSerializable
       "passleShortcodes" => $this->passle_shortcodes,
       "postPermalinkPrefix" => $this->post_permalink_prefix,
       "personPermalinkPrefix" => $this->person_permalink_prefix,
+      "previewPermalinkPrefix" => $this->preview_permalink_prefix,
       "includePasslePostsOnHomePage" => isset($this->include_passle_posts_on_home_page) ? $this->include_passle_posts_on_home_page : false,
       "includePasslePostsOnTagPage" => isset($this->include_passle_posts_on_tag_page) ? $this->include_passle_posts_on_tag_page : false,
       "domainExt" => $this->domain_ext,
