@@ -230,7 +230,7 @@ class PasslePost
     $wp_tags = get_the_tags() ?: [];
     $tags = $this->meta["post_tags"] ?? [];
 
-    $this->tags = $this->map_tags($tags, $wp_tags);
+    $this->tags = $this->map_tags($tags ?: [], $wp_tags ?: []);
   }
 
   private function initialize_share_views()
