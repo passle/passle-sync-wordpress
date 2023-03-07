@@ -1,10 +1,6 @@
-# Passle Sync for Wordpress
+# Passle Sync for WordPress
 
-> **Warning**
->
-> There's a breaking change on the way. Once this change has been deployed to the Passle backend, the plugin won't auto-sync until you've updated to the latest version.
-
-Passle Sync is a plugin for Wordpress which syncs your [Passle](https://home.passle.net/) posts and authors into your Wordpress instance.
+Passle Sync is a plugin for Wordpress that syncs your [Passle](https://home.passle.net/)](https://home.passle.net/) posts and authors into your Wordpress instance.
 
 Get started with the section below, or jump straight to the [API documentation](./docs/index.md).
 
@@ -42,9 +38,9 @@ Once the plugin has been configured correctly, posts and people can be synced us
 
 First, the plugin has to fetch posts and authors from the Passle API. Use the **Fetch Passle Posts** and **Fetch Passle People** buttons to do so. Once the plugin has done the initial fetches from the API, the API responses will be cached, so if you reload the page, the posts and authors you have fetched will be remembered.
 
-**2. Sync to Wordpress**
+**2. Sync to WordPress**
 
-To sync the posts and authors to Wordpress, use the **Sync All Posts** and **Sync All People** buttons. This will create a new Wordpress post for each post/author under a custom post type. Once all posts/authors have been synced, their statuses will update. Synced posts and authors can be viewed, but not edited, under the Passle Posts and Passle Authors menu items in the sidebar.
+To sync the posts and authors to WordPress, use the **Sync All Posts** and **Sync All People** buttons. This will create a new WordPress post for each post/author under a custom post type. Once all posts/authors have been synced, their statuses will update. Synced posts and authors can be viewed, but not edited, under the Passle Posts and Passle Authors menu items in the sidebar.
 
 **3. Webhooks**
 
@@ -52,9 +48,9 @@ Whenever a post or author is updated through the Passle interface, the Passle ba
 
 **4. Theme Templates**
 
-To display Passle posts and authors, you should create custom templates as part of your theme that include the custom post type names, [as described in the Wordpress documentation](https://developer.wordpress.org/themes/template-files-section/custom-post-type-template-files/). These templates should be called `single-passle-post.php` and `single-passle-author.php`.
+To display Passle posts and authors, you should create custom templates as part of your theme that, include the custom post type names, [as described in the WordPress documentation](https://developer.wordpress.org/themes/template-files-section/custom-post-type-template-files/). These templates should be called `single-passle-post.php` and `single-passle-author.php`.
 
-This plugin provides the `PasslePost` and `PassleAuthor` helper classes, which you should use in your templates to access the custom Passle fields attached to a post or author more easily. They also ensure you're using the most up to date version of the data available.
+This plugin provides the `PasslePost` and `PassleAuthor` helper classes, which you should use in your templates to access the custom Passle fields attached to a post or author more easily. They also ensure you're using the most up-to-date version of the data available.
 
 For detailed documentation on the available classes, jump to the [API documentation](./docs/index.md).
 
@@ -80,7 +76,7 @@ An example of how to get the content hub featured post in order to display it se
 
 - [NPM](https://www.npmjs.com/)
 - [Composer](https://getcomposer.org/)
-- Development environment running a Wordpress instance
+- Development environment running a WordPress instance
   - Including a correctly set `/etc/hosts` config.
 
 To build documentation, you will need to ensure `extension=fileinfo` is enabled in your `php.ini`. This extension is disabled by default on Windows.
@@ -132,4 +128,4 @@ If you'd like to request a feature or report a bug, please create a GitHub Issue
 
 ## 📜 License
 
-The Passle Sync plugin is released under the under terms of the [MIT License](./LICENSE).
+The Passle Sync plugin is released under the terms of the [MIT License](./LICENSE).
