@@ -19,11 +19,11 @@ const SyncSettings = () => {
   const [passleShortcodes, setPassleShortcodes] = useState(
     options.passleShortcodes,
   );
-  const [postPermalinkPrefix, setPostPermalinkPrefix] = useState(
-    options.postPermalinkPrefix,
+  const [postPermalinkTemplate, setPostPermalinkTemplate] = useState(
+    options.postPermalinkTemplate,
   );
-  const [personPermalinkPrefix, setPersonPermalinkPrefix] = useState(
-    options.personPermalinkPrefix,
+  const [personPermalinkTemplate, setPersonPermalinkTemplate] = useState(
+    options.personPermalinkTemplate,
   );
   const [simulateRemoteHosting, setSimulateRemoteHosting] = useState(
     options.simulateRemoteHosting,
@@ -40,8 +40,8 @@ const SyncSettings = () => {
       passleApiKey,
       pluginApiKey,
       passleShortcodes,
-      postPermalinkPrefix,
-      personPermalinkPrefix,
+      postPermalinkTemplate,
+      personPermalinkTemplate,
       simulateRemoteHosting,
       includePasslePostsOnHomePage,
       includePasslePostsOnTagPage,
@@ -96,17 +96,44 @@ const SyncSettings = () => {
               setPassleShortcodes(e.target.value.replace(/\s/g, "").split(","))
             }
           />
+          <tr>
+            <th>Available Permalink Template Variables</th>
+            <td>
+              <ul style={{ margin: 0 }}>
+                <li>
+                  <strong>{"{{PassleShortcode}}"}</strong> - The Passle
+                  shortcode
+                </li>
+                <li>
+                  <strong>{"{{PostShortcode}}"}</strong> - The post shortcode
+                  (post template only)
+                </li>
+                <li>
+                  <strong>{"{{PostSlug}}"}</strong> - The post slug (post
+                  template only)
+                </li>
+                <li>
+                  <strong>{"{{PersonShortcode}}"}</strong> - The person
+                  shortcode (profile template only)
+                </li>
+                <li>
+                  <strong>{"{{PersonSlug}}"}</strong> - The person slug (profile
+                  template only)
+                </li>
+              </ul>
+            </td>
+          </tr>
           <TextSettingsInput
-            label="Post Permalink Prefix"
-            description="The prefix that will be used for post permalink URLs."
-            value={postPermalinkPrefix}
-            onChange={(e) => setPostPermalinkPrefix(e.target.value)}
+            label="Post Permalink Template"
+            description="The template that will be used for post permalink URLs."
+            value={postPermalinkTemplate}
+            onChange={(e) => setPostPermalinkTemplate(e.target.value)}
           />
           <TextSettingsInput
-            label="Person Permalink Prefix"
-            description="The prefix that will be used for person permalink URLs."
-            value={personPermalinkPrefix}
-            onChange={(e) => setPersonPermalinkPrefix(e.target.value)}
+            label="Person Permalink Template"
+            description="The template that will be used for person permalink URLs."
+            value={personPermalinkTemplate}
+            onChange={(e) => setPersonPermalinkTemplate(e.target.value)}
           />
           <BoolSettingsInput
             label="Simulate Remote Hosting"

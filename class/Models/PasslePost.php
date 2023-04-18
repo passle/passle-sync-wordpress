@@ -217,7 +217,7 @@ class PasslePost
       $default_author = new PassleAuthor(array(
         'name' => 'Deleted',
         'shortcode' => '',
-        'profile_url' => '/',
+        'profile_url' => '',
         'image_url' => PASSLESYNC_DEFAULT_PROFILE_IMAGE,
         'role' => ''
       ));
