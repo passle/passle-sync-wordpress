@@ -12,7 +12,7 @@ class Options implements JsonSerializable
   public array $passle_shortcodes;
   public string $post_permalink_template;
   public string $person_permalink_template;
-  public string $preview_permalink_prefix;
+  public string $preview_permalink_template;
   public bool $simulate_remote_hosting;
   public bool $include_passle_posts_on_home_page;
   public bool $include_passle_posts_on_tag_page;
@@ -26,7 +26,7 @@ class Options implements JsonSerializable
     array $passle_shortcodes,
     string $post_permalink_template,
     string $person_permalink_template,
-    string $preview_permalink_prefix,
+    string $preview_permalink_template,
     bool $simulate_remote_hosting,
     bool $include_passle_posts_on_home_page,
     bool $include_passle_posts_on_tag_page,
@@ -38,7 +38,7 @@ class Options implements JsonSerializable
     $this->passle_shortcodes = $passle_shortcodes;
     $this->post_permalink_template = $post_permalink_template;
     $this->person_permalink_template = $person_permalink_template;
-    $this->preview_permalink_prefix = $preview_permalink_prefix;
+    $this->preview_permalink_template = $preview_permalink_template;
     $this->simulate_remote_hosting = $simulate_remote_hosting;
     $this->include_passle_posts_on_home_page = $include_passle_posts_on_home_page;
     $this->include_passle_posts_on_tag_page = $include_passle_posts_on_tag_page;
@@ -54,7 +54,7 @@ class Options implements JsonSerializable
       "passleShortcodes" => $this->passle_shortcodes,
       "postPermalinkTemplate" => $this->post_permalink_template,
       "personPermalinkTemplate" => $this->person_permalink_template,
-      "previewPermalinkPrefix" => $this->preview_permalink_prefix,
+      "previewPermalinkTemplate" => $this->preview_permalink_template,
       "simulateRemoteHosting" => $this->simulate_remote_hosting,
       "includePasslePostsOnHomePage" => isset($this->include_passle_posts_on_home_page) ? $this->include_passle_posts_on_home_page : false,
       "includePasslePostsOnTagPage" => isset($this->include_passle_posts_on_tag_page) ? $this->include_passle_posts_on_tag_page : false,

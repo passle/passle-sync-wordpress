@@ -11,10 +11,21 @@ class RewriteService
 
   public static function add_preview_rewrite()
   {
-    $preview_permalink_prefix = OptionsService::get()->preview_permalink_prefix;
+    $template_variable = "PostShortcode";
+    $preview_permalink_template = OptionsService::get()->preview_permalink_template;
 
-    $regex = '^' . $preview_permalink_prefix . '/([^/]*)/?';
-    $query = 'index.php?passle_preview=$matches[1]';
+    // Escape special characters in the path
+    $regex = preg_quote($preview_permalink_template);
+
+    // Replace the template variable with a capture group to extract the shortcode
+    // e.g. if we're trying to extract the post shortcode, we want to replace {{PostShortcode}} with (?<shortcode>[a-z0-9]+)
+    $regex = preg_replace("/\\\\{\\\\{" . $template_variable . "\\\\}\\\\}/i", "([a-z0-9]+)", $regex);
+
+    // Replace the remaining template variables with wildcards
+    // e.g. {{PassleShortcode}} will be replaced with [a-z0-9\-]+
+    $regex = preg_replace("/\\\\{\\\\{[a-z0-9]+\\\\}\\\\}/i", "[a-z0-9\\-]+", $regex, -1, $count);
+
+    $query = "index.php?passle_preview=\$matches[1]";
 
     static::add_rewrite_rule($regex, $query);
     static::add_rewrite_tag('%passle_preview%');

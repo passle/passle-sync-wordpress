@@ -28,7 +28,7 @@ class SettingsController extends ControllerBase
       $params["passleShortcodes"],
       $params["postPermalinkTemplate"],
       $params["personPermalinkTemplate"],
-      $params["previewPermalinkPrefix"],
+      $params["previewPermalinkTemplate"],
       $params["simulateRemoteHosting"],
       $params["includePasslePostsOnHomePage"],
       $params["includePasslePostsOnTagPage"],

@@ -213,7 +213,7 @@ class PasslePost
     $this->content = $this->passle_post["PostContentHtml"] ?? "";
     $this->total_shares = $this->passle_post["TotalShares"] ?? 0;
     $this->total_likes = $this->passle_post["TotalLikes"] ?? 0;
-    $this->date = date_create($this->passle_post["PublishedDate"] ?? "now");
+    $this->date = $this->initialize_passle_date($this->passle_post["PublishedDate"] ?? "now");
     $this->tags = $this->passle_post["Tags"] ?? [];
     $this->is_repost = $this->passle_post["IsRepost"] ?? false;
     $this->estimated_read_time_seconds = $this->passle_post["EstimatedReadTimeSeconds"] ?? 0;
@@ -228,6 +228,20 @@ class PasslePost
     $this->opens_in_new_tab = $this->passle_post["OpensInNewTab"] ?? false;
     $this->quote_text = $this->passle_post["QuoteText"] ?? "";
     $this->quote_url = $this->passle_post["QuoteUrl"] ?? "";
+  }
+
+  /** @internal */
+  private function initialize_passle_date(string $date)
+  {
+    $result = date_create($date);
+    $year = date_format($result, "Y");
+
+    // Preview posts don't have a published date, so we'll use the current date
+    if ($year <= 1970) {
+      return date_create("now");
+    }
+
+    return date_create($date);
   }
 
   private function initialize_authors()
@@ -270,6 +284,10 @@ class PasslePost
       $wp_tags = get_tags();
     }
 
+    if (!is_array($wp_tags)) {
+      $wp_tags = [];
+    }
+
     $this->tags = $this->map_tags($tags ?? [], $wp_tags ?? []);
   }
 
@@ -287,12 +305,12 @@ class PasslePost
   private function initialize_tweets()
   {
     if (isset($this->meta)) {
-      $tweets = $this->meta["post_tweets"];
+      $tweets = $this->meta["post_tweets"] ?? [];
     } else {
-      $tweets = $this->passle_post["Tweets"];
+      $tweets = $this->passle_post["Tweets"] ?? [];
     }
 
-    $this->tweets = $this->map_tweets($tweets ?? []);
+    $this->tweets = $this->map_tweets($tweets);
   }
 
   /*

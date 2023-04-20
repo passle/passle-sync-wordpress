@@ -41,6 +41,8 @@ class OptionsService
       $cpt::create_rewrite_rules();
     }
 
+    RewriteService::add_preview_rewrite();
+
     flush_rewrite_rules();
   }
 
