@@ -12,6 +12,7 @@ use Passle\PassleSync\Services\ConfigService;
 use Passle\PassleSync\Services\RewriteService;
 use Passle\PassleSync\Services\TemplateService;
 use Passle\PassleSync\Services\ThemeService;
+use Passle\PassleSync\Services\UpgradeService;
 
 class PassleSync
 {
@@ -27,6 +28,7 @@ class PassleSync
     ThemeService::init();
     RewriteService::init();
     TemplateService::init();
+    UpgradeService::init();
 
     register_activation_hook(__FILE__, [static::class, "activate"]);
     register_deactivation_hook(__FILE__, [static::class, "deactivate"]);
