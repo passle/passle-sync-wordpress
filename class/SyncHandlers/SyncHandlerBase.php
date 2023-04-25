@@ -68,7 +68,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
   public static function delete_one(string $shortcode)
   {
-    static::delete_many(array($shortcode));
+    static::delete_many([$shortcode]);
   }
 
   private static function compare_items(array $wp_entities, array $api_entities)
