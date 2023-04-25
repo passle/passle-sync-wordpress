@@ -2,8 +2,6 @@
 
 namespace Passle\PassleSync\Controllers;
 
-use Exception;
-use \WP_REST_Request;
 use \WP_POST;
 use Passle\PassleSync\Models\PasslePost;
 use Passle\PassleSync\Services\Content\Passle\PasslePostsContentService;
