@@ -41,7 +41,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
   public static function sync_one(string $shortcode)
   {
-    static::sync_many(array($shortcode));
+    static::sync_many([$shortcode]);
   }
 
   public static function delete_all()
