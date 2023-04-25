@@ -29,6 +29,16 @@ export const deleteMany = async (
   options: { shortcodes: string[] },
 ) => post<void>(`/${path}/delete-many`, options);
 
+export const syncOne = async (
+  path: string,
+  options: { shortcode: string },
+) => post<void>(`/${path}/sync-one`, options);
+
+export const deleteOne = async (
+  path: string,
+  options: { shortcode: string },
+) => post<void>(`/${path}/delete-one`, options);
+
 export const updateSettings = async (data: object) =>
   post<Options>("/settings/update", data);
 
