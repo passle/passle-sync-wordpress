@@ -39,6 +39,11 @@ abstract class SyncHandlerBase extends ResourceClassBase
     }
   }
 
+  public static function sync_one(string $shortcode)
+  {
+    static::sync_many([$shortcode]);
+  }
+
   public static function delete_all()
   {
     $resource = static::get_resource_instance();
@@ -59,6 +64,11 @@ abstract class SyncHandlerBase extends ResourceClassBase
     foreach ($wp_entities as $entity) {
       static::delete($entity->ID);
     }
+  }
+
+  public static function delete_one(string $shortcode)
+  {
+    static::delete_many([$shortcode]);
   }
 
   private static function compare_items(array $wp_entities, array $api_entities)
