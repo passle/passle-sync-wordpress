@@ -177,14 +177,29 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
   protected static function get(string $url)
   {
-    $passle_api_key = OptionsService::get()->passle_api_key;
+    $options = OptionsService::get();
+
+    $site_url = get_site_url();
+    $domain = preg_replace('/^https?:\/\//', '', $site_url);
+    $use_https = strpos($site_url, 'https') === 0;
+
+    $headers = [
+      "apiKey" => $options->passle_api_key,
+    ];
+
+    if ($options->simulate_remote_hosting) {
+      $headers = array_merge($headers, [
+        "X-PassleSimulateRemoteHosting" => "true",
+        "X-PassleRemoteHostingUseHttps" => $use_https,
+        "X-PassleRemoteHostingCustomDomain" => $domain,
+        "X-PassleRemoteHostingPostPath" => $options->post_permalink_prefix,
+        "X-PassleRemoteHostingProfilePath" => $options->person_permalink_prefix,
+      ]);
+    }
 
     $request = wp_remote_get($url, [
       'sslverify' => false,
-      'headers' => [
-        "apiKey" => $passle_api_key,
-        "X-PassleSimulateRemoteHosting" => "true",
-      ]
+      'headers' => $headers,
     ]);
 
     $body = wp_remote_retrieve_body($request);

@@ -28,6 +28,9 @@ const SyncSettings = () => {
   const [previewPermalinkPrefix, setPreviewPermalinkPrefix] = useState(
     options.previewPermalinkPrefix,
   );
+  const [simulateRemoteHosting, setSimulateRemoteHosting] = useState(
+    options.simulateRemoteHosting,
+  );
   const [includePasslePostsOnHomePage, setIncludePasslePostsOnHomePage] =
     useState(options.includePasslePostsOnHomePage);
   const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] =
@@ -43,6 +46,7 @@ const SyncSettings = () => {
       postPermalinkPrefix,
       personPermalinkPrefix,
       previewPermalinkPrefix,
+      simulateRemoteHosting,
       includePasslePostsOnHomePage,
       includePasslePostsOnTagPage,
     }).then((options) => {
@@ -115,13 +119,19 @@ const SyncSettings = () => {
             onChange={(e) => setPreviewPermalinkPrefix(e.target.value)}
           />
           <BoolSettingsInput
-            label="Include Passle Posts on the Home Page?"
+            label="Simulate Remote Hosting"
+            description="Whether or not to force the Passle API to use the domain and paths of the WordPress site."
+            checked={simulateRemoteHosting}
+            onChange={(e) => setSimulateRemoteHosting(e.target.checked)}
+          />
+          <BoolSettingsInput
+            label="Include Passle Posts on the Home Page"
             description="Whether or not to include Passle posts in the WordPress query that generates the home page."
             checked={includePasslePostsOnHomePage}
             onChange={(e) => setIncludePasslePostsOnHomePage(e.target.checked)}
           />
           <BoolSettingsInput
-            label="Include Passle Posts on the Tag Page?"
+            label="Include Passle Posts on the Tag Page"
             description="Whether or not to include Passle posts in the WordPress query that generates the tag page."
             checked={includePasslePostsOnTagPage}
             onChange={(e) => setIncludePasslePostsOnTagPage(e.target.checked)}

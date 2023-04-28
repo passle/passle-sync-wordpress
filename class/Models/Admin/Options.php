@@ -13,6 +13,7 @@ class Options implements JsonSerializable
   public string $post_permalink_prefix;
   public string $person_permalink_prefix;
   public string $preview_permalink_prefix;
+  public bool $simulate_remote_hosting;
   public bool $include_passle_posts_on_home_page;
   public bool $include_passle_posts_on_tag_page;
   public string $domain_ext;
@@ -26,6 +27,7 @@ class Options implements JsonSerializable
     string $post_permalink_prefix,
     string $person_permalink_prefix,
     string $preview_permalink_prefix,
+    bool $simulate_remote_hosting,
     bool $include_passle_posts_on_home_page,
     bool $include_passle_posts_on_tag_page,
     string $domain_ext,
@@ -37,6 +39,7 @@ class Options implements JsonSerializable
     $this->post_permalink_prefix = $post_permalink_prefix;
     $this->person_permalink_prefix = $person_permalink_prefix;
     $this->preview_permalink_prefix = $preview_permalink_prefix;
+    $this->simulate_remote_hosting = $simulate_remote_hosting;
     $this->include_passle_posts_on_home_page = $include_passle_posts_on_home_page;
     $this->include_passle_posts_on_tag_page = $include_passle_posts_on_tag_page;
     $this->domain_ext = $domain_ext;
@@ -52,6 +55,7 @@ class Options implements JsonSerializable
       "postPermalinkPrefix" => $this->post_permalink_prefix,
       "personPermalinkPrefix" => $this->person_permalink_prefix,
       "previewPermalinkPrefix" => $this->preview_permalink_prefix,
+      "simulateRemoteHosting" => $this->simulate_remote_hosting,
       "includePasslePostsOnHomePage" => isset($this->include_passle_posts_on_home_page) ? $this->include_passle_posts_on_home_page : false,
       "includePasslePostsOnTagPage" => isset($this->include_passle_posts_on_tag_page) ? $this->include_passle_posts_on_tag_page : false,
       "domainExt" => $this->domain_ext,

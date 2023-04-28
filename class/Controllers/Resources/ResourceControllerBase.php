@@ -64,6 +64,24 @@ abstract class ResourceControllerBase extends ControllerBase
     QueueJobAction::execute("passle_{$resource->name_plural}_delete_many", [$shortcodes], $resource->get_schedule_group_name());
   }
 
+  public static function sync_one(WP_REST_Request $request)
+  {
+    $resource = static::get_resource_instance();
+
+    $shortcode = static::get_required_parameter($request, "shortcode");
+    
+    call_user_func([$resource->sync_handler_name, "sync_one"], $shortcode);
+  }
+
+  public static function delete_one(WP_REST_Request $request)
+  {
+    $resource = static::get_resource_instance();
+
+    $shortcode = static::get_required_parameter($request, "shortcode");
+    
+    call_user_func([$resource->sync_handler_name, "delete_one"], $shortcode);
+  }
+
   public static function init()
   {
     $resource_name_plural = static::get_resource_instance()->name_plural;
@@ -74,6 +92,8 @@ abstract class ResourceControllerBase extends ControllerBase
     static::register_route("/{$resource_name_plural}/delete-all", "POST", "delete_all");
     static::register_route("/{$resource_name_plural}/sync-many", "POST", "sync_many");
     static::register_route("/{$resource_name_plural}/delete-many", "POST", "delete_many");
+    static::register_route("/{$resource_name_plural}/sync-one", "POST", "sync_one");
+    static::register_route("/{$resource_name_plural}/delete-one", "POST", "delete_one");
     static::register_route("/{$resource_name_plural}/refresh-all", "GET", "refresh_all");
   }
 

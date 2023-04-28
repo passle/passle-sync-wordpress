@@ -5,6 +5,7 @@ export type Options = {
   postPermalinkPrefix: string;
   personPermalinkPrefix: string;
   previewPermalinkPrefix: string;
+  simulateRemoteHosting: boolean;
   includePasslePostsOnHomePage: boolean;
   includePasslePostsOnTagPage: boolean;
   domainExt: string;
