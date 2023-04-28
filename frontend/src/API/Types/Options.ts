@@ -2,9 +2,9 @@ export type Options = {
   passleApiKey: string;
   pluginApiKey: string;
   passleShortcodes: string[];
-  postPermalinkPrefix: string;
-  personPermalinkPrefix: string;
-  previewPermalinkPrefix: string;
+  postPermalinkTemplate: string;
+  personPermalinkTemplate: string;
+  previewPermalinkTemplate: string;
   simulateRemoteHosting: boolean;
   includePasslePostsOnHomePage: boolean;
   includePasslePostsOnTagPage: boolean;

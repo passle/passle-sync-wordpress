@@ -19,16 +19,17 @@ Once the plugin is installed, admin users can access the settings under **Settin
 
 On the first tab of the plugin settings page, you will find the following configuration options:
 
-| Option                                | Description                                                                                                    |
-| ------------------------------------- | -------------------------------------------------------------------------------------------------------------- |
-| Passle API Key                        | The API key generated in the Passle dashboard, used to fetch content from Passle.                              |
-| Plugin API Key                        | The API key Passle should use when calling the plugin webhooks after content is updated.                       |
-| Passle Shortcodes                     | A comma-separated list of the shortcodes of the Passles you want to sync content from.                         |
-| Post Permalink Prefix                 | The prefix that will be used for post permalink URLs. This needs to match what is set in the Passle backend.   |
-| Person Permalink Prefix               | The prefix that will be used for person permalink URLs. This needs to match what is set in the Passle backend. |
-| Simulate Remote Hosting               | Whether or not to force the Passle API to use the domain and paths of the WordPress site.                      |
-| Include Passle Posts on the Home Page | Whether or not to include Passle posts in the WordPress query that generates the home page.                    |
-| Include Passle Posts on the Tag Page  | Whether or not to include Passle posts in the WordPress query that generates the tag page.                     |
+| Option                                | Description                                                                                                       |
+| ------------------------------------- | ----------------------------------------------------------------------------------------------------------------- |
+| Passle API Key                        | The API key generated in the Passle dashboard, used to fetch content from Passle.                                 |
+| Plugin API Key                        | The API key Passle should use when calling the plugin webhooks after content is updated.                          |
+| Passle Shortcodes                     | A comma-separated list of the shortcodes of the Passles you want to sync content from.                            |
+| Post Permalink Template               | The template that will be used for post permalink URLs. This needs to match what is set in the Passle backend.    |
+| Person Permalink Template             | The template that will be used for person permalink URLs. This needs to match what is set in the Passle backend.  |
+| Preview Permalink Template            | The template that will be used for preview permalink URLs. This needs to match what is set in the Passle backend. |
+| Simulate Remote Hosting               | Whether or not to force the Passle API to use the domain and paths of the WordPress site.                         |
+| Include Passle Posts on the Home Page | Whether or not to include Passle posts in the WordPress query that generates the home page.                       |
+| Include Passle Posts on the Tag Page  | Whether or not to include Passle posts in the WordPress query that generates the tag page.                        |
 
 ### 📙 Basic Usage
 

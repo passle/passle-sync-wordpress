@@ -33,12 +33,14 @@ class OptionsService
       $cpt::create_rewrite_rules();
     }
 
+    RewriteService::add_preview_rewrite();
+
     flush_rewrite_rules();
   }
 
   private static function get_default_options(): Options
   {
-    return new Options("", wp_generate_uuid4(), [], "p", "u", "", true, false, false, PASSLESYNC_DOMAIN_EXT, get_site_url());
+    return new Options("", wp_generate_uuid4(), [], "p/{{PostShortcode}}/{{PostSlug}}", "u/{{PersonShortcode}}/{{PersonSlug}}", "", true, false, false, PASSLESYNC_DOMAIN_EXT, get_site_url());
   }
 
   private static function get_resource_cpts()

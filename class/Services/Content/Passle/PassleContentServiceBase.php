@@ -192,8 +192,8 @@ abstract class PassleContentServiceBase extends ResourceClassBase
         "X-PassleSimulateRemoteHosting" => "true",
         "X-PassleRemoteHostingUseHttps" => $use_https,
         "X-PassleRemoteHostingCustomDomain" => $domain,
-        "X-PassleRemoteHostingPostPath" => $options->post_permalink_prefix,
-        "X-PassleRemoteHostingProfilePath" => $options->person_permalink_prefix,
+        "X-PassleRemoteHostingPostPath" => $options->post_permalink_template,
+        "X-PassleRemoteHostingProfilePath" => $options->person_permalink_template,
       ]);
     }
 

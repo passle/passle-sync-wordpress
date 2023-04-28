@@ -17,8 +17,8 @@ class PasslePostCpt extends CptBase
     ];
   }
 
-  protected static function get_permalink_prefix(): string
+  protected static function get_permalink_template(): string
   {
-    return OptionsService::get()->post_permalink_prefix;
+    return OptionsService::get()->post_permalink_template;
   }
 }

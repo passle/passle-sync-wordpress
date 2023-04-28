@@ -7,7 +7,7 @@ use Passle\PassleSync\Utils\ResourceClassBase;
 abstract class CptBase extends ResourceClassBase
 {
   protected abstract static function get_cpt_args(): array;
-  protected abstract static function get_permalink_prefix(): string;
+  protected abstract static function get_permalink_template(): string;
 
   public static function init()
   {
@@ -71,10 +71,21 @@ abstract class CptBase extends ResourceClassBase
   {
     $resource = static::get_resource_instance();
 
-    $post_permalink_prefix = static::get_permalink_prefix();
+    $template_variable = $resource->get_permalink_template_variable();
+    $post_permalink_template = static::get_permalink_template();
 
-    $regex = '^' . $post_permalink_prefix . '/([^/]*)/([^/]*)/?$';
-    $query = 'index.php?post_type=' . $resource->get_post_type() . '&name=$matches[1]';
+    // Escape special characters in the path
+    $regex = preg_quote($post_permalink_template);
+
+    // Replace the template variable with a capture group to extract the shortcode
+    // e.g. if we're trying to extract the post shortcode, we want to replace {{PostShortcode}} with (?<shortcode>[a-z0-9]+)
+    $regex = preg_replace("/\\\\{\\\\{" . $template_variable . "\\\\}\\\\}/i", "([a-z0-9]+)", $regex);
+
+    // Replace the remaining template variables with wildcards
+    // e.g. {{PassleShortcode}} will be replaced with [a-z0-9\-]+
+    $regex = preg_replace("/\\\\{\\\\{[a-z0-9]+\\\\}\\\\}/i", "[a-z0-9\\-]+", $regex, -1, $count);
+
+    $query = "index.php?post_type={$resource->get_post_type()}&name=\$matches[1]";
 
     // Remove existing rewrite rules that match query
     global $wp_rewrite;
@@ -103,10 +114,29 @@ abstract class CptBase extends ResourceClassBase
 
   public static function rewrite_permalink($resource, $post)
   {
+    $template_variables = [
+      "{{PassleShortcode}}" => "example",
+    ];
+
     $post_shortcode = get_post_meta($post->ID, $resource->get_meta_shortcode_name(), true);
     $post_slug = get_post_meta($post->ID, $resource->get_meta_slug_name(), true);
 
-    $post_permalink_prefix = static::get_permalink_prefix();
-    return home_url($post_permalink_prefix . "/$post_shortcode/$post_slug");
+    switch ($resource->name_singular) {
+      case "post":
+        $template_variables["{{PostShortcode}}"] = $post_shortcode;
+        $template_variable["{{PostSlug}}"] = $post_slug;
+        break;
+      case "person":
+        $template_variables["{{PersonShortcode}}"] = $post_shortcode;
+        $template_variable["{{PersonSlug}}"] = $post_slug;
+        break;
+    }
+
+    $path = static::get_permalink_template();
+    foreach ($template_variables as $key => $value) {
+      $path = str_replace($key, $value, $path);
+    }
+
+    return home_url($path);
   }
 }
