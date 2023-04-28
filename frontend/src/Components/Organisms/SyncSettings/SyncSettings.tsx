@@ -25,6 +25,9 @@ const SyncSettings = () => {
   const [personPermalinkPrefix, setPersonPermalinkPrefix] = useState(
     options.personPermalinkPrefix,
   );
+  const [previewPermalinkPrefix, setPreviewPermalinkPrefix] = useState(
+    options.previewPermalinkPrefix,
+  );
   const [simulateRemoteHosting, setSimulateRemoteHosting] = useState(
     options.simulateRemoteHosting,
   );
@@ -42,6 +45,7 @@ const SyncSettings = () => {
       passleShortcodes,
       postPermalinkPrefix,
       personPermalinkPrefix,
+      previewPermalinkPrefix,
       simulateRemoteHosting,
       includePasslePostsOnHomePage,
       includePasslePostsOnTagPage,
@@ -107,6 +111,12 @@ const SyncSettings = () => {
             description="The prefix that will be used for person permalink URLs."
             value={personPermalinkPrefix}
             onChange={(e) => setPersonPermalinkPrefix(e.target.value)}
+          />
+          <TextSettingsInput
+            label="Preview Permalink Prefix"
+            description="The prefix that will be used for preview permalink URLs."
+            value={previewPermalinkPrefix}
+            onChange={(e) => setPreviewPermalinkPrefix(e.target.value)}
           />
           <BoolSettingsInput
             label="Simulate Remote Hosting"

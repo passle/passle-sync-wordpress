@@ -4,6 +4,7 @@ export type Options = {
   passleShortcodes: string[];
   postPermalinkPrefix: string;
   personPermalinkPrefix: string;
+  previewPermalinkPrefix: string;
   simulateRemoteHosting: boolean;
   includePasslePostsOnHomePage: boolean;
   includePasslePostsOnTagPage: boolean;

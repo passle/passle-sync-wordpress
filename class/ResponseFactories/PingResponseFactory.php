@@ -15,6 +15,7 @@ class PingResponseFactory
       "RemoteHostingType" => PASSLESYNC_REMOTE_HOSTING_TYPE,
       "PostPermalinkPrefix" => $options->post_permalink_prefix,
       "PersonPermalinkPrefix" => $options->person_permalink_prefix,
+      "PreviewPermalinkPrefix" => $options->preview_permalink_prefix,
     ];
   }
 }

@@ -3,6 +3,7 @@
 namespace Passle\PassleSync\Models;
 
 use DateTime;
+use Passle\PassleSync\SyncHandlers\PostHandler;
 use WP_Post;
 use Passle\PassleSync\Utils\Utils;
 
@@ -91,6 +92,8 @@ class PasslePost
   private WP_Post $wp_post;
   private array $meta;
 
+  private array $passle_post;
+
   /** 
    * Construct a new instance of the `PasslePost` class from the Wordpress post object.
    * 
@@ -104,7 +107,7 @@ class PasslePost
    * }
    * @return void
    */
-  public function __construct(WP_Post $wp_post, array $options = [])
+  public function __construct($wp_post, array $options = [])
   {
     $options = wp_parse_args($options, [
       "load_authors" => true,
@@ -114,9 +117,25 @@ class PasslePost
     $this->load_authors = $options["load_authors"];
     $this->load_tags = $options["load_tags"];
 
-    $this->wp_post = $wp_post;
-    $this->meta = get_post_meta($wp_post->ID);
-    $this->initialize();
+    if (gettype($wp_post) === "object") {
+      $this->wp_post = $wp_post;
+      $this->meta = get_post_meta($wp_post->ID);
+      $this->initialize_wp_post();
+    } else {
+      $this->passle_post = $wp_post;
+      $this->initialize_passle_post();
+    }
+
+    if ($this->load_authors) {
+      $this->initialize_authors();
+    }
+
+    if ($this->load_tags) {
+      $this->initialize_tags();
+    }
+
+    $this->initialize_share_views();
+    $this->initialize_tweets();
   }
 
   /**
@@ -156,9 +175,8 @@ class PasslePost
    */
 
   /** @internal */
-  private function initialize()
+  private function initialize_wp_post()
   {
-    // Load post data
     $this->shortcode = $this->meta["post_shortcode"][0] ?? "";
     $this->passle_shortcode = $this->meta["passle_shortcode"][0] ?? "";
     $this->url = $this->meta["post_url"][0] ?? "";
@@ -182,17 +200,34 @@ class PasslePost
     $this->opens_in_new_tab = $this->meta["post_opens_in_new_tab"][0] ?? false;
     $this->quote_text = $this->meta["post_quote_text"][0] ?? "";
     $this->quote_url = $this->meta["post_quote_url"][0] ?? "";
+  }
 
-    if ($this->load_authors) {
-      $this->initialize_authors();
-    }
-
-    if ($this->load_tags) {
-      $this->initialize_tags();
-    }
-
-    $this->initialize_share_views();
-    $this->initialize_tweets();
+  /** @internal */
+  private function initialize_passle_post()
+  {
+    $this->shortcode = $this->passle_post["PostShortcode"] ?? "";
+    $this->passle_shortcode = $this->passle_post["PassleShortcode"] ?? "";
+    $this->url = $this->passle_post["PostUrl"] ?? "";
+    $this->slug = $this->passle_post["PostSlug"] ?? "";
+    $this->title = $this->passle_post["PostTitle"] ?? "";
+    $this->content = $this->passle_post["PostContentHtml"] ?? "";
+    $this->total_shares = $this->passle_post["TotalShares"] ?? 0;
+    $this->total_likes = $this->passle_post["TotalLikes"] ?? 0;
+    $this->date = date_create($this->passle_post["PublishedDate"] ?? "now");
+    $this->tags = $this->passle_post["Tags"] ?? [];
+    $this->is_repost = $this->passle_post["IsRepost"] ?? false;
+    $this->estimated_read_time_seconds = $this->passle_post["EstimatedReadTimeSeconds"] ?? 0;
+    $this->estimated_read_time_minutes = max(ceil($this->estimated_read_time_seconds / 60), 1) ?? 0;
+    $this->image_url = $this->passle_post["ImageUrl"] ?? "";
+    $this->featured_item_html = htmlspecialchars_decode($this->passle_post["FeaturedItemHtml"] ?? "");
+    $this->featured_item_position = $this->passle_post["FeaturedItemPosition"] ?? "";
+    $this->featured_item_media_type = $this->passle_post["FeaturedItemMediaType"] ?? "";
+    $this->featured_item_embed_type = $this->passle_post["FeaturedItemEmbedType"] ?? "";
+    $this->featured_item_embed_provider = $this->passle_post["FeaturedItemEmbedProvider"] ?? "";
+    $this->excerpt = $this->passle_post["ContentTextSnippet"] ?? "";
+    $this->opens_in_new_tab = $this->passle_post["OpensInNewTab"] ?? false;
+    $this->quote_text = $this->passle_post["QuoteText"] ?? "";
+    $this->quote_url = $this->passle_post["QuoteUrl"] ?? "";
   }
 
   private function initialize_authors()
@@ -208,8 +243,8 @@ class PasslePost
     ]);
 
     // Filter to authors and co-authors, fall back on post author data
-    $this->authors = $this->map_authors("post_author_shortcodes", "post_authors", $wp_authors);
-    $this->coauthors = $this->map_authors("post_coauthor_shortcodes", "post_coauthors", $wp_authors);
+    $this->authors = $this->map_authors("post_author_shortcodes", "post_authors", "Authors", $wp_authors);
+    $this->coauthors = $this->map_authors("post_coauthor_shortcodes", "post_coauthors", "CoAuthors", $wp_authors);
 
     if (count($this->authors) > 0) {
       $this->primary_author = $this->authors[0];
@@ -227,31 +262,52 @@ class PasslePost
 
   private function initialize_tags()
   {
-    $wp_tags = get_the_tags() ?: [];
-    $tags = $this->meta["post_tags"] ?? [];
+    if (isset($this->meta)) {
+      $tags = $this->meta["post_tags"];
+      $wp_tags = get_the_tags();
+    } else {
+      $tags = $this->passle_post["Tags"];
+      $wp_tags = get_tags();
+    }
 
-    $this->tags = $this->map_tags($tags ?: [], $wp_tags ?: []);
+    $this->tags = $this->map_tags($tags ?? [], $wp_tags ?? []);
   }
 
   private function initialize_share_views()
   {
-    $share_views = $this->meta["post_share_views"] ?? [];
-    $this->share_views = $this->map_share_views($share_views);
+    if (isset($this->meta)) {
+      $share_views = $this->meta["post_share_views"];
+    } else {
+      $share_views = $this->passle_post["ShareViews"] ?? [];
+    }
+
+    $this->share_views = $this->map_share_views($share_views ?? []);
   }
 
   private function initialize_tweets()
   {
-    $tweets = $this->meta["post_tweets"] ?? [];
-    $this->tweets = $this->map_tweets($tweets);
+    if (isset($this->meta)) {
+      $tweets = $this->meta["post_tweets"];
+    } else {
+      $tweets = $this->passle_post["Tweets"];
+    }
+
+    $this->tweets = $this->map_tweets($tweets ?? []);
   }
 
   /*
    * Mapping methods
    */
 
-  private function map_authors(string $shortcode_meta_key, string $author_meta_key, array $wp_authors)
+  private function map_authors(string $shortcode_meta_key, string $author_meta_key, string $author_post_key, array $wp_authors)
   {
-    $post_authors = array_map(fn ($author) => unserialize($author), $this->meta[$author_meta_key] ?? []);
+    if (isset($this->meta)) {
+      $post_authors = array_map(fn ($author) => unserialize($author), $this->meta[$author_meta_key] ?? []);
+      $author_shortcodes = $this->meta[$shortcode_meta_key];
+    } else {
+      $post_authors = PostHandler::map_authors($this->passle_post[$author_post_key]);
+      $author_shortcodes = Utils::array_select($post_authors, "shortcode");
+    }
 
     // Filter to full authors contained in the list of $shortcodes, fall back on post author data
     $authors = array_map(function ($author_shortcode) use ($wp_authors, $post_authors) {
@@ -260,7 +316,7 @@ class PasslePost
 
       $post_author = Utils::array_first($post_authors, fn ($post_author) => $post_author["shortcode"] === $author_shortcode);
       return $post_author;
-    }, $this->meta[$shortcode_meta_key] ?? []);
+    }, $author_shortcodes ?? []);
 
     return array_map(fn ($author) => new PassleAuthor($author), $authors);
   }
@@ -275,11 +331,19 @@ class PasslePost
 
   private function map_share_views(array $share_views)
   {
-    return array_map(fn ($network) => new PassleShareViewsNetwork(unserialize($network)), $share_views);
+    if (isset($this->meta)) {
+      return array_map(fn ($network) => new PassleShareViewsNetwork(unserialize($network)), $share_views);
+    } else {
+      return array_map(fn ($network) => new PassleShareViewsNetwork($network), PostHandler::map_share_views($share_views));
+    }
   }
 
   private function map_tweets(array $tweets)
   {
-    return array_map(fn ($tweet) => new PassleTweet(unserialize($tweet)), $tweets);
+    if (isset($this->meta)) {
+      return array_map(fn ($tweet) => new PassleTweet(unserialize($tweet)), $tweets);
+    } else {
+      return array_map(fn ($tweet) => new PassleTweet($tweet), PostHandler::map_tweets($tweets));
+    }
   }
 }
