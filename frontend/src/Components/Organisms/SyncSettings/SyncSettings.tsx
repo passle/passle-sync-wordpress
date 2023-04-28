@@ -28,9 +28,6 @@ const SyncSettings = () => {
   const [previewPermalinkTemplate, setPreviewPermalinkTemplate] = useState(
     options.previewPermalinkTemplate,
   );
-  const [previewPermalinkPrefix, setPreviewPermalinkPrefix] = useState(
-    options.previewPermalinkPrefix,
-  );
   const [simulateRemoteHosting, setSimulateRemoteHosting] = useState(
     options.simulateRemoteHosting,
   );
@@ -147,12 +144,6 @@ const SyncSettings = () => {
             description="The template that will be used for preview permalink URLs."
             value={previewPermalinkTemplate}
             onChange={(e) => setPreviewPermalinkTemplate(e.target.value)}
-          />
-          <TextSettingsInput
-            label="Preview Permalink Prefix"
-            description="The prefix that will be used for preview permalink URLs."
-            value={previewPermalinkPrefix}
-            onChange={(e) => setPreviewPermalinkPrefix(e.target.value)}
           />
           <BoolSettingsInput
             label="Simulate Remote Hosting"
