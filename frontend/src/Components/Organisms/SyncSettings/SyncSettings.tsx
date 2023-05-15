@@ -36,21 +36,21 @@ const SyncSettings = () => {
   const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] =
     useState(options.includePasslePostsOnTagPage);
 
-  const saveSettings = (finishLoadingCallback: () => void) => {
+  const saveSettings = async (finishLoadingCallback: () => void) => {
     setLoading(true);
 
-    updateSettings({
-      passleApiKey,
-      pluginApiKey,
-      passleShortcodes,
-      postPermalinkTemplate,
-      personPermalinkTemplate,
-      previewPermalinkTemplate,
-      simulateRemoteHosting,
-      includePasslePostsOnHomePage,
-      includePasslePostsOnTagPage,
-    }).then((options) => {
-      setLoading(false);
+    try {
+      const options = await updateSettings({
+        passleApiKey,
+        pluginApiKey,
+        passleShortcodes,
+        postPermalinkTemplate,
+        personPermalinkTemplate,
+        previewPermalinkTemplate,
+        simulateRemoteHosting,
+        includePasslePostsOnHomePage,
+        includePasslePostsOnTagPage,
+      });
 
       if (options) {
         setNotice({
@@ -65,15 +65,22 @@ const SyncSettings = () => {
           success: false,
         });
       }
-      if (finishLoadingCallback) finishLoadingCallback();
-    });
+    } catch (e) {
+      setNotice({
+        content: `Failed to update settings. ${e.response.data.message}.`,
+        success: false,
+      });
+    }
+
+    setLoading(false);
+    if (finishLoadingCallback) finishLoadingCallback();
   };
 
   return (
     <div>
       {notice && (
         <Notice
-          type="success"
+          type={notice.success ? "success" : "error"}
           content={notice.content}
           onDismiss={() => setNotice(null)}
         />
