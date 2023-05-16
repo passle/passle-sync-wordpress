@@ -14,7 +14,7 @@ class Person
 
   public function __construct(
     string $shortcode,
-    string $profileUrl,
+    ?string $profileUrl,
     ?string $avatarUrl,
     string $name,
     ?string $role,
@@ -22,7 +22,7 @@ class Person
     bool $synced
   ) {
     $this->shortcode = $shortcode;
-    $this->profileUrl = $profileUrl;
+    $this->profileUrl = $profileUrl ?? "";
     $this->avatarUrl = $avatarUrl ?? "";
     $this->name = $name;
     $this->role = $role ?? "";
