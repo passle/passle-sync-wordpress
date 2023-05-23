@@ -24,6 +24,8 @@ class TemplateService
       return get_query_template("single-passle-post");
     } else if (get_query_var("post_type") == "passle-post") {
       $is_passle_preview = false;
+	  $shortcode = get_query_var("name");
+	  $post = PasslePostsContentService::fetch_preview($shortcode);
       $passle_post = new PasslePost($post);
     }
 
