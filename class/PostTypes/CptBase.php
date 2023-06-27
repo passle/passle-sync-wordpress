@@ -124,11 +124,11 @@ abstract class CptBase extends ResourceClassBase
     switch ($resource->name_singular) {
       case "post":
         $template_variables["{{PostShortcode}}"] = $post_shortcode;
-        $template_variable["{{PostSlug}}"] = $post_slug;
+        $template_variables["{{PostSlug}}"] = $post_slug;
         break;
       case "person":
         $template_variables["{{PersonShortcode}}"] = $post_shortcode;
-        $template_variable["{{PersonSlug}}"] = $post_slug;
+        $template_variables["{{PersonSlug}}"] = $post_slug;
         break;
     }
 
