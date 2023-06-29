@@ -17,9 +17,9 @@ class PasslePersonCpt extends CptBase
     ];
   }
 
-  protected static function get_permalink_prefix(): string
+  protected static function get_permalink_template(): string
   {
-    return OptionsService::get()->person_permalink_prefix;
+    return OptionsService::get()->person_permalink_template;
   }
 
   public static function rewrite_permalink($resource, $post): string

@@ -67,7 +67,7 @@ class PostHandler extends SyncHandlerBase
     return $postarr;
   }
 
-  private static function map_authors(array $authors)
+  public static function map_authors(array $authors)
   {
     return array_map(fn ($author) => [
       "shortcode" => $author["Shortcode"],
@@ -79,12 +79,12 @@ class PostHandler extends SyncHandlerBase
     ], $authors);
   }
 
-  private static function map_author_shortcodes(array $authors)
+  public static function map_author_shortcodes(array $authors)
   {
     return array_map(fn ($author) => $author["Shortcode"], $authors);
   }
 
-  private static function map_share_views(array $share_views)
+  public static function map_share_views(array $share_views)
   {
     return array_map(fn ($share_view) => [
       "social_network" => $share_view["SocialNetwork"],
@@ -92,7 +92,7 @@ class PostHandler extends SyncHandlerBase
     ], $share_views);
   }
 
-  private static function map_tweets(array $tweets)
+  public static function map_tweets(array $tweets)
   {
     return array_map(fn ($tweet) => [
       "embed_code" => $tweet["EmbedCode"],

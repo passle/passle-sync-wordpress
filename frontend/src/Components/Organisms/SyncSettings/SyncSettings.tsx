@@ -19,30 +19,38 @@ const SyncSettings = () => {
   const [passleShortcodes, setPassleShortcodes] = useState(
     options.passleShortcodes,
   );
-  const [postPermalinkPrefix, setPostPermalinkPrefix] = useState(
-    options.postPermalinkPrefix,
+  const [postPermalinkTemplate, setPostPermalinkTemplate] = useState(
+    options.postPermalinkTemplate,
   );
-  const [personPermalinkPrefix, setPersonPermalinkPrefix] = useState(
-    options.personPermalinkPrefix,
+  const [personPermalinkTemplate, setPersonPermalinkTemplate] = useState(
+    options.personPermalinkTemplate,
+  );
+  const [previewPermalinkTemplate, setPreviewPermalinkTemplate] = useState(
+    options.previewPermalinkTemplate,
+  );
+  const [simulateRemoteHosting, setSimulateRemoteHosting] = useState(
+    options.simulateRemoteHosting,
   );
   const [includePasslePostsOnHomePage, setIncludePasslePostsOnHomePage] =
     useState(options.includePasslePostsOnHomePage);
   const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] =
     useState(options.includePasslePostsOnTagPage);
 
-  const saveSettings = (finishLoadingCallback: () => void) => {
+  const saveSettings = async (finishLoadingCallback: () => void) => {
     setLoading(true);
 
-    updateSettings({
-      passleApiKey,
-      pluginApiKey,
-      passleShortcodes,
-      postPermalinkPrefix,
-      personPermalinkPrefix,
-      includePasslePostsOnHomePage,
-      includePasslePostsOnTagPage,
-    }).then((options) => {
-      setLoading(false);
+    try {
+      const options = await updateSettings({
+        passleApiKey,
+        pluginApiKey,
+        passleShortcodes,
+        postPermalinkTemplate,
+        personPermalinkTemplate,
+        previewPermalinkTemplate,
+        simulateRemoteHosting,
+        includePasslePostsOnHomePage,
+        includePasslePostsOnTagPage,
+      });
 
       if (options) {
         setNotice({
@@ -57,15 +65,22 @@ const SyncSettings = () => {
           success: false,
         });
       }
-      if (finishLoadingCallback) finishLoadingCallback();
-    });
+    } catch (e) {
+      setNotice({
+        content: `Failed to update settings. ${e.response.data.message}.`,
+        success: false,
+      });
+    }
+
+    setLoading(false);
+    if (finishLoadingCallback) finishLoadingCallback();
   };
 
   return (
     <div>
       {notice && (
         <Notice
-          type="success"
+          type={notice.success ? "success" : "error"}
           content={notice.content}
           onDismiss={() => setNotice(null)}
         />
@@ -92,26 +107,65 @@ const SyncSettings = () => {
               setPassleShortcodes(e.target.value.replace(/\s/g, "").split(","))
             }
           />
+          <tr>
+            <th>Available Permalink Template Variables</th>
+            <td>
+              <ul style={{ margin: 0 }}>
+                <li>
+                  <strong>{"{{PassleShortcode}}"}</strong> - The Passle
+                  shortcode
+                </li>
+                <li>
+                  <strong>{"{{PostShortcode}}"}</strong> - The post shortcode
+                  (post/preview template only)
+                </li>
+                <li>
+                  <strong>{"{{PostSlug}}"}</strong> - The post slug (post
+                  template only)
+                </li>
+                <li>
+                  <strong>{"{{PersonShortcode}}"}</strong> - The person
+                  shortcode (profile template only)
+                </li>
+                <li>
+                  <strong>{"{{PersonSlug}}"}</strong> - The person slug (profile
+                  template only)
+                </li>
+              </ul>
+            </td>
+          </tr>
           <TextSettingsInput
-            label="Post Permalink Prefix"
-            description="The prefix that will be used for post permalink URLs."
-            value={postPermalinkPrefix}
-            onChange={(e) => setPostPermalinkPrefix(e.target.value)}
+            label="Post Permalink Template"
+            description="The template that will be used for post permalink URLs."
+            value={postPermalinkTemplate}
+            onChange={(e) => setPostPermalinkTemplate(e.target.value)}
           />
           <TextSettingsInput
-            label="Person Permalink Prefix"
-            description="The prefix that will be used for person permalink URLs."
-            value={personPermalinkPrefix}
-            onChange={(e) => setPersonPermalinkPrefix(e.target.value)}
+            label="Person Permalink Template"
+            description="The template that will be used for person permalink URLs."
+            value={personPermalinkTemplate}
+            onChange={(e) => setPersonPermalinkTemplate(e.target.value)}
+          />
+          <TextSettingsInput
+            label="Preview Permalink Template"
+            description="The template that will be used for preview permalink URLs."
+            value={previewPermalinkTemplate}
+            onChange={(e) => setPreviewPermalinkTemplate(e.target.value)}
           />
           <BoolSettingsInput
-            label="Include Passle Posts on the Home Page?"
+            label="Simulate Remote Hosting"
+            description="Whether or not to force the Passle API to use the domain and paths of the WordPress site."
+            checked={simulateRemoteHosting}
+            onChange={(e) => setSimulateRemoteHosting(e.target.checked)}
+          />
+          <BoolSettingsInput
+            label="Include Passle Posts on the Home Page"
             description="Whether or not to include Passle posts in the WordPress query that generates the home page."
             checked={includePasslePostsOnHomePage}
             onChange={(e) => setIncludePasslePostsOnHomePage(e.target.checked)}
           />
           <BoolSettingsInput
-            label="Include Passle Posts on the Tag Page?"
+            label="Include Passle Posts on the Tag Page"
             description="Whether or not to include Passle posts in the WordPress query that generates the tag page."
             checked={includePasslePostsOnTagPage}
             onChange={(e) => setIncludePasslePostsOnTagPage(e.target.checked)}

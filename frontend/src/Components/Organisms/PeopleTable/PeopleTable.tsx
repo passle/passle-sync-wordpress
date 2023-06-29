@@ -35,7 +35,7 @@ const PeopleTable = () => {
                 }
                 circle={true}
               />
-              {item.synced ? (
+              {item.synced && item.profileUrl ? (
                 <a href={item.profileUrl} style={{ marginLeft: 12 }}>
                   {item.name}
                 </a>

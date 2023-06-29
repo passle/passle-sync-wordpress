@@ -44,8 +44,12 @@ class UrlFactory
       throw new InvalidArgumentException("The root address cannot be null or empty");
     }
 
-    $url = "{$this->protocol}://{$this->root}{$this->path}";
+    $url = "{$this->protocol}://{$this->root}/{$this->path}";
     $query = http_build_query($this->parameters, "", "&");
+
+    if (empty($query)) {
+      return $url;
+    }
 
     return join("?", [
       $url,

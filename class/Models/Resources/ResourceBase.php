@@ -64,6 +64,13 @@ class ResourceBase
     return $shortcode_name;
   }
 
+  public function get_permalink_template_variable()
+  {
+    $permalink_template_variable = ucfirst($this->name_singular) . "Shortcode";
+
+    return $permalink_template_variable;
+  }
+
   public function get_api_parameter_shortcode_name()
   {
     return static::get_shortcode_name();
