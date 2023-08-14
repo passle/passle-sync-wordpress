@@ -13,6 +13,7 @@ class Options implements JsonSerializable
   public string $post_permalink_template;
   public string $person_permalink_template;
   public string $preview_permalink_template;
+  public string $passle_sync_polling_url;
   public bool $simulate_remote_hosting;
   public bool $include_passle_posts_on_home_page;
   public bool $include_passle_posts_on_tag_page;
@@ -27,6 +28,7 @@ class Options implements JsonSerializable
     string $post_permalink_template,
     string $person_permalink_template,
     string $preview_permalink_template,
+    string $passle_sync_polling_url,
     bool $simulate_remote_hosting,
     bool $include_passle_posts_on_home_page,
     bool $include_passle_posts_on_tag_page,
@@ -39,6 +41,7 @@ class Options implements JsonSerializable
     $this->post_permalink_template = $post_permalink_template;
     $this->person_permalink_template = $person_permalink_template;
     $this->preview_permalink_template = $preview_permalink_template;
+    $this->passle_sync_polling_url = $passle_sync_polling_url;
     $this->simulate_remote_hosting = $simulate_remote_hosting;
     $this->include_passle_posts_on_home_page = $include_passle_posts_on_home_page;
     $this->include_passle_posts_on_tag_page = $include_passle_posts_on_tag_page;
@@ -55,6 +58,7 @@ class Options implements JsonSerializable
       "postPermalinkTemplate" => $this->post_permalink_template,
       "personPermalinkTemplate" => $this->person_permalink_template,
       "previewPermalinkTemplate" => $this->preview_permalink_template,
+      "passleSyncPollingUrl" => $this->passle_sync_polling_url,
       "simulateRemoteHosting" => $this->simulate_remote_hosting,
       "includePasslePostsOnHomePage" => isset($this->include_passle_posts_on_home_page) ? $this->include_passle_posts_on_home_page : false,
       "includePasslePostsOnTagPage" => isset($this->include_passle_posts_on_tag_page) ? $this->include_passle_posts_on_tag_page : false,

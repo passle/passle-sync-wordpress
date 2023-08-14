@@ -28,6 +28,9 @@ const SyncSettings = () => {
   const [previewPermalinkTemplate, setPreviewPermalinkTemplate] = useState(
     options.previewPermalinkTemplate,
   );
+  const [passleSyncPollingUrl, setPassleSyncPollingUrl] = useState(
+    options.passleSyncPollingUrl,
+  );
   const [simulateRemoteHosting, setSimulateRemoteHosting] = useState(
     options.simulateRemoteHosting,
   );
@@ -47,6 +50,7 @@ const SyncSettings = () => {
         postPermalinkTemplate,
         personPermalinkTemplate,
         previewPermalinkTemplate,
+        passleSyncPollingUrl,
         simulateRemoteHosting,
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
@@ -151,6 +155,12 @@ const SyncSettings = () => {
             description="The template that will be used for preview permalink URLs."
             value={previewPermalinkTemplate}
             onChange={(e) => setPreviewPermalinkTemplate(e.target.value)}
+          />
+          <TextSettingsInput 
+            label="Passle Sync Polling Url"
+            description="URL to poll for post syncing content - required if webhooks are not used."
+            value={passleSyncPollingUrl}
+            onChange={(e) => setPassleSyncPollingUrl(e.target.value)}
           />
           <BoolSettingsInput
             label="Simulate Remote Hosting"

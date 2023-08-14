@@ -5,6 +5,7 @@ export type Options = {
   postPermalinkTemplate: string;
   personPermalinkTemplate: string;
   previewPermalinkTemplate: string;
+  passleSyncPollingUrl: string;
   simulateRemoteHosting: boolean;
   includePasslePostsOnHomePage: boolean;
   includePasslePostsOnTagPage: boolean;
