@@ -34,6 +34,8 @@ class OptionsService
     }
 
     RewriteService::add_preview_rewrite();
+
+    flush_rewrite_rules();
   }
 
   private static function get_default_options(): Options
