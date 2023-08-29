@@ -101,6 +101,8 @@ abstract class CptBase extends ResourceClassBase
       $query,
       'top'
     );
+
+    flush_rewrite_rules();
   }
 
   public static function rewrite_post_permalink($permalink, $post)
