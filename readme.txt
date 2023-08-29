@@ -22,7 +22,7 @@ Detailed instructions on how to install the plugin is available within the [GitH
 
 == Changelog ==
 
-= 1.3.0 =
+= 1.2.1 =
 * Fixed issues with URL rewrite rules
 
 = 1.2.0 =
