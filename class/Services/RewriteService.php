@@ -14,6 +14,8 @@ class RewriteService
     $template_variable = "PostShortcode";
     $preview_permalink_template = OptionsService::get()->preview_permalink_template;
 
+    if(!$preview_permalink_template) return;
+
     // Escape special characters in the path
     $regex = preg_quote($preview_permalink_template);
 
@@ -29,6 +31,8 @@ class RewriteService
 
     static::add_rewrite_rule($regex, $query);
     static::add_rewrite_tag('%passle_preview%');
+
+    flush_rewrite_rules();
   }
 
   private static function add_rewrite_rule(string $regex, string $query)
