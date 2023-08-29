@@ -22,6 +22,9 @@ Detailed instructions on how to install the plugin is available within the [GitH
 
 == Changelog ==
 
+= 1.3.0 =
+* Fixed issues with URL rewrite rules
+
 = 1.2.0 =
 * Added support for permalink templates, instead of prefixes, giving you more control over your URL structure
 * Added support for remote-hosted previews, allowing you to preview Passle drafts within your WordPress site
