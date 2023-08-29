@@ -31,6 +31,8 @@ class RewriteService
 
     static::add_rewrite_rule($regex, $query);
     static::add_rewrite_tag('%passle_preview%');
+
+    flush_rewrite_rules();
   }
 
   private static function add_rewrite_rule(string $regex, string $query)
