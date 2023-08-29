@@ -74,8 +74,6 @@ abstract class CptBase extends ResourceClassBase
     $template_variable = $resource->get_permalink_template_variable();
     $post_permalink_template = static::get_permalink_template();
 
-    if(!$post_permalink_template) return;
-
     // Escape special characters in the path
     $regex = preg_quote($post_permalink_template);
 
