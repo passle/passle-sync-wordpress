@@ -99,8 +99,10 @@ abstract class CptBase extends ResourceClassBase
     add_rewrite_rule(
       $regex,
       $query,
-      'top'
+      'bottom'
     );
+
+    flush_rewrite_rules();
   }
 
   public static function rewrite_post_permalink($permalink, $post)
