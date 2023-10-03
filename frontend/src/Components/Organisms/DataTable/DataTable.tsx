@@ -45,8 +45,8 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
   const allSelectedItemsAreSynced = useMemo(
     () =>
       data.data
-        .filter((item) => selectedItems.includes(item.shortcode))
-        .every((item) => item.synced),
+        ?.filter((item) => selectedItems.includes(item.shortcode))
+        .every((item) => item.synced) ?? false,
     [selectedItems, data],
   );
 
@@ -321,7 +321,7 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
               <Button
                 variant="secondary"
                 content={`Delete All Synced ${props.itemPlural}`}
-                disabled={!data.data.length || working}
+                disabled={!data.data?.length || working}
                 onClick={() => setShowDeleteAllModal(true)}
               />
             )}
@@ -334,12 +334,12 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
                 id="cb-select-all-1"
                 type="checkbox"
                 checked={
-                  selectedItems.length === data.data.length &&
-                  data.data.length > 0
+                  selectedItems.length === data.data?.length &&
+                  data.data?.length > 0
                 }
                 onChange={(e) =>
                   setSelectedItems(
-                    e.target.checked ? data.data.map((x) => x.shortcode) : [],
+                    e.target.checked ? data.data?.map((x) => x.shortcode) : [],
                   )
                 }
               />
@@ -348,8 +348,8 @@ const DataTable = <T extends Syncable>(props: DataTableProps<T>) => {
           </>
         }
         Body={
-          data.data.length ? (
-            data.data.map((item) => (
+          data.data?.length ? (
+            data.data?.map((item) => (
               <tr key={item.shortcode}>
                 <th scope="row" className="check-column">
                   <input

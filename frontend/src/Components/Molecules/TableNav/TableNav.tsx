@@ -17,7 +17,7 @@ const TableNav = (props: TableNavProps) => {
   const [currentPageInput, setCurrentPageInput] = useState("");
 
   useEffect(() => {
-    setCurrentPageInput(props.currentPage.toString());
+    setCurrentPageInput(props.currentPage?.toString());
   }, [props.currentPage]);
 
   return (
