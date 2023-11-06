@@ -4,6 +4,8 @@ namespace Passle\PassleSync\SyncHandlers;
 
 use Passle\PassleSync\Utils\ResourceClassBase;
 use Passle\PassleSync\Utils\Utils;
+use Passle\PassleSync\Services\OptionsService;
+use Passle\PassleSync\Utils\UrlFactory;
 
 abstract class SyncHandlerBase extends ResourceClassBase
 {
@@ -19,9 +21,15 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
 
-    $api_entities = call_user_func([$resource->passle_content_service_name, "get_cache"]);
+    //TODO: Update to get from api not cache
+    //$api_entities = call_user_func([$resource->passle_content_service_name, "get_cache"]);
 
-    static::compare_items($wp_entities, $api_entities);
+    //static::compare_items($wp_entities, $api_entities);
+    static::batch_sync_all($wp_entities);
+
+
+
+
   }
 
   public static function sync_many(array $shortcodes)
@@ -157,4 +165,62 @@ abstract class SyncHandlerBase extends ResourceClassBase
   {
     return basename($url);
   }
+  
+  protected static function batch_sync_all(array $wp_entities){
+    $passle_shortcodes = OptionsService::get()->passle_shortcodes;
+    
+    foreach ($passle_shortcodes as &$passle_shortcode) {
+      static::sync_all_by_passle($passle_shortcode, $wp_entities);
+    }  
+
+  }
+
+  
+  public static function sync_all_by_passle(string $passle_shortcode, array $wp_entities)
+  {
+    $resource = static::get_resource_instance();
+
+    $url = (new UrlFactory())
+      ->path("passlesync/{$resource->name_plural}")
+      ->parameters([
+        "PassleShortcode" => $passle_shortcode,
+        "ItemsPerPage" => "100"
+      ])
+      ->build();
+
+    static::sync_all_paginated($url, 1, $wp_entities);
+
+  }
+
+
+  protected static function sync_all_paginated(string $url, int $page_number = 1, array $wp_entities)
+  {
+    $resource = static::get_resource_instance();
+    error_log( $url);
+    //call_user_func([$resource->passle_content_service_name, "get_next_url"], $url, $page_number)
+    $next_url = call_user_func([$resource->passle_content_service_name, "get_next_url"], $url, $page_number);
+    error_log( $next_url);
+    while ($next_url !== null) {
+      //call_user_func([$resource->passle_content_service_name, "get"], $next_url)
+      $response = call_user_func([$resource->passle_content_service_name, "get"], $next_url);
+      error_log($response['TotalCount']);
+      $more_data_available = false;
+      if (isset($response['TotalCount']) && isset($response['PageSize']) && isset($response['PageNumber'])) {
+        $more_data_available = $response['TotalCount'] > ($response['PageSize'] * $response['PageNumber']);
+      }
+
+      $response = $response["Posts"];
+
+      static::compare_items($wp_entities, $response);
+      
+      if ($more_data_available) {
+        $page_number += 1;
+        $next_url = call_user_func([$resource->passle_content_service_name, "get_next_url"], $url, $page_number);
+      } else {
+        $next_url = null;
+      }
+    }
+
+  }
+  
 }

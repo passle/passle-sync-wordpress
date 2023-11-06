@@ -72,6 +72,9 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     $result = array_merge(...$results);
 
     if (!is_null($result)) {
+
+      $result = array_slice($result,0, 10);
+
       // Set the default sync state to unsynced
       array_walk($result, fn (&$i) => $i["SyncState"] = 0);
 
@@ -158,7 +161,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     return $result;
   }
 
-  private static function get_next_url(string $url, int $page_number)
+  public static function get_next_url(string $url, int $page_number)
   {
     $parsed_url = wp_parse_url($url);
     wp_parse_str($parsed_url['query'], $query);
@@ -175,7 +178,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     return $next_url;
   }
 
-  protected static function get(string $url)
+  public static function get(string $url)
   {
     $options = OptionsService::get();
 

@@ -277,10 +277,10 @@ class PasslePost
   private function initialize_tags()
   {
     if (isset($this->meta)) {
-      $tags = $this->meta["post_tags"];
+      $tags = $this->meta["post_tags"] ?? [];
       $wp_tags = get_the_tags();
     } else {
-      $tags = $this->passle_post["Tags"];
+      $tags = $this->passle_post["Tags"] ?? [];
       $wp_tags = get_tags();
     }
 
@@ -294,7 +294,7 @@ class PasslePost
   private function initialize_share_views()
   {
     if (isset($this->meta)) {
-      $share_views = $this->meta["post_share_views"];
+      $share_views = $this->meta["post_share_views"] ?? [];
     } else {
       $share_views = $this->passle_post["ShareViews"] ?? [];
     }
@@ -321,7 +321,7 @@ class PasslePost
   {
     if (isset($this->meta)) {
       $post_authors = array_map(fn ($author) => unserialize($author), $this->meta[$author_meta_key] ?? []);
-      $author_shortcodes = $this->meta[$shortcode_meta_key];
+      $author_shortcodes = $this->meta[$shortcode_meta_key] ?? null;
     } else {
       $post_authors = PostHandler::map_authors($this->passle_post[$author_post_key]);
       $author_shortcodes = Utils::array_select($post_authors, "shortcode");
