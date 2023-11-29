@@ -1,13 +1,17 @@
 # Passle Sync for WordPress
 
-Passle Sync is a plugin for Wordpress that syncs your [Passle](https://home.passle.net/)](https://home.passle.net/) posts and authors into your Wordpress instance.
+Passle Sync is a plugin for Wordpress that syncs your [Passle](https://home.passle.net/) posts and authors into your Wordpress instance.
 
-Get started with the section below, or jump straight to the [API documentation](./docs/index.md).
+Get started with the section below, or jump straight to the [API documentation](https://api-docs.passle.net/).
 
 A great example of how to use the plugin is our demo theme:
 
 - [📂 Theme source](https://github.com/passle/passle-sync-wordpress-demo-theme)
 - [🌍 Live demo](http://mercierandvelezviewpoints.com/)
+
+## ⚠️ Before you start
+
+The plugins provided by Passle are designed to act as an example, and in some cases may be suitable to use as a starting point for your integration. They are not designed to be a ready-made solution and will often need further customisation to achieve your project goals. Please see our [API](https://api-docs.passle.net/) and [Remote Hosting](https://remote-hosting-documentation.passle.net) documentation to support this integration process.
 
 ## 🚀 Getting started
 
