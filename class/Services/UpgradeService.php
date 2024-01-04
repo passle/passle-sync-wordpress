@@ -51,9 +51,18 @@ class UpgradeService
       return;
     }
 
-    $saved_options->post_permalink_template = $saved_options->post_permalink_prefix . "/{{PostShortcode}}/{{PostSlug}}";
-    $saved_options->person_permalink_template = $saved_options->person_permalink_prefix . "/{{PersonShortcode}}/{{PersonSlug}}";
+    if ($saved_options->post_permalink_prefix) {
+        $saved_options->post_permalink_template = $saved_options->post_permalink_prefix . "/{{PostShortcode}}/{{PostSlug}}";
+    } else {
+        $saved_options->post_permalink_template = "p/{{PostShortcode}}/{{PostSlug}}";
+    }
 
+    if ($saved_options->person_permalink_prefix) {
+        $saved_options->person_permalink_template = $saved_options->person_permalink_prefix . "/{{PersonShortcode}}/{{PersonSlug}}";
+    } else {
+        $saved_options->person_permalink_template = "u/{{PersonShortcode}}/{{PersonSlug}}";
+    }
+    
     unset($saved_options->post_permalink_prefix);
     unset($saved_options->person_permalink_prefix);
 
