@@ -57,7 +57,9 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
   public static function fetch_all()
   {
-    $passle_shortcodes = OptionsService::get()->passle_shortcodes;
+    $options = OptionsService::get();
+
+    $passle_shortcodes = $options->passle_shortcodes;
 
     /** @var array[] $results */
     $results = array_map(fn ($passle_shortcode) => static::fetch_all_by_passle($passle_shortcode), $passle_shortcodes);
@@ -86,14 +88,23 @@ abstract class PassleContentServiceBase extends ResourceClassBase
   public static function fetch_all_by_passle(string $passle_shortcode)
   {
     $resource = static::get_resource_instance();
+    $options = OptionsService::get();
+
+    $path = "passlesync/{$resource->name_plural}";
+    
+    $parameters = array(
+      "PassleShortcode" => $passle_shortcode,
+      "ItemsPerPage" => "100"
+    );
+
+    if ($options->include_tags_in_categories) {
+        $parameters["IncludeTagGroups"] = "true";
+    }
 
     $url = (new UrlFactory())
-      ->path("passlesync/{$resource->name_plural}")
-      ->parameters([
-        "PassleShortcode" => $passle_shortcode,
-        "ItemsPerPage" => "100"
-      ])
-      ->build();
+        ->path($path)
+        ->parameters($parameters)
+        ->build();
 
     $responses = static::get_all_paginated($url);
 
