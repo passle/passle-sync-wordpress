@@ -5,6 +5,7 @@ namespace Passle\PassleSync\SyncHandlers;
 use Passle\PassleSync\Models\Resources\PostResource;
 use Passle\PassleSync\SyncHandlers\SyncHandlerBase;
 use Passle\PassleSync\Utils\Utils;
+use Passle\PassleSync\Services\OptionsService;
 
 class PostHandler extends SyncHandlerBase
 {
@@ -17,6 +18,12 @@ class PostHandler extends SyncHandlerBase
 
   protected static function map_data(array $data, int $entity_id)
   {
+    $options = OptionsService::get();
+
+    if($options->include_tags_in_categories) {
+      static::create_categories_from_tag_groups($data["TagGroups"]);
+    }
+    
     $postarr = [
       "ID" => $entity_id,
       "post_title" => $data["PostTitle"],
@@ -99,5 +106,32 @@ class PostHandler extends SyncHandlerBase
       "tweet_id" => $tweet["TweetId"],
       "screen_name" => $tweet["ScreenName"],
     ], $tweets);
+  }
+
+  private static function create_categories_from_tag_groups(array $tag_groups)
+  {
+      foreach ($tag_groups as $tag_group) {
+
+        $category_name = $tag_group["Name"];
+
+        // Check if the category already exists
+        $category_exists = term_exists($category_name, 'category');
+
+        if (!$category_exists) {
+          // Category does not exist, so insert it
+          $category = wp_insert_term(
+              $category_name,    // Category name
+              'category',    //Taxonomy (category in this case)
+              array(
+                'parent' => 0,
+              )
+          );
+
+          if (is_wp_error($category)) {
+            // Handle error if insertion fails
+            echo 'Error creating category: ' . $category->get_error_message() . PHP_EOL;
+          }
+        }
+      }
   }
 }

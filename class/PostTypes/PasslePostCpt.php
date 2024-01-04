@@ -13,7 +13,7 @@ class PasslePostCpt extends CptBase
   {
     return [
       "menu_icon" => "dashicons-admin-post",
-      "taxonomies" => ["post_tag"],
+      "taxonomies" => ["category", "post_tag"],
     ];
   }
 
