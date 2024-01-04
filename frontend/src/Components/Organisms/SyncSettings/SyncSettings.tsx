@@ -11,11 +11,14 @@ import { updateSettings } from "_Services/SyncService";
 const SyncSettings = () => {
   const { setLoading } = useContext(PassleDataContext);
   const [notice, setNotice] = useState<NoticeType>(null);
-
   const { options, setOptions } = useOptions();
 
-  const [passleApiKey, setPassleApiKey] = useState(options.passleApiKey);
-  const [pluginApiKey, setPluginApiKey] = useState(options.pluginApiKey);
+  const [passleApiKey, setPassleApiKey] = useState(
+      options.passleApiKey
+  );
+  const [pluginApiKey, setPluginApiKey] = useState(
+      options.pluginApiKey
+  );
   const [passleShortcodes, setPassleShortcodes] = useState(
     options.passleShortcodes,
   );
@@ -31,10 +34,15 @@ const SyncSettings = () => {
   const [simulateRemoteHosting, setSimulateRemoteHosting] = useState(
     options.simulateRemoteHosting,
   );
-  const [includePasslePostsOnHomePage, setIncludePasslePostsOnHomePage] =
-    useState(options.includePasslePostsOnHomePage);
-  const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] =
-    useState(options.includePasslePostsOnTagPage);
+  const [includePasslePostsOnHomePage, setIncludePasslePostsOnHomePage] = useState(
+    options.includePasslePostsOnHomePage
+  );
+  const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] = useState(
+    options.includePasslePostsOnTagPage
+  );
+  const [includeTagsInCategories, setIncludeTagsInCategories] = useState(
+    options.includeTagsInCategories
+  );
 
   const saveSettings = async (finishLoadingCallback: () => void) => {
     setLoading(true);
@@ -50,6 +58,7 @@ const SyncSettings = () => {
         simulateRemoteHosting,
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
+        includeTagsInCategories,
       });
 
       if (options) {
@@ -169,6 +178,12 @@ const SyncSettings = () => {
             description="Whether or not to include Passle posts in the WordPress query that generates the tag page."
             checked={includePasslePostsOnTagPage}
             onChange={(e) => setIncludePasslePostsOnTagPage(e.target.checked)}
+          />
+          <BoolSettingsInput
+            label="Include Tags in Categories"
+            description="Whether to create tags inside categories defined in Passle. If unchecked, tags will be created as a flat list."
+            checked={includeTagsInCategories}
+            onChange={(e) => setIncludeTagsInCategories(e.target.checked)}
           />
         </tbody>
       </table>
