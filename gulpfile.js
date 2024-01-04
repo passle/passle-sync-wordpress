@@ -10,7 +10,7 @@ const getEnv = () => process.env.PASSLE_ENV;
 
 const installComposerDependencies = (cb) => {
   const args = ["install"];
-  if (getEnv() != null) {
+  if (getEnv() != null && !getEnv().includes("localhost")) {
     args.push("--no-dev");
   }
 

@@ -10,7 +10,8 @@
     "init": "gulp init",
     "docs": "gulp generateDocs",
     "build:staging": "cross-env PASSLE_ENV=it gulp buildZip",
-    "build:production": "cross-env PASSLE_ENV=net gulp buildZip"
+    "build:production": "cross-env PASSLE_ENV=net gulp buildZip",
+    "build:localhost": "cross-env PASSLE_ENV=localhost gulp buildZip"
   },
   "repository": {
     "type": "git",
