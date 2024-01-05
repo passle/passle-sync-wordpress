@@ -181,7 +181,7 @@ const SyncSettings = () => {
           />
           <BoolSettingsInput
             label="Include categories from Passle tag groups"
-            description="Whether to create categories from tag groups defined in Passle. If checked, syncing will create categories that correspond to tag groups and include Passle posts in them, based on the tags on each post. If no tag groups are defined in Passle or this option is unchecked, all Passle posts will be included in the default caterogy."
+            description="Whether to create categories from tag groups defined in Passle. If checked, syncing will create categories that correspond to tag groups and include Passle posts based on the tags on each post. If no tag groups are defined in Passle or this option is unchecked, all Passle posts will be included in the default category."
             checked={includeCategoriesFromPassleTagGroups}
             onChange={(e) => setIncludeCategoriesFromPassleTagGroups(e.target.checked)}
           />
