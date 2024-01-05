@@ -139,10 +139,15 @@ abstract class SyncHandlerBase extends ResourceClassBase
     // Insert the post
     $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
 
+    // Set post categories
+    if(isset($postarr_arrays["post_categories"])) {
+      wp_set_post_categories($post_id, $postarr_arrays["post_categories"]);
+    }
+
     // Add metadata for all arrays
     foreach ($postarr_arrays as $key => $value) {
       delete_post_meta($post_id, $key);
-
+      
       foreach ($value as $item) {
         add_post_meta($post_id, $key, $item);
       }

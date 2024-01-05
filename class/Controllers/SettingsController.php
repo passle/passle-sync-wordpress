@@ -32,7 +32,7 @@ class SettingsController extends ControllerBase
       $params["simulateRemoteHosting"],
       $params["includePasslePostsOnHomePage"],
       $params["includePasslePostsOnTagPage"],
-      $params["includeTagsInCategories"],
+      $params["includeCategoriesFromPassleTagGroups"],
       PASSLESYNC_DOMAIN_EXT,
       get_site_url(),
     );

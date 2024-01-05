@@ -20,10 +20,19 @@ class PostHandler extends SyncHandlerBase
   {
     $options = OptionsService::get();
 
-    if($options->include_tags_in_categories) {
-      static::create_categories_from_tag_groups($data["TagGroups"]);
+    $categories = array();
+    if($options->include_categories_from_passle_tag_groups) {
+      $categories = static::map_tag_groups_to_categories($data["TagGroups"]);
     }
-    
+
+    // Explicitly setting a post to the default category is not required but it is considered a good practice
+    if (empty($categories)) {
+      $default_category = get_option('default_category');
+      if ($default_category != 0) {
+        $categories = array($default_category);
+      }
+    }
+
     $postarr = [
       "ID" => $entity_id,
       "post_title" => $data["PostTitle"],
@@ -51,6 +60,7 @@ class PostHandler extends SyncHandlerBase
         "post_is_repost" => $data["IsRepost"],
         "post_estimated_read_time" => $data["EstimatedReadTimeInSeconds"],
         "post_tags" => $data["Tags"],
+        "post_categories" => $categories,
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
         "post_featured_item_position" => $data["FeaturedItemPosition"],
@@ -108,30 +118,40 @@ class PostHandler extends SyncHandlerBase
     ], $tweets);
   }
 
-  private static function create_categories_from_tag_groups(array $tag_groups)
+  private static function map_tag_groups_to_categories(array $tag_groups)
   {
+      $category_ids = array();
+
       foreach ($tag_groups as $tag_group) {
 
         $category_name = $tag_group["Name"];
 
         // Check if the category already exists
-        $category_exists = term_exists($category_name, 'category');
+        $category_exists = term_exists($category_name, "category");
 
         if (!$category_exists) {
           // Category does not exist, so insert it
           $category = wp_insert_term(
-              $category_name,    // Category name
-              'category',    //Taxonomy (category in this case)
+              $category_name,
+              "category",        
               array(
-                'parent' => 0,
+                "parent" => 0,
               )
           );
 
           if (is_wp_error($category)) {
-            // Handle error if insertion fails
-            echo 'Error creating category: ' . $category->get_error_message() . PHP_EOL;
+            error_log("Error creating category: " . $category->get_error_message() . PHP_EOL);
           }
         }
+        else {
+            $category = get_term_by("name", $category_name, "category");
+        }
+
+        if($category) {
+          $category_ids[] = $category->term_id;
+        }
       }
+
+      return $category_ids;
   }
 }

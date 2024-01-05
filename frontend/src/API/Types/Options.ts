@@ -8,6 +8,6 @@ export type Options = {
   simulateRemoteHosting: boolean;
   includePasslePostsOnHomePage: boolean;
   includePasslePostsOnTagPage: boolean;
-  includeTagsInCategories: boolean;
+  includeCategoriesFromPassleTagGroups: boolean;
   domainExt: string;
 };
