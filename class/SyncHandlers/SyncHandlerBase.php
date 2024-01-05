@@ -140,7 +140,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
     $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
 
     // Set post categories
-    if(isset($postarr_arrays["post_categories"])) {
+    if (isset($postarr_arrays["post_categories"])) {
       wp_set_post_categories($post_id, $postarr_arrays["post_categories"]);
     }
 
