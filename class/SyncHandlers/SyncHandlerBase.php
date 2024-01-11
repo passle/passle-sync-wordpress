@@ -144,6 +144,11 @@ abstract class SyncHandlerBase extends ResourceClassBase
       wp_set_post_categories($post_id, $postarr_arrays["post_categories"]);
     }
 
+    // Set post tag groups
+    if (isset($postarr_arrays["post_tag_groups"]) && !empty($postarr_arrays["post_tag_groups"])) {
+        wp_set_object_terms($post_id, $postarr_arrays["post_tag_groups"], "tag_group", false);
+    }
+
     // Add metadata for all arrays
     foreach ($postarr_arrays as $key => $value) {
       delete_post_meta($post_id, $key);

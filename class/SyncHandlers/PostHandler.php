@@ -32,6 +32,12 @@ class PostHandler extends SyncHandlerBase
         $categories = array($default_category);
       }
     }
+    
+    $tag_groups = array();
+    //TODO: add options setting check here
+    if(true) {
+        $tag_groups = static::map_tag_groups_to_custom_taxonomy($data["TagGroups"]);
+    }
 
     $postarr = [
       "ID" => $entity_id,
@@ -61,6 +67,7 @@ class PostHandler extends SyncHandlerBase
         "post_estimated_read_time" => $data["EstimatedReadTimeInSeconds"],
         "post_tags" => $data["Tags"],
         "post_categories" => $categories,
+        "post_tag_groups" => $tag_groups,
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
         "post_featured_item_position" => $data["FeaturedItemPosition"],
@@ -153,5 +160,44 @@ class PostHandler extends SyncHandlerBase
       }
 
       return $category_ids;
+  }
+
+  private static function map_tag_groups_to_custom_taxonomy(array $tag_groups)
+  {
+      $term_ids = array();
+
+      if (taxonomy_exists("tag_group")) {
+
+        foreach($tag_groups as $tag_group) {
+
+            $term_name = $tag_group["Name"];
+
+            // Check if the term already exists 
+            $term_exists = term_exists($term_name, "tag_group");
+
+            if (!$term_exists) {
+                $term = wp_insert_term(
+                    $term_name,
+                    "tag_group",
+                    array(
+                      "parent" => 0
+                    )
+                );
+                
+                if (is_wp_error($term)) {
+                    error_log("Error creating term: " . $term->get_error_message() . PHP_EOL); 
+                }
+            } 
+            else {
+                $term = get_term_by("name", $term_name, "tag_group");
+            }
+
+            if ($term) {
+                $term_ids[] = $term->term_id;
+            }
+        }
+      }
+
+      return $term_ids;
   }
 }
