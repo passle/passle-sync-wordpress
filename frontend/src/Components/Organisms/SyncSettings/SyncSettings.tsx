@@ -40,8 +40,8 @@ const SyncSettings = () => {
   const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] = useState(
     options.includePasslePostsOnTagPage
   );
-  const [includeCategoriesFromPassleTagGroups, setIncludeCategoriesFromPassleTagGroups] = useState(
-    options.includeCategoriesFromPassleTagGroups
+  const [includePassleTagGroups, setIncludePassleTagGroups] = useState(
+    options.includePassleTagGroups
   );
 
   const saveSettings = async (finishLoadingCallback: () => void) => {
@@ -58,7 +58,7 @@ const SyncSettings = () => {
         simulateRemoteHosting,
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
-        includeCategoriesFromPassleTagGroups,
+        includePassleTagGroups,
       });
 
       if (options) {
@@ -180,10 +180,10 @@ const SyncSettings = () => {
             onChange={(e) => setIncludePasslePostsOnTagPage(e.target.checked)}
           />
           <BoolSettingsInput
-            label="Include categories from Passle tag groups"
-            description="Whether to create categories from tag groups defined in Passle. If checked, syncing will create categories that correspond to tag groups and include Passle posts based on the tags on each post. If no tag groups are defined in Passle or this option is unchecked, all Passle posts will be included in the default category."
-            checked={includeCategoriesFromPassleTagGroups}
-            onChange={(e) => setIncludeCategoriesFromPassleTagGroups(e.target.checked)}
+            label="Include Passle tag groups"
+            description="Whether to create a custom taxonomy from tag groups defined in Passle. If checked, syncing will create taxonomy terms that correspond to tag groups and include set it on Passle posts based on the tags on each post."
+            checked={includePassleTagGroups}
+            onChange={(e) => setIncludePassleTagGroups(e.target.checked)}
           />
         </tbody>
       </table>

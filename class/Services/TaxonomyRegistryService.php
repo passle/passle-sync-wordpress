@@ -7,6 +7,7 @@ class TaxonomyRegistryService
     public static function init() 
     {   
         add_action("init", [static::class, "create_taxonomy"]);
+        add_filter('term_row_actions', 'disable_taxonomy_term_editing', 10, 3);
     }
 
     public static function create_taxonomy() 
@@ -20,7 +21,7 @@ class TaxonomyRegistryService
             "update_item" => "Update Passle Tag Group",
             "add_new_item" => "Add new Passle Tag Group",
             "new_item_name" => "New Passle Tag Group name",
-            "menu_name" => "Passle Tag Group",
+            "menu_name" => "Passle Tag Groups",
             "not_found" => "No Passle Tag Groups Found"
         );
 
@@ -31,9 +32,18 @@ class TaxonomyRegistryService
             "show_admin_column" => true,
             "query_var" => true,
             "meta_box_cb" => null,
-            "rewrite" => array("slug" => "tag_group")
+            "rewrite" => array("slug" => PASSLESYNC_TAG_GROUP_TAXONOMY)
         );
 
-        register_taxonomy("tag_group", array(PASSLESYNC_POST_TYPE), $args);
+        register_taxonomy(PASSLESYNC_TAG_GROUP_TAXONOMY, array(PASSLESYNC_POST_TYPE), $args);
+    }
+
+    public static function disable_taxonomy_term_editing($actions, $taxonomy, $tag) 
+    {
+        if ($taxonomy === PASSLESYNC_TAG_GROUP_TAXONOMY) {
+            unset($actions["edit"]);
+            unset($actions["inline hide-if-no-js"]);
+        }
+        return $actions;
     }
 }

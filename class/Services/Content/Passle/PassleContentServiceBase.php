@@ -97,7 +97,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       "ItemsPerPage" => "100"
     );
 
-    if ($options->include_categories_from_passle_tag_groups) {
+    if ($options->include_passle_tag_groups) {
         $parameters["IncludeTagGroups"] = "true";
     }
 
@@ -131,7 +131,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       $resource->get_api_parameter_shortcode_name() => join(",", $entity_shortcodes)
     ];
 
-    if ($options->include_categories_from_passle_tag_groups) {
+    if ($options->include_passle_tag_groups) {
         $params["IncludeTagGroups"] = "true";
     }
 

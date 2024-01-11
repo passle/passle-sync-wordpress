@@ -22,9 +22,9 @@ class PassleSync
     MenuService::init();
     RouteRegistryService::init();
     CptRegistryService::init();
-    TaxonomyRegistryService::init();
     EmbedService::init();
     OptionsService::init();
+    TaxonomyRegistryService::init();
     SchedulerService::init();
     ConfigService::init();
     ThemeService::init();

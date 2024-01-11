@@ -20,23 +20,9 @@ class PostHandler extends SyncHandlerBase
   {
     $options = OptionsService::get();
 
-    $categories = array();
-    if($options->include_categories_from_passle_tag_groups) {
-      $categories = static::map_tag_groups_to_categories($data["TagGroups"]);
-    }
-
-    // Explicitly setting a post to the default category is not required but it is considered a good practice
-    if (empty($categories)) {
-      $default_category = get_option('default_category');
-      if ($default_category != 0) {
-        $categories = array($default_category);
-      }
-    }
-    
     $tag_groups = array();
-    //TODO: add options setting check here
-    if(true) {
-        $tag_groups = static::map_tag_groups_to_custom_taxonomy($data["TagGroups"]);
+    if($options->include_passle_tag_groups) {
+      $tag_groups = static::map_tag_groups_to_custom_taxonomy($data["TagGroups"]);
     }
 
     $postarr = [
@@ -66,8 +52,6 @@ class PostHandler extends SyncHandlerBase
         "post_is_repost" => $data["IsRepost"],
         "post_estimated_read_time" => $data["EstimatedReadTimeInSeconds"],
         "post_tags" => $data["Tags"],
-        "post_categories" => $categories,
-        "post_tag_groups" => $tag_groups,
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
         "post_featured_item_position" => $data["FeaturedItemPosition"],
@@ -86,6 +70,10 @@ class PostHandler extends SyncHandlerBase
 
     if ($data["IsFeaturedOnPostPage"]) {
       $postarr["meta_input"]["post_is_featured_on_post_page"] = true;
+    }
+
+    if ($options->include_passle_tag_groups) {
+       $postarr["meta_input"]["post_tag_groups"] = $tag_groups;
     }
 
     return $postarr;
@@ -166,19 +154,19 @@ class PostHandler extends SyncHandlerBase
   {
       $term_ids = array();
 
-      if (taxonomy_exists("tag_group")) {
+      if (taxonomy_exists(PASSLESYNC_TAG_GROUP_TAXONOMY)) {
 
         foreach($tag_groups as $tag_group) {
 
             $term_name = $tag_group["Name"];
 
             // Check if the term already exists 
-            $term_exists = term_exists($term_name, "tag_group");
+            $term_exists = term_exists($term_name, PASSLESYNC_TAG_GROUP_TAXONOMY);
 
             if (!$term_exists) {
                 $term = wp_insert_term(
                     $term_name,
-                    "tag_group",
+                    PASSLESYNC_TAG_GROUP_TAXONOMY,
                     array(
                       "parent" => 0
                     )
@@ -189,7 +177,7 @@ class PostHandler extends SyncHandlerBase
                 }
             } 
             else {
-                $term = get_term_by("name", $term_name, "tag_group");
+                $term = get_term_by("name", $term_name, PASSLESYNC_TAG_GROUP_TAXONOMY);
             }
 
             if ($term) {

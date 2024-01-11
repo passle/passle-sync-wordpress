@@ -139,14 +139,9 @@ abstract class SyncHandlerBase extends ResourceClassBase
     // Insert the post
     $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
 
-    // Set post categories
-    if (isset($postarr_arrays["post_categories"])) {
-      wp_set_post_categories($post_id, $postarr_arrays["post_categories"]);
-    }
-
     // Set post tag groups
     if (isset($postarr_arrays["post_tag_groups"]) && !empty($postarr_arrays["post_tag_groups"])) {
-        wp_set_object_terms($post_id, $postarr_arrays["post_tag_groups"], "tag_group", false);
+        wp_set_object_terms($post_id, $postarr_arrays["post_tag_groups"], PASSLESYNC_TAG_GROUP_TAXONOMY, false);
     }
 
     // Add metadata for all arrays
