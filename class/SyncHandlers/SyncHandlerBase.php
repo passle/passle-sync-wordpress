@@ -147,7 +147,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
         $taxonomies = get_object_taxonomies(PASSLESYNC_POST_TYPE);
         foreach ($taxonomies as $taxonomy) {
             foreach($postarr_arrays["post_tags"] as $tag) {
-                $term = get_term_by('name', $tag, $taxonomy);
+                $term = get_term_by("name", $tag, $taxonomy);
                 if($term != null && $term->name && $term->taxonomy) {
                     wp_set_object_terms($post_id, $term->name, $term->taxonomy);
                 }

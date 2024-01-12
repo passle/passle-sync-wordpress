@@ -17,23 +17,32 @@ class TaxonomyRegistryService
     public static function create_taxonomies() 
     {
         $tag_groups_response = PassleTagGroupsContentService::fetch_tag_groups();
+        if (isempty($tag_groups_response) || !isset($tag_groups_response[0]) || !isset($tag_groups_response[0]["TagGroups"])) {
+            return;
+        }
         $tag_groups = $tag_groups_response[0]["TagGroups"];
         foreach ($tag_groups as $tag_group) {
+            if (!isset($tag_group["Name"])) {
+                continue;
+            }
             $name = $tag_group["Name"];
-            $slug = self::get_taxonomy_slug($name);
+            $taxonomy_name = self::get_taxonomy_slug($name);
             if ($name && !taxonomy_exists($name)) {
                 $args = array(
                   "hierarchical" => false,
                   "label" => $name,
                   "show_admin_column" => true,
                   "query_var" => true,
-                  "rewrite" => array("slug" => $slug)
+                  "rewrite" => array("slug" => $taxonomy_name)
                 );
-                register_taxonomy($slug, array(PASSLESYNC_POST_TYPE), $args);
+                register_taxonomy($taxonomy_name, array(PASSLESYNC_POST_TYPE), $args);
+            }
+            if (!isset($tag_group["Tags"])) {
+                continue;
             }
             $tags = $tag_group["Tags"];
             foreach($tags as $tag) {
-                $term_exists = term_exists($tag, $slug);
+                $term_exists = term_exists($tag, $taxonomy_name);
                 if (!$term_exists) {
                     $term = wp_insert_term(
                         $tag,
