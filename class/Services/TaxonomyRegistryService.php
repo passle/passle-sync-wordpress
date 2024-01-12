@@ -17,7 +17,7 @@ class TaxonomyRegistryService
     public static function create_taxonomies() 
     {
         $tag_groups_response = PassleTagGroupsContentService::fetch_tag_groups();
-        if (isempty($tag_groups_response) || !isset($tag_groups_response[0]) || !isset($tag_groups_response[0]["TagGroups"])) {
+        if (empty($tag_groups_response) || !isset($tag_groups_response[0]) || !isset($tag_groups_response[0]["TagGroups"])) {
             return;
         }
         $tag_groups = $tag_groups_response[0]["TagGroups"];
