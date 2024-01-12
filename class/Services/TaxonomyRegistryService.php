@@ -2,48 +2,52 @@
 
 namespace Passle\PassleSync\Services;
 
+use Passle\PassleSync\Services\Content\Passle\PassleTagGroupsContentService;
+
 class TaxonomyRegistryService 
 {
-    public static function init() 
-    {   
-        add_action("init", [static::class, "create_taxonomy"]);
-        add_filter('term_row_actions', 'disable_taxonomy_term_editing', 10, 3);
+    public static function init() {
+        add_action('init', [static::class, "create_taxonomies"]);
     }
 
-    public static function create_taxonomy() 
-    {
-        $labels = array(
-            "name" => "Passle Tag Groups",
-            "singular_name" => "Passle Tag Group",
-            "search_items" => "Search Passle Tag Groups",
-            "all_items" => "All Passle Tag Groups",
-            "edit_item" => "Edit Passle Tag Group",
-            "update_item" => "Update Passle Tag Group",
-            "add_new_item" => "Add new Passle Tag Group",
-            "new_item_name" => "New Passle Tag Group name",
-            "menu_name" => "Passle Tag Groups",
-            "not_found" => "No Passle Tag Groups Found"
-        );
-
-        $args = array(
-            "hierarchical" => false,
-            "labels" => $labels,
-            "show_ui" => true,
-            "show_admin_column" => true,
-            "query_var" => true,
-            "meta_box_cb" => null,
-            "rewrite" => array("slug" => PASSLESYNC_TAG_GROUP_TAXONOMY)
-        );
-
-        register_taxonomy(PASSLESYNC_TAG_GROUP_TAXONOMY, array(PASSLESYNC_POST_TYPE), $args);
+    private static function get_taxonomy_slug($name) {
+        return str_replace(' ', '_', strtolower($name));
     }
 
-    public static function disable_taxonomy_term_editing($actions, $taxonomy, $tag) 
+    public static function create_taxonomies() 
     {
-        if ($taxonomy === PASSLESYNC_TAG_GROUP_TAXONOMY) {
-            unset($actions["edit"]);
-            unset($actions["inline hide-if-no-js"]);
+        $tag_groups_response = PassleTagGroupsContentService::fetch_tag_groups();
+        $tag_groups = $tag_groups_response[0]["TagGroups"];
+        foreach ($tag_groups as $tag_group) {
+            $name = $tag_group["Name"];
+            $slug = self::get_taxonomy_slug($name);
+            if ($name && !taxonomy_exists($name)) {
+                $args = array(
+                  "hierarchical" => false,
+                  "label" => $name,
+                  "show_admin_column" => true,
+                  "query_var" => true,
+                  "rewrite" => array("slug" => $slug)
+                );
+                register_taxonomy($slug, array(PASSLESYNC_POST_TYPE), $args);
+            }
+            $tags = $tag_group["Tags"];
+            foreach($tags as $tag) {
+                $term_exists = term_exists($tag, $slug);
+                if (!$term_exists) {
+                    $term = wp_insert_term(
+                        $tag,
+                        $slug,
+                        array(
+                        "parent" => 0
+                        )
+                    );
+                
+                    if (is_wp_error($term)) {
+                        error_log("Error creating term: " . $term->get_error_message() . PHP_EOL); 
+                    }
+                }
+            }
         }
-        return $actions;
     }
 }

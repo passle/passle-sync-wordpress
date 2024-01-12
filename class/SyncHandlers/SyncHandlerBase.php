@@ -4,6 +4,7 @@ namespace Passle\PassleSync\SyncHandlers;
 
 use Passle\PassleSync\Utils\ResourceClassBase;
 use Passle\PassleSync\Utils\Utils;
+use Passle\PassleSync\Services\OptionsService;
 
 abstract class SyncHandlerBase extends ResourceClassBase
 {
@@ -123,6 +124,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
   protected static function insert_post(array $postarr, $wp_error = \false, $fire_after_hooks = \true)
   {
+    $options = OptionsService::get();
+
     if (empty($postarr["meta_input"])) {
       return wp_insert_post($postarr, $wp_error, $fire_after_hooks);
     }
@@ -139,9 +142,17 @@ abstract class SyncHandlerBase extends ResourceClassBase
     // Insert the post
     $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
 
-    // Set post tag groups
-    if (isset($postarr_arrays["post_tag_groups"]) && !empty($postarr_arrays["post_tag_groups"])) {
-        wp_set_object_terms($post_id, $postarr_arrays["post_tag_groups"], PASSLESYNC_TAG_GROUP_TAXONOMY, false);
+    // Set post taxonomy terms based on tags
+    if (!empty($postarr_arrays["post_tags"]) && $options->include_passle_tag_groups) {
+        $taxonomies = get_object_taxonomies(PASSLESYNC_POST_TYPE);
+        foreach ($taxonomies as $taxonomy) {
+            foreach($postarr_arrays["post_tags"] as $tag) {
+                $term = get_term_by('name', $tag, $taxonomy);
+                if($term != null && $term->name && $term->taxonomy) {
+                    wp_set_object_terms($post_id, $term->name, $term->taxonomy);
+                }
+            }
+        }
     }
 
     // Add metadata for all arrays

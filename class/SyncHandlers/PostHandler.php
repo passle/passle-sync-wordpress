@@ -6,6 +6,7 @@ use Passle\PassleSync\Models\Resources\PostResource;
 use Passle\PassleSync\SyncHandlers\SyncHandlerBase;
 use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\Services\OptionsService;
+use Passle\PassleSync\Services\TaxonomyRegistryService;
 
 class PostHandler extends SyncHandlerBase
 {
@@ -18,13 +19,6 @@ class PostHandler extends SyncHandlerBase
 
   protected static function map_data(array $data, int $entity_id)
   {
-    $options = OptionsService::get();
-
-    $tag_groups = array();
-    if($options->include_passle_tag_groups) {
-      $tag_groups = static::map_tag_groups_to_custom_taxonomy($data["TagGroups"]);
-    }
-
     $postarr = [
       "ID" => $entity_id,
       "post_title" => $data["PostTitle"],
@@ -72,10 +66,6 @@ class PostHandler extends SyncHandlerBase
       $postarr["meta_input"]["post_is_featured_on_post_page"] = true;
     }
 
-    if ($options->include_passle_tag_groups) {
-       $postarr["meta_input"]["post_tag_groups"] = $tag_groups;
-    }
-
     return $postarr;
   }
 
@@ -111,43 +101,6 @@ class PostHandler extends SyncHandlerBase
       "tweet_id" => $tweet["TweetId"],
       "screen_name" => $tweet["ScreenName"],
     ], $tweets);
-  }
-
-  private static function map_tag_groups_to_categories(array $tag_groups)
-  {
-      $category_ids = array();
-
-      foreach ($tag_groups as $tag_group) {
-
-        $category_name = $tag_group["Name"];
-
-        // Check if the category already exists
-        $category_exists = term_exists($category_name, "category");
-
-        if (!$category_exists) {
-          // Category does not exist, so insert it
-          $category = wp_insert_term(
-              $category_name,
-              "category",        
-              array(
-                "parent" => 0,
-              )
-          );
-
-          if (is_wp_error($category)) {
-            error_log("Error creating category: " . $category->get_error_message() . PHP_EOL);
-          }
-        }
-        else {
-            $category = get_term_by("name", $category_name, "category");
-        }
-
-        if($category) {
-          $category_ids[] = $category->term_id;
-        }
-      }
-
-      return $category_ids;
   }
 
   private static function map_tag_groups_to_custom_taxonomy(array $tag_groups)
