@@ -102,43 +102,4 @@ class PostHandler extends SyncHandlerBase
       "screen_name" => $tweet["ScreenName"],
     ], $tweets);
   }
-
-  private static function map_tag_groups_to_custom_taxonomy(array $tag_groups)
-  {
-      $term_ids = array();
-
-      if (taxonomy_exists(PASSLESYNC_TAG_GROUP_TAXONOMY)) {
-
-        foreach($tag_groups as $tag_group) {
-
-            $term_name = $tag_group["Name"];
-
-            // Check if the term already exists 
-            $term_exists = term_exists($term_name, PASSLESYNC_TAG_GROUP_TAXONOMY);
-
-            if (!$term_exists) {
-                $term = wp_insert_term(
-                    $term_name,
-                    PASSLESYNC_TAG_GROUP_TAXONOMY,
-                    array(
-                      "parent" => 0
-                    )
-                );
-                
-                if (is_wp_error($term)) {
-                    error_log("Error creating term: " . $term->get_error_message() . PHP_EOL); 
-                }
-            } 
-            else {
-                $term = get_term_by("name", $term_name, PASSLESYNC_TAG_GROUP_TAXONOMY);
-            }
-
-            if ($term) {
-                $term_ids[] = $term->term_id;
-            }
-        }
-      }
-
-      return $term_ids;
-  }
 }
