@@ -46,14 +46,14 @@ class TaxonomyRegistryService
                 if (!$term_exists) {
                     $term = wp_insert_term(
                         $tag,
-                        $slug,
+                        $taxonomy_name,
                         array(
                         "parent" => 0
                         )
                     );
                 
                     if (is_wp_error($term)) {
-                        error_log("Error creating term: " . $term->get_error_message() . PHP_EOL); 
+                        error_log("Error creating term: $term " . $term->get_error_message() . PHP_EOL); 
                     }
                 }
             }
