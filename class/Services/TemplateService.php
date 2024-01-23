@@ -20,13 +20,30 @@ class TemplateService
       $is_passle_preview = true;
       $shortcode = get_query_var("passle_preview");
       $post = PasslePostsContentService::fetch_preview($shortcode);
+      if ($post == null) {
+        self::redirect_404();
+        return;
+      }
       $passle_post = new PasslePost($post);
       return get_query_template("single-passle-post");
     } else if (get_query_var("post_type") == "passle-post") {
       $is_passle_preview = false;
+      if ($post == null) {
+        self::redirect_404();
+        return;
+      }
       $passle_post = new PasslePost($post);
     }
 
     return $original_template;
+  }
+
+  private static function redirect_404() 
+  {  
+	status_header(404);
+
+    include(get_404_template());
+
+    exit();
   }
 }
