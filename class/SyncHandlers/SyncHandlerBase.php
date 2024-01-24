@@ -149,7 +149,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
             foreach($postarr_arrays["post_tag_group_tags"] as $tag) {
                 $term = get_term_by("name", $tag, $taxonomy);
                 if($term != null && $term->name && $term->taxonomy) {
-                    wp_set_object_terms($post_id, $term->name, $term->taxonomy);
+                    wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
                 }
             }
         }
