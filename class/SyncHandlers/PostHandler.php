@@ -5,6 +5,8 @@ namespace Passle\PassleSync\SyncHandlers;
 use Passle\PassleSync\Models\Resources\PostResource;
 use Passle\PassleSync\SyncHandlers\SyncHandlerBase;
 use Passle\PassleSync\Utils\Utils;
+use Passle\PassleSync\Services\OptionsService;
+use Passle\PassleSync\Services\TaxonomyRegistryService;
 
 class PostHandler extends SyncHandlerBase
 {

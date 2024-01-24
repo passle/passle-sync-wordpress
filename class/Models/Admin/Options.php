@@ -16,6 +16,7 @@ class Options implements JsonSerializable
   public bool $simulate_remote_hosting;
   public bool $include_passle_posts_on_home_page;
   public bool $include_passle_posts_on_tag_page;
+  public bool $include_passle_tag_groups;
   public string $domain_ext;
   public string $site_url;
 
@@ -30,6 +31,7 @@ class Options implements JsonSerializable
     bool $simulate_remote_hosting,
     bool $include_passle_posts_on_home_page,
     bool $include_passle_posts_on_tag_page,
+    bool $include_passle_tag_groups,
     string $domain_ext,
     string $site_url
   ) {
@@ -42,6 +44,7 @@ class Options implements JsonSerializable
     $this->simulate_remote_hosting = $simulate_remote_hosting;
     $this->include_passle_posts_on_home_page = $include_passle_posts_on_home_page;
     $this->include_passle_posts_on_tag_page = $include_passle_posts_on_tag_page;
+    $this->include_passle_tag_groups = $include_passle_tag_groups;
     $this->domain_ext = $domain_ext;
     $this->site_url = $site_url;
   }
@@ -58,6 +61,7 @@ class Options implements JsonSerializable
       "simulateRemoteHosting" => $this->simulate_remote_hosting,
       "includePasslePostsOnHomePage" => isset($this->include_passle_posts_on_home_page) ? $this->include_passle_posts_on_home_page : false,
       "includePasslePostsOnTagPage" => isset($this->include_passle_posts_on_tag_page) ? $this->include_passle_posts_on_tag_page : false,
+      "includePassleTagGroups" => isset($this->include_passle_tag_groups) ? $this->include_passle_tag_groups : false,
       "domainExt" => $this->domain_ext,
       "siteUrl" => $this->site_url,
     ];

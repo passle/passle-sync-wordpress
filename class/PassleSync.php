@@ -3,6 +3,7 @@
 namespace Passle\PassleSync;
 
 use Passle\PassleSync\Services\CptRegistryService;
+use Passle\PassleSync\Services\TaxonomyRegistryService;
 use Passle\PassleSync\Services\EmbedService;
 use Passle\PassleSync\Services\MenuService;
 use Passle\PassleSync\Services\OptionsService;
@@ -23,6 +24,7 @@ class PassleSync
     CptRegistryService::init();
     EmbedService::init();
     OptionsService::init();
+    TaxonomyRegistryService::init();
     SchedulerService::init();
     ConfigService::init();
     ThemeService::init();
