@@ -48,6 +48,7 @@ class PostHandler extends SyncHandlerBase
         "post_is_repost" => $data["IsRepost"],
         "post_estimated_read_time" => $data["EstimatedReadTimeInSeconds"],
         "post_tags" => $tags,
+        "post_tag_group_tags" => $data["Tags"],
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
         "post_featured_item_position" => $data["FeaturedItemPosition"],

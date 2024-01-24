@@ -6,17 +6,19 @@ use Passle\PassleSync\Services\Content\Passle\PassleTagGroupsContentService;
 
 class TaxonomyRegistryService 
 {
-    public static function init() {
+    public static function init() 
+    {
         add_action('init', [static::class, "create_taxonomies"]);
     }
 
-    private static function get_taxonomy_slug($name) {
+    private static function get_taxonomy_slug($name) 
+    {
         return str_replace(' ', '_', strtolower($name));
     }
 
     public static function create_taxonomies() 
     {
-        $tag_groups_response = PassleTagGroupsContentService::fetch_tag_groups();
+        $tag_groups_response = PassleTagGroupsContentService::get_cache();
         if (empty($tag_groups_response) || !isset($tag_groups_response[0]) || !isset($tag_groups_response[0]["TagGroups"])) {
             return;
         }

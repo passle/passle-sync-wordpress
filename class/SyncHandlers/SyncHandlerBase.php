@@ -143,10 +143,10 @@ abstract class SyncHandlerBase extends ResourceClassBase
     $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
 
     // Set post taxonomy terms based on tags
-    if (!empty($postarr_arrays["post_tags"]) && $options->include_passle_tag_groups) {
+    if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
         $taxonomies = get_object_taxonomies(PASSLESYNC_POST_TYPE);
         foreach ($taxonomies as $taxonomy) {
-            foreach($postarr_arrays["post_tags"] as $tag) {
+            foreach($postarr_arrays["post_tag_group_tags"] as $tag) {
                 $term = get_term_by("name", $tag, $taxonomy);
                 if($term != null && $term->name && $term->taxonomy) {
                     wp_set_object_terms($post_id, $term->name, $term->taxonomy);
@@ -154,6 +154,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
             }
         }
     }
+    unset($postarr_arrays["post_tag_group_tags"]);
 
     // Add metadata for all arrays
     foreach ($postarr_arrays as $key => $value) {
