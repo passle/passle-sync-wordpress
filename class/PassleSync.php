@@ -28,7 +28,6 @@ class PassleSync
     CptRegistryService::init();
     EmbedService::init();
     OptionsService::init();
-    TaxonomyRegistryService::init();
     SchedulerService::init();
     ConfigService::init();
     ThemeService::init();
@@ -36,13 +35,19 @@ class PassleSync
     TemplateService::init();
     UpgradeService::init();
 
-    add_action(self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME, [static::class, "tag_groups_cache_cleanup"]);
+    $options = OptionsService::get();
+
+    if ($options->include_passle_tag_groups) {
+        TaxonomyRegistryService::init();
+        self::schedule_tag_groups_cache_cleanup();
+    } else {
+        self::unschedule_tag_groups_cache_cleanup();
+    }
   }
 
   public static function activate()
   {
     flush_rewrite_rules();
-    self::schedule_tag_groups_cache_cleanup();
   }
 
   public static function deactivate()
@@ -62,6 +67,7 @@ class PassleSync
     if (!wp_next_scheduled(self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME)) {
       wp_schedule_event(time(), "hourly", self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME);
     }
+    add_action(self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME, [static::class, "tag_groups_cache_cleanup"]);
   }
 
   public static function tag_groups_cache_cleanup() 
