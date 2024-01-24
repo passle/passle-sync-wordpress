@@ -19,6 +19,8 @@ class PostHandler extends SyncHandlerBase
 
   protected static function map_data(array $data, int $entity_id)
   {
+    $tags = static::match_tags($data["TagMappings"]);
+
     $postarr = [
       "ID" => $entity_id,
       "post_title" => $data["PostTitle"],
@@ -29,7 +31,7 @@ class PostHandler extends SyncHandlerBase
       "post_excerpt" => $data["ContentTextSnippet"],
       "post_status" => "publish",
       "comment_status" => "closed",
-      "tags_input" => $data["Tags"],
+      "tags_input" => $tags,
       "meta_input" => [
         "post_shortcode" => $data["PostShortcode"],
         "passle_shortcode" => $data["PassleShortcode"],
@@ -45,7 +47,7 @@ class PostHandler extends SyncHandlerBase
         "post_total_likes" => $data["TotalLikes"],
         "post_is_repost" => $data["IsRepost"],
         "post_estimated_read_time" => $data["EstimatedReadTimeInSeconds"],
-        "post_tags" => $data["Tags"],
+        "post_tags" => $tags,
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
         "post_featured_item_position" => $data["FeaturedItemPosition"],
@@ -101,5 +103,35 @@ class PostHandler extends SyncHandlerBase
       "tweet_id" => $tweet["TweetId"],
       "screen_name" => $tweet["ScreenName"],
     ], $tweets);
+  }
+  public static function match_tags(array $tag_mappings)
+  {
+    $tags_to_return = [];
+    $wp_tags = get_tags(array('hide_empty' => false));
+    $wp_tags_array = wp_list_pluck($wp_tags, 'name');
+
+    foreach ($tag_mappings as $tag_mapping) {
+      $tag = $tag_mapping['Tag'];
+
+      $index = array_search($tag, $wp_tags_array);
+      if ($index !== false) {
+        array_push($tags_to_return, $wp_tags_array[$index]);
+        continue;
+      }
+
+      $alias_array = $tag_mapping['Aliases'];
+
+      if ($alias_array !== null) {
+        foreach ($alias_array as $alias) {
+          $index = array_search($alias, $wp_tags_array);
+          if ($index !== false) {
+            array_push($tags_to_return, $alias);
+            continue 2;
+          }
+        }
+      }
+      array_push($tags_to_return, $tag_mapping["Tag"]);
+    }
+    return array_unique($tags_to_return);
   }
 }
