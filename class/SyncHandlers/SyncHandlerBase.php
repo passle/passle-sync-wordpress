@@ -144,7 +144,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     // Set post taxonomy terms based on tags
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
-        $taxonomies = get_object_taxonomies(PASSLESYNC_POST_TYPE);
+        $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
         foreach ($taxonomies as $taxonomy) {
             foreach($postarr_arrays["post_tag_group_tags"] as $tag) {
                 $term = get_term_by("name", $tag, $taxonomy);
