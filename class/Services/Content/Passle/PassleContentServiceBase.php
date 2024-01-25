@@ -57,7 +57,9 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
   public static function fetch_all()
   {
-    $passle_shortcodes = OptionsService::get()->passle_shortcodes;
+    $options = OptionsService::get();
+
+    $passle_shortcodes = $options->passle_shortcodes;
 
     /** @var array[] $results */
     $results = array_map(fn ($passle_shortcode) => static::fetch_all_by_passle($passle_shortcode), $passle_shortcodes);
@@ -86,14 +88,23 @@ abstract class PassleContentServiceBase extends ResourceClassBase
   public static function fetch_all_by_passle(string $passle_shortcode)
   {
     $resource = static::get_resource_instance();
+    $options = OptionsService::get();
+
+    $path = "passlesync/{$resource->name_plural}";
+    
+    $parameters = array(
+      "PassleShortcode" => $passle_shortcode,
+      "ItemsPerPage" => "100"
+    );
+
+    if ($options->include_passle_tag_groups) {
+        $parameters["IncludeTagGroups"] = "true";
+    }
 
     $url = (new UrlFactory())
-      ->path("passlesync/{$resource->name_plural}")
-      ->parameters([
-        "PassleShortcode" => $passle_shortcode,
-        "ItemsPerPage" => "100"
-      ])
-      ->build();
+        ->path($path)
+        ->parameters($parameters)
+        ->build();
 
     $responses = static::get_all_paginated($url);
 
@@ -114,10 +125,15 @@ abstract class PassleContentServiceBase extends ResourceClassBase
   public static function fetch_multiple_by_shortcode(array $entity_shortcodes)
   {
     $resource = static::get_resource_instance();
+    $options = OptionsService::get();
 
     $params = [
       $resource->get_api_parameter_shortcode_name() => join(",", $entity_shortcodes)
     ];
+
+    if ($options->include_passle_tag_groups) {
+        $params["IncludeTagGroups"] = "true";
+    }
 
     $factory = new UrlFactory();
     $url = $factory

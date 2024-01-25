@@ -3,7 +3,7 @@
   Plugin Name: Passle Sync
   Plugin URI: https://github.com/passle/passle-sync-wordpress
   Description: This plugin will sync your Passle posts and authors into your WordPress instance.
-  Version: 1.2.1
+  Version: 2.0.0
   Author: Passle
   Author URI: https://www.passle.net
   License: MIT
@@ -26,3 +26,18 @@ require_once $passle_base_path . '/initialize.php';
 foreach (glob($passle_base_path . "/class/SyncHandlers/Handlers/*.php") as $filename) {
   require_once $filename;
 }
+
+require_once $passle_base_path . "/class/PassleSync.php";
+
+function plugin_activation() 
+{
+  Passle\PassleSync\PassleSync::activate();
+}
+
+function plugin_deactivation() 
+{
+  Passle\PassleSync\PassleSync::deactivate();
+}
+
+register_activation_hook(__FILE__, "plugin_activation");
+register_deactivation_hook(__FILE__, "plugin_deactivation");

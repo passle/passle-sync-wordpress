@@ -5,6 +5,8 @@ namespace Passle\PassleSync\SyncHandlers;
 use Passle\PassleSync\Models\Resources\PostResource;
 use Passle\PassleSync\SyncHandlers\SyncHandlerBase;
 use Passle\PassleSync\Utils\Utils;
+use Passle\PassleSync\Services\OptionsService;
+use Passle\PassleSync\Services\TaxonomyRegistryService;
 
 class PostHandler extends SyncHandlerBase
 {
@@ -17,6 +19,7 @@ class PostHandler extends SyncHandlerBase
 
   protected static function map_data(array $data, int $entity_id)
   {
+    $tags = static::map_tags_and_aliases($data["TagMappings"]);
     $postarr = [
       "ID" => $entity_id,
       "post_title" => $data["PostTitle"],
@@ -27,7 +30,7 @@ class PostHandler extends SyncHandlerBase
       "post_excerpt" => $data["ContentTextSnippet"],
       "post_status" => "publish",
       "comment_status" => "closed",
-      "tags_input" => $data["Tags"],
+      "tags_input" => $tags,
       "meta_input" => [
         "post_shortcode" => $data["PostShortcode"],
         "passle_shortcode" => $data["PassleShortcode"],
@@ -43,7 +46,8 @@ class PostHandler extends SyncHandlerBase
         "post_total_likes" => $data["TotalLikes"],
         "post_is_repost" => $data["IsRepost"],
         "post_estimated_read_time" => $data["EstimatedReadTimeInSeconds"],
-        "post_tags" => $data["Tags"],
+        "post_tags" => $tags,
+        "post_tag_group_tags" => $data["Tags"],
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
         "post_featured_item_position" => $data["FeaturedItemPosition"],
@@ -99,5 +103,44 @@ class PostHandler extends SyncHandlerBase
       "tweet_id" => $tweet["TweetId"],
       "screen_name" => $tweet["ScreenName"],
     ], $tweets);
+  }
+  public static function map_tags_and_aliases(array $tag_mappings)
+  {
+    $tags_to_return = array();
+
+    if (empty($tag_mappings)) {
+      return $tags_to_return;
+    }
+    
+    $wp_tags = get_tags(array('hide_empty' => false));
+    $wp_tag_names = wp_list_pluck($wp_tags, 'name');
+
+    foreach ($tag_mappings as $tag_mapping) {
+      $tag = $tag_mapping['Tag'];
+      $index = array_search($tag, $wp_tag_names);
+      
+      if ($index !== false) {
+        array_push($tags_to_return, $wp_tag_names[$index]);
+        continue;
+      }
+
+      $alias_array = $tag_mapping['Aliases'];
+      $tags_count = count($tags_to_return);
+
+      if ($alias_array !== null) {
+        foreach ($alias_array as $alias) {
+          $index = array_search($alias, $wp_tag_names);
+
+          if ($index !== false) {
+            array_push($tags_to_return, $alias);
+            continue;
+          }
+        }
+      }
+      if ($tags_count === count($tags_to_return)) {
+        array_push($tags_to_return, $tag_mapping["Tag"]);
+      }
+    }
+    return array_unique($tags_to_return);
   }
 }
