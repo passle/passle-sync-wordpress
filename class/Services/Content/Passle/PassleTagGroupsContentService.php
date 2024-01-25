@@ -33,7 +33,7 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
   {
     $options = OptionsService::get();
 
-	$passle_shortcodes = $options->passle_shortcodes;
+    $passle_shortcodes = $options->passle_shortcodes;
 
 	$results = array_map(fn ($passle_shortcode) => static::fetch_tag_groups_by_passle($passle_shortcode), $passle_shortcodes);
 

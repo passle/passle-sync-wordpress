@@ -40,7 +40,7 @@ class TemplateService
 
   private static function redirect_404() 
   {  
-	status_header(404);
+    status_header(404);
 
     include(get_404_template());
 
