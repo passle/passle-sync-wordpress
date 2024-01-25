@@ -19,6 +19,7 @@ class PostHandler extends SyncHandlerBase
 
   protected static function map_data(array $data, int $entity_id)
   {
+    // find tags which match in passle with existing wp-tags. 
     $tags = static::match_tags($data["TagMappings"]);
 
     $postarr = [
@@ -108,31 +109,45 @@ class PostHandler extends SyncHandlerBase
   public static function match_tags(array $tag_mappings)
   {
     $tags_to_return = [];
+    // get all of the wordpress tags (even the ones not currently used.)
     $wp_tags = get_tags(array('hide_empty' => false));
+    // get an array of the wp tag names. 
     $wp_tags_array = wp_list_pluck($wp_tags, 'name');
 
     foreach ($tag_mappings as $tag_mapping) {
+      // get the tag for each tag mapping
       $tag = $tag_mapping['Tag'];
 
+      // if the tag exists already in wp - add the existing wp tag to the returned array. 
       $index = array_search($tag, $wp_tags_array);
       if ($index !== false) {
         array_push($tags_to_return, $wp_tags_array[$index]);
         continue;
       }
-
+      // get the array of aliases from the tag mapping.
       $alias_array = $tag_mapping['Aliases'];
-
+      // get the count of all the tags to be returned.
+      $tags_count = count($tags_to_return);
+      // for each alias tag in the alias array, check if the tag exists in wp.
       if ($alias_array !== null) {
         foreach ($alias_array as $alias) {
           $index = array_search($alias, $wp_tags_array);
+
+          // if the tag exists in wordpress, push the wp-tag to the returned array.
           if ($index !== false) {
             array_push($tags_to_return, $alias);
-            continue 2;
+            // by only continuing the loop by one level, it allows for a tag with multiple aliases
+            // which each match with a wordpress tag to be included on the post. 
+            continue;
           }
         }
       }
-      array_push($tags_to_return, $tag_mapping["Tag"]);
+      // if not tags from the aliases have matched, default to inserting the passle tag to the returned array.
+      if ($tags_count === count($tags_to_return)) {
+        array_push($tags_to_return, $tag_mapping["Tag"]);
+      }
     }
+    // remove any duplicate tags from the array before returning. 
     return array_unique($tags_to_return);
   }
 }
