@@ -18,11 +18,12 @@ class TaxonomyRegistryService
 
     public static function create_taxonomies() 
     {
-        $tag_groups_response = PassleTagGroupsContentService::get_cache();
-        if (empty($tag_groups_response) || !isset($tag_groups_response[0]) || !isset($tag_groups_response[0]["TagGroups"])) {
+        $tag_groups = PassleTagGroupsContentService::get_cache();
+        
+        if (empty($tag_groups)) {
             return;
         }
-        $tag_groups = $tag_groups_response[0]["TagGroups"];
+
         foreach ($tag_groups as $tag_group) {
             if (!isset($tag_group["Name"])) {
                 continue;
