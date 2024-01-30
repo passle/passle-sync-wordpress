@@ -48,10 +48,38 @@ class Utils
   {
     return max($min, min($max, $number));
   }
-
+  
   static function clear_featured_posts()
   {
-    delete_metadata("post", 0, "post_is_featured_on_passle_page", "", true);
-    delete_metadata("post", 0, "post_is_featured_on_post_page", "", true);
+    $args = array(
+      'post_type'      => PASSLESYNC_POST_TYPE,
+      'post_status'    => 'publish',
+      'posts_per_page' => -1,
+      'meta_query'     => array(
+        'relation' => 'OR',
+        array(
+          'key'   => 'post_is_featured_on_passle_page',
+          'compare' => 'EXISTS',
+        ),
+        array(
+          'key'   => 'post_is_featured_on_post_page',
+          'compare' => 'EXISTS',
+        ),
+      ),
+    );
+
+    $posts = get_posts($args);
+ 
+    foreach ($posts as $post) {
+      $post_meta = get_post_meta($post->ID, '', true);
+
+      if (isset($post_meta["post_is_featured_on_passle_page"]) && $post_meta["post_is_featured_on_passle_page"]) {
+        delete_post_meta($post->ID, "post_is_featured_on_passle_page");
+      }
+
+      if (isset($post_meta["post_is_featured_on_post_page"]) && $post_meta["post_is_featured_on_post_page"]) {
+        delete_post_meta($post->ID, "post_is_featured_on_post_page");
+      } 
+    }
   }
 }
