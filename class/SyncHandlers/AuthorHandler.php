@@ -27,6 +27,8 @@ class AuthorHandler extends SyncHandlerBase
         "profile_url" => $data["ProfileUrl"],
         "subscribe_link" => $data["SubscribeLink"],
         "email_address" => $data["EmailAddress"],
+        "public_email_address" => $data["PublicEmailAddress"],
+        "primary_email_address" => $data["PrimaryEmailAddress"],
         "phone_number" => $data["PhoneNumber"],
         "linkedin_profile_link" => $data["LinkedInProfileLink"],
         "facebook_profile_link" => $data["FacebookProfileLink"],

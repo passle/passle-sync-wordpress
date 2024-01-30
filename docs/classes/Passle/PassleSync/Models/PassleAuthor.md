@@ -121,15 +121,27 @@ public string $description
 
 ### email_address
 
-The person's email address.
+The person's email address. Obsolete. Please use $public_email_address or $primary_email_address instead.
 
 ```php
 public string $email_address
 ```
 
+### public_email_address
 
+The person's email address set as public on their profile.
 
+```php
+public string $public_email_address
+```
 
+### primary_email_address
+
+The person's email address set as primary on their profile. Can be used as an identifier.
+
+```php
+public string $primary_email_address
+```
 
 
 ***

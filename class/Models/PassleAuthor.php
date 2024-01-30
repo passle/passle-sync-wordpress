@@ -24,8 +24,12 @@ class PassleAuthor
   public string $role;
   /** The profile description for this person. */
   public string $description;
-  /** The person's email address. */
+  /** The person's email address. Obsolete. Please use $public_email_address or $primary_email_address instead. */
   public string $email_address;
+  /** The person's email address set as public on their profile. */
+  public string $public_email_address;
+  /** The person's email address set as primary on their profile. Can be used as an identifier. */
+  public string $primary_email_address;
   /** The person's phone number. */
   public string $phone_number;
   /** The URL to the person's LinkedIn profile. */
@@ -107,6 +111,8 @@ class PassleAuthor
     $this->role = $this->wp_author->post_excerpt ?? "";
     $this->description = $this->wp_author->post_content ?? "";
     $this->email_address = $this->meta["email_address"][0] ?? "";
+    $this->public_email_address = $this->meta["public_email_address"][0] ?? "";
+    $this->primary_email_address = $this->meta["primary_email_address"][0] ?? "";
     $this->phone_number = $this->meta["phone_number"][0] ?? "";
     $this->linkedin_profile_link = $this->meta["linkedin_profile_link"][0] ?? "";
     $this->facebook_profile_link = $this->meta["facebook_profile_link"][0] ?? "";
@@ -149,6 +155,8 @@ class PassleAuthor
     $this->role = $this->post_author["role"] ?? "";
     $this->description = "";
     $this->email_address = "";
+    $this->public_email_address = "";
+    $this->primary_email_address = "";
     $this->phone_number = "";
     $this->linkedin_profile_link = "";
     $this->facebook_profile_link = "";
