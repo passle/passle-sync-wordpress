@@ -16,6 +16,7 @@ use Passle\PassleSync\Services\ThemeService;
 use Passle\PassleSync\Services\UpgradeService;
 
 use Passle\PassleSync\Services\Content\Passle\PassleTagGroupsContentService;
+use Passle\PassleSync\Services\Content\Passle\PasslePostsContentService;
 
 class PassleSync
 {
@@ -73,6 +74,8 @@ class PassleSync
   public static function tag_groups_cache_cleanup() 
   {
      PassleTagGroupsContentService::overwrite_cache(array());
+     // This needs to happen so next time posts sync their tag mappings are updated
+     PasslePostsContentService::overwrite_cache(array());
   }
 
   public static function unschedule_tag_groups_cache_cleanup()

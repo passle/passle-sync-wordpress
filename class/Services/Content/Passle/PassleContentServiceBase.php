@@ -23,14 +23,14 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     return $items;
   }
 
-  public static function overwite_cache(array $data)
+  public static function overwrite_cache(array $data)
   {
     $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
 
     $success = update_option($cache_storage_key, $data, false);
 
     if (!$success) {
-      error_log('Failed to overwrite cache: ' . $cache_storage_key);
+      error_log('Failed to overwrite cache: ' . $cache_storage_key . ' ' . get_last_error_message());
     }
   }
 
@@ -52,7 +52,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       }
     }
 
-    static::overwite_cache($existing_items);
+    static::overwrite_cache($existing_items);
   }
 
   public static function fetch_all()
@@ -77,10 +77,10 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       // Set the default sync state to unsynced
       array_walk($result, fn (&$i) => $i["SyncState"] = 0);
 
-      static::overwite_cache($result);
+      static::overwrite_cache($result);
       return $result;
     } else {
-      static::overwite_cache(array());
+      static::overwrite_cache(array());
       return array();
     }
   }
