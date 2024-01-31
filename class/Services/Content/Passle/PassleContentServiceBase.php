@@ -30,7 +30,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     $success = update_option($cache_storage_key, $data, false);
 
     if (!$success) {
-      error_log('Failed to overwrite cache: ' . $cache_storage_key . ' ' . get_last_error_message());
+      error_log('Failed to overwrite cache: ' . $cache_storage_key);
     }
   }
 
