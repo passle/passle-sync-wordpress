@@ -2,6 +2,7 @@
 
 namespace Passle\PassleSync\Services\Content\Passle;
 
+use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\Utils\UrlFactory;
 use Passle\PassleSync\Services\OptionsService;
 
@@ -38,7 +39,7 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
     $results = array_merge(...array_map(function ($passle_shortcode) { 
 	  $tag_groups = static::fetch_tag_groups_by_passle($passle_shortcode);
 	  $tag_mappings = static::fetch_tag_mappings_by_passle($passle_shortcode);
-	  $tag_groups_with_tag_aliases = static::create_tag_groups_with_tag_aliases($tag_groups["TagGroups"], $tag_mappings["TagMappings"]);
+	  $tag_groups_with_tag_aliases = static::create_tag_groups_with_tag_aliases($tag_groups, $tag_mappings);
 	  return $tag_groups_with_tag_aliases; 
 	}, $passle_shortcodes));
 
@@ -53,23 +54,40 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
     $url = (new UrlFactory())
       ->path($path)
 	  ->build();
-
-     return static::get($url);
+	 
+	$all_tag_groups = static::get($url);
+    
+     return $all_tag_groups["TagGroups"];
   }
 
   public static function fetch_tag_mappings_by_passle($passle_shortcode) {
-    $path = "tagmappings";
     
-	$parameters = array(
-      "PassleShortcode" => $passle_shortcode
-    );
+	$page_number = 1;
+	$page_size = 500;
+	$path = "tagmappings";
+   
+	 $all_tag_mappings = array();
+	 do {
+		
+		$parameters = array(
+		  "PassleShortcode" => $passle_shortcode,
+		  "PageNumber" => $page_number,
+		  "ItemsPerPage" => $page_size
+		);
 	
-    $url = (new UrlFactory())
-      ->path($path)
-	  ->parameters($parameters)
-	  ->build();
+		$url = (new UrlFactory())
+		  ->path($path)
+		  ->parameters($parameters)
+		  ->build();
+		 
+		$paged_tag_mappings = static::get($url);
+	    $all_tag_mappings = array_merge($all_tag_mappings, $paged_tag_mappings["TagMappings"]);
+		
+		$page_number++;
+	 }
+	 while(count($paged_tag_mappings["TagMappings"]) == $page_size);
 
-     return static::get($url);
+     return $all_tag_mappings;
   }
   
   public static function create_tag_groups_with_tag_aliases($tag_groups, $tag_mappings)
@@ -84,9 +102,8 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
 		return $tag_groups;
 	}
 	
-	$wp_tags = get_tags(array("hide_empty" => false));
-    $wp_tag_names = wp_list_pluck($wp_tags, "name");
-
+    $wp_tag_names = Utils::get_HTML_decoded_wp_tag_names();
+	
 	foreach($tags as $tag) {
 		
 		$tag_aliases = array_reduce($tag_mappings, function($carry, $tag_mapping) use ($tag) { 

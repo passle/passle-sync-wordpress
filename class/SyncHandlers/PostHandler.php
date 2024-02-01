@@ -112,8 +112,7 @@ class PostHandler extends SyncHandlerBase
       return $tags_to_return;
     }
     
-    $wp_tags = get_tags(array('hide_empty' => false));
-    $wp_tag_names = wp_list_pluck($wp_tags, 'name');
+    $wp_tag_names = Utils::get_HTML_decoded_wp_tag_names();
 
     foreach ($tag_mappings as $tag_mapping) {
       $tag = $tag_mapping['Tag'];

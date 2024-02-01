@@ -54,4 +54,10 @@ class Utils
     delete_metadata("post", 0, "post_is_featured_on_passle_page", "", true);
     delete_metadata("post", 0, "post_is_featured_on_post_page", "", true);
   }
+
+  static function get_HTML_decoded_wp_tag_names()
+  {
+    $wp_tags = get_tags(array('hide_empty' => false));
+    return array_map(function($wp_tag_name) { return htmlspecialchars_decode($wp_tag_name); } , wp_list_pluck($wp_tags, "name"));
+  }
 }
