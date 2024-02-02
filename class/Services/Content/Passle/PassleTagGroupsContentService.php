@@ -69,21 +69,21 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
 	 $all_tag_mappings = array();
 	 do {
 		
-		$parameters = array(
-		  "PassleShortcode" => $passle_shortcode,
-		  "PageNumber" => $page_number,
-		  "ItemsPerPage" => $page_size
-		);
-	
-		$url = (new UrlFactory())
-		  ->path($path)
-		  ->parameters($parameters)
-		  ->build();
+	   $parameters = array(
+	     "PassleShortcode" => $passle_shortcode,
+	     "PageNumber" => $page_number,
+	     "ItemsPerPage" => $page_size
+	   );
+	 
+	   $url = (new UrlFactory())
+	     ->path($path)
+	     ->parameters($parameters)
+	     ->build();
 		 
-		$paged_tag_mappings = static::get($url);
-	    $all_tag_mappings = array_merge($all_tag_mappings, $paged_tag_mappings["TagMappings"]);
+	   $paged_tag_mappings = static::get($url);
+	   $all_tag_mappings = array_merge($all_tag_mappings, $paged_tag_mappings["TagMappings"]);
 		
-		$page_number++;
+	   $page_number++;
 	 }
 	 while(count($paged_tag_mappings["TagMappings"]) == $page_size);
 
@@ -93,42 +93,42 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
   public static function create_tag_groups_with_tag_aliases($tag_groups, $tag_mappings)
   {
 	if ($tag_groups == null) {
-		return $tag_groups;
+	  return $tag_groups;
 	}
 	
 	$tags = array_merge(...array_map(function($tag_group) { return $tag_group["Tags"]; }, $tag_groups));	
 
 	if(empty($tags)) {
-		return $tag_groups;
+	  return $tag_groups;
 	}
 	
     $wp_tag_names = Utils::get_HTML_decoded_wp_tag_names();
 	
 	foreach($tags as $tag) {
 		
-		$tag_aliases = array_reduce($tag_mappings, function($carry, $tag_mapping) use ($tag) { 
-			if ($tag_mapping["Tag"] == $tag) {
-			   $carry = $tag_mapping["Aliases"];	
-			}
-			return $carry;
-		}, []);
+	  $tag_aliases = array_reduce($tag_mappings, function($carry, $tag_mapping) use ($tag) { 
+	    if ($tag_mapping["Tag"] == $tag) {
+	      $carry = $tag_mapping["Aliases"];	
+		}
+		return $carry;
+	  }, []);
 
-		if (!empty($tag_aliases) && count(array_intersect($tag_aliases, $wp_tag_names)) != 0) {		
+	  if (!empty($tag_aliases) && count(array_intersect($tag_aliases, $wp_tag_names)) != 0) {		
 		
-			$tag_groups_that_contain_tag = array_filter($tag_groups, function($tag_group) use ($tag) { 
-				return in_array($tag, $tag_group["Tags"]); 
-			});
+		$tag_groups_that_contain_tag = array_filter($tag_groups, function($tag_group) use ($tag) { 
+			return in_array($tag, $tag_group["Tags"]); 
+		});
 			
-			foreach($tag_groups as &$tag_group) {
-				$tag_index = array_search($tag, $tag_group["Tags"]);
-				if ($tag_index !== false) {
-					$modified_tags = array_map(function($tag_group_tag) use ($tag, $tag_aliases) { 
-						return $tag_group_tag === $tag ? $tag_aliases : [$tag_group_tag];
-					}, $tag_group["Tags"]);
-					$tag_group["Tags"] = array_unique(array_merge(...$modified_tags), SORT_STRING);
-				}				
-			}
-	    }
+		foreach($tag_groups as &$tag_group) {
+			$tag_index = array_search($tag, $tag_group["Tags"]);
+			if ($tag_index !== false) {
+				$modified_tags = array_map(function($tag_group_tag) use ($tag, $tag_aliases) { 
+					return $tag_group_tag === $tag ? $tag_aliases : [$tag_group_tag];
+				}, $tag_group["Tags"]);
+				$tag_group["Tags"] = array_unique(array_merge(...$modified_tags), SORT_STRING);
+			}				
+		}
+	  }
 	}
 
 	return $tag_groups;
