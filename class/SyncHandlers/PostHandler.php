@@ -47,7 +47,7 @@ class PostHandler extends SyncHandlerBase
         "post_is_repost" => $data["IsRepost"],
         "post_estimated_read_time" => $data["EstimatedReadTimeInSeconds"],
         "post_tags" => $tags,
-        "post_tag_group_tags" => $data["Tags"],
+        "post_tag_group_tags" => $tags,
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
         "post_featured_item_position" => $data["FeaturedItemPosition"],
@@ -112,8 +112,7 @@ class PostHandler extends SyncHandlerBase
       return $tags_to_return;
     }
     
-    $wp_tags = get_tags(array('hide_empty' => false));
-    $wp_tag_names = wp_list_pluck($wp_tags, 'name');
+    $wp_tag_names = Utils::get_HTML_decoded_wp_tag_names();
 
     foreach ($tag_mappings as $tag_mapping) {
       $tag = $tag_mapping['Tag'];
