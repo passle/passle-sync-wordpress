@@ -11,11 +11,14 @@ import { updateSettings } from "_Services/SyncService";
 const SyncSettings = () => {
   const { setLoading } = useContext(PassleDataContext);
   const [notice, setNotice] = useState<NoticeType>(null);
-
   const { options, setOptions } = useOptions();
 
-  const [passleApiKey, setPassleApiKey] = useState(options.passleApiKey);
-  const [pluginApiKey, setPluginApiKey] = useState(options.pluginApiKey);
+  const [passleApiKey, setPassleApiKey] = useState(
+      options.passleApiKey
+  );
+  const [pluginApiKey, setPluginApiKey] = useState(
+      options.pluginApiKey
+  );
   const [passleShortcodes, setPassleShortcodes] = useState(
     options.passleShortcodes,
   );
@@ -31,13 +34,20 @@ const SyncSettings = () => {
   const [simulateRemoteHosting, setSimulateRemoteHosting] = useState(
     options.simulateRemoteHosting,
   );
-  const [includePasslePostsOnHomePage, setIncludePasslePostsOnHomePage] =
-    useState(options.includePasslePostsOnHomePage);
-  const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] =
-    useState(options.includePasslePostsOnTagPage);
+  const [includePasslePostsOnHomePage, setIncludePasslePostsOnHomePage] = useState(
+    options.includePasslePostsOnHomePage
+  );
+  const [includePasslePostsOnTagPage, setIncludePasslePostsOnTagPage] = useState(
+    options.includePasslePostsOnTagPage
+  );
+  const [includePassleTagGroups, setIncludePassleTagGroups] = useState(
+    options.includePassleTagGroups
+  );
 
   const saveSettings = async (finishLoadingCallback: () => void) => {
     setLoading(true);
+
+    let includePassleTagGroupsInitialValue = options.includePassleTagGroups;
 
     try {
       const options = await updateSettings({
@@ -50,6 +60,7 @@ const SyncSettings = () => {
         simulateRemoteHosting,
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
+        includePassleTagGroups,
       });
 
       if (options) {
@@ -59,6 +70,12 @@ const SyncSettings = () => {
         });
 
         setOptions(options);
+
+        // We need to reload the page so the plugin re-initializes when this option changes
+        // and settings are subsequently saved
+        if (includePassleTagGroupsInitialValue != includePassleTagGroups) {
+          setTimeout(() => { window.location.reload(); }, 1000);
+        }
       } else {
         setNotice({
           content: "Failed to update settings.",
@@ -169,6 +186,12 @@ const SyncSettings = () => {
             description="Whether or not to include Passle posts in the WordPress query that generates the tag page."
             checked={includePasslePostsOnTagPage}
             onChange={(e) => setIncludePasslePostsOnTagPage(e.target.checked)}
+          />
+          <BoolSettingsInput
+            label="Include Passle tag groups"
+            description="Whether to create a custom taxonomy from tag groups defined in Passle. If checked, syncing will create taxonomy terms that correspond to tag groups and include set it on Passle posts based on the tags on each post."
+            checked={includePassleTagGroups}
+            onChange={(e) => setIncludePassleTagGroups(e.target.checked)}
           />
         </tbody>
       </table>
