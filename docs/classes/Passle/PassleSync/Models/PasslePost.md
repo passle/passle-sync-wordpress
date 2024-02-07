@@ -162,20 +162,6 @@ public ?array $share_views
 
 
 
-***
-
-### tweets
-
-A list of tweets that have been chosen to be shown alongside this post.
-
-```php
-public ?array $tweets
-```
-
-
-
-
-
 
 ***
 
