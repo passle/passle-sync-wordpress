@@ -42,12 +42,6 @@ class PasslePost
    * @var PassleShareViewsNetwork[]|null
    */
   public ?array $share_views;
-  /**
-   * A list of tweets that have been chosen to be shown alongside this post.
-   * @var PassleTweet[]
-   */
-  public ?array $tweets;
-  /** An integer showing how many times this post has been shared. */
   public int $total_shares;
   /** An integer showing how many times the post has been liked. */
   public int $total_likes;
@@ -135,7 +129,6 @@ class PasslePost
     }
 
     $this->initialize_share_views();
-    $this->initialize_tweets();
   }
 
   /**
@@ -302,17 +295,6 @@ class PasslePost
     $this->share_views = $this->map_share_views($share_views ?? []);
   }
 
-  private function initialize_tweets()
-  {
-    if (isset($this->meta)) {
-      $tweets = $this->meta["post_tweets"] ?? [];
-    } else {
-      $tweets = $this->passle_post["Tweets"] ?? [];
-    }
-
-    $this->tweets = $this->map_tweets($tweets);
-  }
-
   /*
    * Mapping methods
    */
@@ -353,15 +335,6 @@ class PasslePost
       return array_map(fn ($network) => new PassleShareViewsNetwork(unserialize($network)), $share_views);
     } else {
       return array_map(fn ($network) => new PassleShareViewsNetwork($network), PostHandler::map_share_views($share_views));
-    }
-  }
-
-  private function map_tweets(array $tweets)
-  {
-    if (isset($this->meta)) {
-      return array_map(fn ($tweet) => new PassleTweet(unserialize($tweet)), $tweets);
-    } else {
-      return array_map(fn ($tweet) => new PassleTweet($tweet), PostHandler::map_tweets($tweets));
     }
   }
 }
