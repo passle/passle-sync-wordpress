@@ -56,6 +56,8 @@ class PostHandler extends SyncHandlerBase
         "post_opens_in_new_tab" => $data["OpensInNewTab"],
         "post_quote_text" => $data["QuoteText"],
         "post_quote_url" => $data["QuoteUrl"],
+        "post_metadata_title" => $data["MetaData"]['Title'] ?? "",
+        "post_metadata_description" => $data["MetaData"]['Description'] ?? "",
       ],
     ];
 

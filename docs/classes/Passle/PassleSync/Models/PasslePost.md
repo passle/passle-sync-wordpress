@@ -420,6 +420,36 @@ public string $quote_url
 
 ***
 
+### metadata_title
+
+The metadata title of the original post.
+
+```php
+public string $metadata_title
+```
+
+
+
+
+
+
+***
+
+### metadata_description
+
+The metadata description of the original post.
+
+```php
+public string $metadata_description
+```
+
+
+
+
+
+
+***
+
 ## Methods
 
 
