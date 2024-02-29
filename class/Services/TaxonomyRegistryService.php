@@ -62,7 +62,7 @@ class TaxonomyRegistryService
             );
                 
             if (is_wp_error($term)) {
-              error_log("Error creating term: $term " . $term->get_error_message() . PHP_EOL); 
+              error_log("Error creating term " . $tag . ": " . $term->get_error_message() . PHP_EOL); 
             }
           }
         }
