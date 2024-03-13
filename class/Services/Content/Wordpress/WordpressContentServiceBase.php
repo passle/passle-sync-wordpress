@@ -12,6 +12,7 @@ abstract class WordpressContentServiceBase extends ResourceClassBase
 
     $query = [
       "numberposts" => -1,
+	  "post_status" => array('publish', 'future'),
       "post_type" => [$resource->get_post_type()],
     ];
 
