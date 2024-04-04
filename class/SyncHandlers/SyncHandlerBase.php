@@ -211,12 +211,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
     $max_pages = 1000; // Maximum number of pages to process
     
     while ($page_number <= $max_pages) {
+
         $next_url = call_user_func([$resource->passle_content_service_name, "get_next_url"], $url, $page_number);
-        
-        if ($next_url === null) {
-            break; // No more data to fetch
-        }
-        
         $response = call_user_func([$resource->passle_content_service_name, "get"], $next_url);
 
         // Validate the API response
