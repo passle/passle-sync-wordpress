@@ -216,14 +216,14 @@ abstract class SyncHandlerBase extends ResourceClassBase
         $response = call_user_func([$resource->passle_content_service_name, "get"], $next_url);
 
         // Validate the API response
-        if (!isset($response["Posts"])) {
+        if (!isset($response[ucfirst($resource->name_plural)])) {
             throw new Exception("Failed to get data from the API", 500);
         }
 
-        $response = $response["Posts"];
+        $response = $response[ucfirst($resource->name_plural)];
         
         if (empty($response)) {
-            break; // No more posts
+            break; // No more items
         }
 
         // Compare and process the items, update pending entities array
