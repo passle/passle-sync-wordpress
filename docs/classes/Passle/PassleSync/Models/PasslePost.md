@@ -162,20 +162,6 @@ public ?array $share_views
 
 
 
-***
-
-### tweets
-
-A list of tweets that have been chosen to be shown alongside this post.
-
-```php
-public ?array $tweets
-```
-
-
-
-
-
 
 ***
 
@@ -425,6 +411,36 @@ The URL for the post's quote.
 
 ```php
 public string $quote_url
+```
+
+
+
+
+
+
+***
+
+### metadata_title
+
+The metadata title of the original post.
+
+```php
+public string $metadata_title
+```
+
+
+
+
+
+
+***
+
+### metadata_description
+
+The metadata description of the original post.
+
+```php
+public string $metadata_description
 ```
 
 

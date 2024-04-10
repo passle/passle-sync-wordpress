@@ -41,7 +41,6 @@ class PostHandler extends SyncHandlerBase
         "post_coauthors" => static::map_authors($data["CoAuthors"]),
         "post_coauthors_shortcodes" => static::map_author_shortcodes($data["CoAuthors"]),
         "post_share_views" => static::map_share_views($data["ShareViews"]),
-        "post_tweets" => static::map_tweets($data["Tweets"]),
         "post_total_shares" => $data["TotalShares"],
         "post_total_likes" => $data["TotalLikes"],
         "post_is_repost" => $data["IsRepost"],
@@ -57,6 +56,8 @@ class PostHandler extends SyncHandlerBase
         "post_opens_in_new_tab" => $data["OpensInNewTab"],
         "post_quote_text" => $data["QuoteText"],
         "post_quote_url" => $data["QuoteUrl"],
+        "post_metadata_title" => $data["MetaData"]['Title'] ?? "",
+        "post_metadata_description" => $data["MetaData"]['Description'] ?? "",
       ],
     ];
 
@@ -96,14 +97,6 @@ class PostHandler extends SyncHandlerBase
     ], $share_views);
   }
 
-  public static function map_tweets(array $tweets)
-  {
-    return array_map(fn ($tweet) => [
-      "embed_code" => $tweet["EmbedCode"],
-      "tweet_id" => $tweet["TweetId"],
-      "screen_name" => $tweet["ScreenName"],
-    ], $tweets);
-  }
   public static function map_tags_and_aliases(array $tag_mappings)
   {
     $tags_to_return = array();

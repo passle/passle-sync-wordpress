@@ -42,12 +42,6 @@ class PasslePost
    * @var PassleShareViewsNetwork[]|null
    */
   public ?array $share_views;
-  /**
-   * A list of tweets that have been chosen to be shown alongside this post.
-   * @var PassleTweet[]
-   */
-  public ?array $tweets;
-  /** An integer showing how many times this post has been shared. */
   public int $total_shares;
   /** An integer showing how many times the post has been liked. */
   public int $total_likes;
@@ -84,6 +78,10 @@ class PasslePost
   public string $quote_text;
   /** The URL for the post's quote. */
   public string $quote_url;
+  /** The metadata title of the original post. */
+  public string $metadata_title;
+  /** The metadata description of the original post. */
+  public string $metadata_description;
 
   /* Options */
   private bool $load_authors;
@@ -135,7 +133,6 @@ class PasslePost
     }
 
     $this->initialize_share_views();
-    $this->initialize_tweets();
   }
 
   /**
@@ -200,6 +197,8 @@ class PasslePost
     $this->opens_in_new_tab = $this->meta["post_opens_in_new_tab"][0] ?? false;
     $this->quote_text = $this->meta["post_quote_text"][0] ?? "";
     $this->quote_url = $this->meta["post_quote_url"][0] ?? "";
+    $this->metadata_title = $this->meta["post_metadata_title"][0] ?? "";
+    $this->metadata_description = $this->meta["post_metadata_description"][0] ?? "";
   }
 
   /** @internal */
@@ -228,6 +227,8 @@ class PasslePost
     $this->opens_in_new_tab = $this->passle_post["OpensInNewTab"] ?? false;
     $this->quote_text = $this->passle_post["QuoteText"] ?? "";
     $this->quote_url = $this->passle_post["QuoteUrl"] ?? "";
+    $this->metadata_title = $this->passle_post["MetaData"]['Title'] ?? "";
+    $this->metadata_description = $this->passle_post["MetaData"]['Description'] ?? "";
   }
 
   /** @internal */
@@ -277,7 +278,7 @@ class PasslePost
   private function initialize_tags()
   {
     if (isset($this->meta)) {
-      $tags = $this->meta["post_tags"];
+      $tags = isset($this->meta["post_tags"]) ? $this->meta["post_tags"] : [];
       $wp_tags = get_the_tags();
     } else {
       $tags = $this->passle_post["Tags"];
@@ -294,23 +295,12 @@ class PasslePost
   private function initialize_share_views()
   {
     if (isset($this->meta)) {
-      $share_views = $this->meta["post_share_views"];
+      $share_views = isset($this->meta["post_share_views"]) ? $this->meta["post_share_views"] : [];
     } else {
       $share_views = $this->passle_post["ShareViews"] ?? [];
     }
 
     $this->share_views = $this->map_share_views($share_views ?? []);
-  }
-
-  private function initialize_tweets()
-  {
-    if (isset($this->meta)) {
-      $tweets = $this->meta["post_tweets"] ?? [];
-    } else {
-      $tweets = $this->passle_post["Tweets"] ?? [];
-    }
-
-    $this->tweets = $this->map_tweets($tweets);
   }
 
   /*
@@ -321,7 +311,11 @@ class PasslePost
   {
     if (isset($this->meta)) {
       $post_authors = array_map(fn ($author) => unserialize($author), $this->meta[$author_meta_key] ?? []);
-      $author_shortcodes = $this->meta[$shortcode_meta_key];
+      if (isset($this->meta[$shortcode_meta_key])) {
+        $author_shortcodes = $this->meta[$shortcode_meta_key];
+      } else {
+        $author_shortcodes = Utils::array_select($post_authors, "shortcode");
+      }
     } else {
       $post_authors = PostHandler::map_authors($this->passle_post[$author_post_key]);
       $author_shortcodes = Utils::array_select($post_authors, "shortcode");
@@ -353,15 +347,6 @@ class PasslePost
       return array_map(fn ($network) => new PassleShareViewsNetwork(unserialize($network)), $share_views);
     } else {
       return array_map(fn ($network) => new PassleShareViewsNetwork($network), PostHandler::map_share_views($share_views));
-    }
-  }
-
-  private function map_tweets(array $tweets)
-  {
-    if (isset($this->meta)) {
-      return array_map(fn ($tweet) => new PassleTweet(unserialize($tweet)), $tweets);
-    } else {
-      return array_map(fn ($tweet) => new PassleTweet($tweet), PostHandler::map_tweets($tweets));
     }
   }
 }

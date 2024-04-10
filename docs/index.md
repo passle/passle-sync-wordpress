@@ -22,7 +22,6 @@ This is an automatically generated documentation for **PassleSync**.
 | [`PasslePost`](./classes/Passle/PassleSync/Models/PasslePost.md) | This class provides a simple interface for accessing properties of<br />Passle posts that have been saved to the Wordpress database.|
 | [`PassleShareViewsNetwork`](./classes/Passle/PassleSync/Models/PassleShareViewsNetwork.md) | This class provides a simple interface for accessing properties of<br />Passle share view networks that have been saved to the Wordpress database.|
 | [`PassleTag`](./classes/Passle/PassleSync/Models/PassleTag.md) | This class provides a simple interface for accessing properties of<br />Passle tags that have been saved to the Wordpress database.|
-| [`PassleTweet`](./classes/Passle/PassleSync/Models/PassleTweet.md) | This class provides a simple interface for accessing properties of<br />Passle Tweets that have been saved to the Wordpress database.|
 
 
 

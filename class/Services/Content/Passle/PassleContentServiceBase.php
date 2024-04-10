@@ -174,7 +174,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     return $result;
   }
 
-  private static function get_next_url(string $url, int $page_number)
+  public static function get_next_url(string $url, int $page_number)
   {
     $parsed_url = wp_parse_url($url);
     wp_parse_str($parsed_url['query'], $query);
@@ -191,7 +191,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     return $next_url;
   }
 
-  protected static function get(string $url)
+  public static function get(string $url)
   {
     $options = OptionsService::get();
 

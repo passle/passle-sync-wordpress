@@ -2,8 +2,10 @@
 
 namespace Passle\PassleSync\SyncHandlers;
 
+use Exception;
 use Passle\PassleSync\Utils\ResourceClassBase;
 use Passle\PassleSync\Utils\Utils;
+use Passle\PassleSync\Utils\UrlFactory;
 use Passle\PassleSync\Services\OptionsService;
 
 abstract class SyncHandlerBase extends ResourceClassBase
@@ -15,14 +17,12 @@ abstract class SyncHandlerBase extends ResourceClassBase
     if (method_exists(static::class, "pre_sync_all_hook")) {
       call_user_func([static::class, "pre_sync_all_hook"]);
     }
-
+ 
     $resource = static::get_resource_instance();
 
     $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
 
-    $api_entities = call_user_func([$resource->passle_content_service_name, "get_cache"]);
-
-    static::compare_items($wp_entities, $api_entities);
+    static::batch_sync_all($wp_entities);
   }
 
   public static function sync_many(array $shortcodes)
@@ -79,23 +79,27 @@ abstract class SyncHandlerBase extends ResourceClassBase
     $meta_shortcode_name = "{$resource->name_singular}_shortcode";
 
     $passle_shortcodes = Utils::array_select($api_entities, $resource_shortcode_name);
-    $existing_shortcodes = array_map(fn ($item) => $item->{$meta_shortcode_name}, $wp_entities);
+    $existing_shortcodes = array_map(function ($item) use ($meta_shortcode_name) {
+      // post_shortcode can be an array. We need to return the string value
+      return is_array($item->{$meta_shortcode_name}) ? $item->{$meta_shortcode_name}[0] : $item->{$meta_shortcode_name};
+    }, $wp_entities);
     $all_shortcodes = array_unique(array_merge($passle_shortcodes, $existing_shortcodes));
 
-    $shortcodes_to_delete = array_filter($existing_shortcodes, fn ($shortcode) => !in_array($shortcode, $passle_shortcodes));
-    $shortcodes_to_sync = array_filter($all_shortcodes, fn ($shortcode) => !in_array($shortcode, $shortcodes_to_delete));
-
-    // Delete
-    $items_to_delete = array_filter($wp_entities, fn ($item) => in_array($item->{$meta_shortcode_name}, $shortcodes_to_delete));
-    foreach ($items_to_delete as $item) {
-      static::delete($item->ID);
-    }
+    // Items
+    $shortcodes_pending = array_filter($existing_shortcodes, fn ($shortcode) => !in_array($shortcode, $passle_shortcodes));
+    $shortcodes_to_sync = array_filter($all_shortcodes, fn ($shortcode) => !in_array($shortcode, $shortcodes_pending));
 
     // Add/update
     $items_to_sync = array_filter($api_entities, fn ($item) => in_array($item[$resource_shortcode_name], $shortcodes_to_sync));
     foreach ($items_to_sync as $item) {
       static::create_or_update($item);
     }
+
+    return array_filter($wp_entities, function ($item) use ($meta_shortcode_name, $shortcodes_pending) {
+      // post_shortcode can be an array. We need to use the string value to check if it is inside $shortcodes_pending
+      $shortcode = is_array($item->{$meta_shortcode_name}) ? $item->{$meta_shortcode_name}[0] : $item->{$meta_shortcode_name};
+      return in_array($shortcode, $shortcodes_pending);
+    });
   }
 
   protected static function delete(int $id)
@@ -144,15 +148,15 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     // Set post taxonomy terms based on tags
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
-        $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
-        foreach ($taxonomies as $taxonomy) {
-            foreach($postarr_arrays["post_tag_group_tags"] as $tag) {
-                $term = get_term_by("name", $tag, $taxonomy);
-                if($term != null && $term->name && $term->taxonomy) {
-                    wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
-                }
-            }
+      $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
+      foreach ($taxonomies as $taxonomy) {
+        foreach ($postarr_arrays["post_tag_group_tags"] as $tag) {
+          $term = get_term_by("name", $tag, $taxonomy);
+          if ($term != null && $term->name && $term->taxonomy) {
+            wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
+          }
         }
+      }
     }
     unset($postarr_arrays["post_tag_group_tags"]);
 
@@ -173,5 +177,66 @@ abstract class SyncHandlerBase extends ResourceClassBase
   protected static function extract_slug_from_url(string $url)
   {
     return basename($url);
+  }
+
+  protected static function batch_sync_all(array $wp_entities)
+  {
+    $passle_shortcodes = OptionsService::get()->passle_shortcodes;
+
+    foreach ($passle_shortcodes as &$passle_shortcode) {
+      static::sync_all_by_passle($passle_shortcode, $wp_entities);
+    }
+  }
+
+
+  public static function sync_all_by_passle(string $passle_shortcode, array $wp_entities)
+  {
+    $resource = static::get_resource_instance();
+
+    $url = (new UrlFactory())
+      ->path("passlesync/{$resource->name_plural}")
+      ->parameters([
+        "PassleShortcode" => $passle_shortcode,
+        "ItemsPerPage" => "100"
+      ])
+      ->build();
+
+    static::sync_all_paginated($url, 1, $wp_entities);
+  }
+
+
+  protected static function sync_all_paginated(string $url, int $page_number = 1, array $wp_entities)
+  {
+    $resource = static::get_resource_instance();
+    $max_pages = 1000; // Maximum number of pages to process
+    
+    while ($page_number <= $max_pages) {
+
+        $next_url = call_user_func([$resource->passle_content_service_name, "get_next_url"], $url, $page_number);
+        $response = call_user_func([$resource->passle_content_service_name, "get"], $next_url);
+
+        // Validate the API response
+        if (!isset($response[ucfirst($resource->name_plural)])) {
+            throw new Exception("Failed to get data from the API", 500);
+        }
+
+        $response = $response[ucfirst($resource->name_plural)];
+        
+        if (empty($response)) {
+            break; // No more items
+        }
+
+        // Compare and process the items, update pending entities array
+        $wp_entities = static::compare_items($wp_entities, $response);
+
+        $page_number += 1;
+    }
+
+    // Delete unused entities
+    foreach ($wp_entities as $item) {
+        static::delete($item->ID);
+    }
+
+    return;
   }
 }
