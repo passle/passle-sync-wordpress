@@ -7,6 +7,7 @@ use Passle\PassleSync\Utils\ResourceClassBase;
 use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\Utils\UrlFactory;
 use Passle\PassleSync\Services\OptionsService;
+use Passle\PassleSync\Actions\Resources\PeopleWebhookActions;
 
 abstract class SyncHandlerBase extends ResourceClassBase
 {
@@ -134,6 +135,9 @@ abstract class SyncHandlerBase extends ResourceClassBase
       return wp_insert_post($postarr, $wp_error, $fire_after_hooks);
     }
 
+    // check if any new authors need syncing. 
+    static::check_sync_of_authors($postarr);
+
     // Find the keys that are arrays, take them out of $postarr and store them in a temporary array
     $postarr_arrays = [];
 
@@ -238,5 +242,25 @@ abstract class SyncHandlerBase extends ResourceClassBase
     }
 
     return;
+  }
+
+  protected static function check_sync_of_authors($postarr)
+  {
+    if ($postarr["post_type"] === PASSLESYNC_POST_TYPE) {
+      $meta = $postarr["meta_input"];
+      $all_author_shortcodes_on_post = array_merge($meta["post_author_shortcodes"], $meta["post_coauthors_shortcodes"]);
+
+      $wp_author_posts = get_posts([
+        'post_type' => PASSLESYNC_AUTHOR_TYPE,
+      ]);
+
+      foreach ($all_author_shortcodes_on_post as $author_shortcode) {
+        $wp_post_by_author = wp_filter_object_list($wp_author_posts, array('post_name' => $all_author_shortcodes_on_post));
+
+        if (!$wp_post_by_author) {
+          PeopleWebhookActions::update($author_shortcode);
+        }
+      }
+    }
   }
 }
