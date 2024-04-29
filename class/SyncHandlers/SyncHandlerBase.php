@@ -135,7 +135,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
       return wp_insert_post($postarr, $wp_error, $fire_after_hooks);
     }
 
-    // check if any knew authors need syncing. 
+    // check if any new authors need syncing. 
     static::check_sync_of_authors($postarr);
 
     // Find the keys that are arrays, take them out of $postarr and store them in a temporary array
@@ -250,14 +250,14 @@ abstract class SyncHandlerBase extends ResourceClassBase
       $meta = $postarr["meta_input"];
       $all_author_shortcodes_on_post = array_merge($meta["post_author_shortcodes"], $meta["post_coauthors_shortcodes"]);
 
-      $author_profiles = get_posts([
+      $wp_author_posts = get_posts([
         'post_type' => PASSLESYNC_AUTHOR_TYPE,
       ]);
 
       foreach ($all_author_shortcodes_on_post as $author_shortcode) {
-        $author_post = wp_filter_object_list($author_profiles, array('post_name' => $all_author_shortcodes_on_post));
+        $wp_post_by_author = wp_filter_object_list($wp_author_posts, array('post_name' => $all_author_shortcodes_on_post));
 
-        if (!$author_post) {
+        if (!$wp_post_by_author) {
           PeopleWebhookActions::update($author_shortcode);
         }
       }
