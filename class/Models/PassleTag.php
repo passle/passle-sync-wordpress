@@ -14,14 +14,17 @@ class PassleTag
   public string $slug;
   /** The link to view posts associated with the tag. */
   public string $url;
+  /** The aliases associated with the tag. */
+  public ?array $aliases;
 
   private ?object $wp_tag;
 
   /** @internal */
-  public function __construct(string $name, ?object $wp_tag)
+  public function __construct(string $name, ?object $wp_tag, ?array $aliases = [])
   {
     $this->name = $name;
     $this->wp_tag = $wp_tag;
+    $this->aliases = $aliases;
     $this->initialize();
   }
 

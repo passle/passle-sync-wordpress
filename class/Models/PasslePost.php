@@ -337,7 +337,8 @@ class PasslePost
   {
     return array_map(function ($tag) use ($wp_tags) {
       $matching_wp_tag = Utils::array_first($wp_tags, fn ($wp_tag) => $wp_tag->name === $tag) ?: null;
-      return new PassleTag($tag, $matching_wp_tag);
+      $matching_wp_tag_aliases = ( $aliases = get_term_meta($matching_wp_tag->term_id, "aliases", true) ) !== false ? $aliases : array();
+      return new PassleTag($tag, $matching_wp_tag, $matching_wp_tag_aliases);
     }, $tags);
   }
 

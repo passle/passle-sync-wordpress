@@ -12,18 +12,24 @@ use Passle\PassleSync\Actions\Resources\PeopleWebhookActions;
 abstract class SyncHandlerBase extends ResourceClassBase
 {
   protected abstract static function map_data(array $data, int $entity_id);
+  
+  protected abstract static function pre_sync_all_hook();
+
+  protected abstract static function post_sync_all_hook();
+
+  protected abstract static function post_sync_one_hook(int $entity_id);
 
   public static function sync_all()
   {
-    if (method_exists(static::class, "pre_sync_all_hook")) {
-      call_user_func([static::class, "pre_sync_all_hook"]);
-    }
+    static::pre_sync_all_hook();
  
     $resource = static::get_resource_instance();
 
     $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
 
     static::batch_sync_all($wp_entities);
+
+    static::post_sync_all_hook();
   }
 
   public static function sync_many(array $shortcodes)
@@ -132,11 +138,10 @@ abstract class SyncHandlerBase extends ResourceClassBase
     $options = OptionsService::get();
 
     if (empty($postarr["meta_input"])) {
-      return wp_insert_post($postarr, $wp_error, $fire_after_hooks);
+      $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
+      static::post_sync_one_hook($post_id);
+      return $post_id;
     }
-
-    // check if any new authors need syncing. 
-    static::check_sync_of_authors($postarr);
 
     // Find the keys that are arrays, take them out of $postarr and store them in a temporary array
     $postarr_arrays = [];
@@ -149,6 +154,38 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     // Insert the post
     $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
+
+    // Create post tags with aliases in the default post_tag taxonomy
+    if (!empty($postarr_arrays["post_tags_with_aliases"])) {
+      foreach ($postarr_arrays["post_tags_with_aliases"] as $tag_data) {
+        foreach($tag_data as $tag_name => $tag_info){
+          $aliases = isset($tag_info['aliases']) ? $tag_info['aliases'] : array();
+          // Check if the tag already exists
+          $existing_term = get_term_by('name', $tag_name, 'post_tag');
+          if ($existing_term === false) {
+            // Skip this tag if its not meant to be added to the post
+            if (!in_array($tag_name, $postarr_arrays["post_tags"])) continue;
+            // If the tag doesn't exist, create it
+            $term = wp_insert_term($tag_name, 'post_tag');
+            // Check if the tag was created successfully
+            if (!is_wp_error($term)) {
+              // Add custom field (aliases) to the tag
+              if (!empty($aliases)) {
+                update_term_meta($term['term_id'], 'aliases', $aliases);
+              }
+            } else {
+              error_log('Error creating tag: ' . $term->get_error_message());
+            }
+          } else {
+            // If the tag already exists, update its custom field (aliases)
+            $term_id = $existing_term->term_id;
+            // Update custom field (aliases) for the existing tag
+            update_term_meta($term_id, 'aliases', $aliases);
+          }
+        }
+      }
+    }
+    unset($postarr_arrays["post_tags_with_aliases"]);
 
     // Set post taxonomy terms based on tags
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
@@ -174,6 +211,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
     }
 
     $postarr["ID"] = $post_id;
+
+    static::post_sync_one_hook($post_id);
 
     return $postarr;
   }
@@ -242,25 +281,5 @@ abstract class SyncHandlerBase extends ResourceClassBase
     }
 
     return;
-  }
-
-  protected static function check_sync_of_authors($postarr)
-  {
-    if ($postarr["post_type"] === PASSLESYNC_POST_TYPE) {
-      $meta = $postarr["meta_input"];
-      $all_author_shortcodes_on_post = array_merge($meta["post_author_shortcodes"], $meta["post_coauthors_shortcodes"]);
-
-      $wp_author_posts = get_posts([
-        'post_type' => PASSLESYNC_AUTHOR_TYPE,
-      ]);
-
-      foreach ($all_author_shortcodes_on_post as $author_shortcode) {
-        $wp_post_by_author = wp_filter_object_list($wp_author_posts, array('post_name' => $all_author_shortcodes_on_post));
-
-        if (!$wp_post_by_author) {
-          PeopleWebhookActions::update($author_shortcode);
-        }
-      }
-    }
   }
 }
