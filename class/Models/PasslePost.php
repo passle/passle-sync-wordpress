@@ -279,11 +279,11 @@ class PasslePost
   {
     if (isset($this->meta)) {
       $tags = isset($this->meta["post_tags"]) ? $this->meta["post_tags"] : [];
-      $wp_tags = get_the_tags();
     } else {
       $tags = $this->passle_post["Tags"];
-      $wp_tags = get_tags();
     }
+
+    $wp_tags = get_tags();
 
     if (!is_array($wp_tags)) {
       $wp_tags = [];
