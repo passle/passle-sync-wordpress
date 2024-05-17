@@ -129,7 +129,11 @@ class PasslePost
     }
 
     if ($this->load_tags) {
-      $this->initialize_tags();
+      $all_wp_tags = get_tags(array(
+        'hide_empty' => false,   // To include tags with no posts
+        'number' => PHP_INT_MAX, // To retrieve all tags
+      ));
+      $this->initialize_tags($all_wp_tags);
     }
 
     $this->initialize_share_views();
@@ -275,7 +279,7 @@ class PasslePost
     }
   }
 
-  private function initialize_tags()
+  private function initialize_tags(array $wp_tags)
   {
     if (isset($this->meta)) {
       $tags = isset($this->meta["post_tags"]) ? $this->meta["post_tags"] : [];
@@ -283,13 +287,7 @@ class PasslePost
       $tags = $this->passle_post["Tags"];
     }
 
-    $wp_tags = get_tags();
-
-    if (!is_array($wp_tags)) {
-      $wp_tags = [];
-    }
-
-    $this->tags = $this->map_tags($tags ?? [], $wp_tags ?? []);
+    $this->tags = $this->map_tags($tags ?? [], $wp_tags && is_array($wp_tags) ? $wp_tags : []);
   }
 
   private function initialize_share_views()
@@ -336,7 +334,7 @@ class PasslePost
   private function map_tags(array $tags, array $wp_tags)
   {
     return array_map(function ($tag) use ($wp_tags) {
-      $matching_wp_tag = Utils::array_first($wp_tags, fn ($wp_tag) => $wp_tag->name === $tag) ?: null;
+      $matching_wp_tag = Utils::array_first($wp_tags, fn ($wp_tag) => html_entity_decode($wp_tag->name) === html_entity_decode($tag)) ?: null;
       $matching_wp_tag_aliases = ( $aliases = get_term_meta($matching_wp_tag->term_id, "aliases", true) ) !== false ? $aliases : array();
       return new PassleTag($tag, $matching_wp_tag, $matching_wp_tag_aliases);
     }, $tags);
