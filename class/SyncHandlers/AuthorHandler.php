@@ -9,6 +9,19 @@ class AuthorHandler extends SyncHandlerBase
 {
   const RESOURCE = PersonResource::class;
 
+  protected static function pre_sync_all_hook()
+  { }
+
+  protected static function post_sync_all_hook()
+  { 
+    do_action("passle_author_sync_all_complete");
+  }
+
+  protected static function post_sync_one_hook(int $entity_id)
+  { 
+    do_action("passle_author_sync_one_complete", $entity_id);
+  }
+
   protected static function map_data(array $data, int $entity_id)
   {
     $postarr = [

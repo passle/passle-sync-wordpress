@@ -105,7 +105,7 @@ class PasslePost
    * }
    * @return void
    */
-  public function __construct($wp_post, array $options = [])
+  public function __construct($wp_post, array $options = array())
   {
     $options = wp_parse_args($options, [
       "load_authors" => true,
@@ -129,7 +129,11 @@ class PasslePost
     }
 
     if ($this->load_tags) {
-      $this->initialize_tags();
+      $all_wp_tags = get_tags(array(
+        'hide_empty' => false,   // To include tags with no posts
+        'number' => PHP_INT_MAX, // To retrieve all tags
+      ));
+      $this->initialize_tags($all_wp_tags);
     }
 
     $this->initialize_share_views();
@@ -275,32 +279,26 @@ class PasslePost
     }
   }
 
-  private function initialize_tags()
+  private function initialize_tags(array $wp_tags)
   {
     if (isset($this->meta)) {
-      $tags = isset($this->meta["post_tags"]) ? $this->meta["post_tags"] : [];
-      $wp_tags = get_the_tags();
+      $tags = isset($this->meta["post_tags"]) ? $this->meta["post_tags"] : array();
     } else {
       $tags = $this->passle_post["Tags"];
-      $wp_tags = get_tags();
     }
 
-    if (!is_array($wp_tags)) {
-      $wp_tags = [];
-    }
-
-    $this->tags = $this->map_tags($tags ?? [], $wp_tags ?? []);
+    $this->tags = $this->map_tags($tags ?? array(), $wp_tags && is_array($wp_tags) ? $wp_tags : array());
   }
 
   private function initialize_share_views()
   {
     if (isset($this->meta)) {
-      $share_views = isset($this->meta["post_share_views"]) ? $this->meta["post_share_views"] : [];
+      $share_views = isset($this->meta["post_share_views"]) ? $this->meta["post_share_views"] : array();
     } else {
-      $share_views = $this->passle_post["ShareViews"] ?? [];
+      $share_views = $this->passle_post["ShareViews"] ?? array();
     }
 
-    $this->share_views = $this->map_share_views($share_views ?? []);
+    $this->share_views = $this->map_share_views($share_views ?? array();
   }
 
   /*
@@ -328,7 +326,7 @@ class PasslePost
 
       $post_author = Utils::array_first($post_authors, fn ($post_author) => $post_author["shortcode"] === $author_shortcode);
       return $post_author;
-    }, $author_shortcodes ?? []);
+    }, $author_shortcodes ?? array());
 
     return array_map(fn ($author) => new PassleAuthor($author), $authors);
   }
@@ -336,8 +334,9 @@ class PasslePost
   private function map_tags(array $tags, array $wp_tags)
   {
     return array_map(function ($tag) use ($wp_tags) {
-      $matching_wp_tag = Utils::array_first($wp_tags, fn ($wp_tag) => $wp_tag->name === $tag) ?: null;
-      return new PassleTag($tag, $matching_wp_tag);
+      $matching_wp_tag = Utils::array_first($wp_tags, fn ($wp_tag) => html_entity_decode($wp_tag->name) === html_entity_decode($tag)) ?: null;
+      $matching_wp_tag_aliases = ( $aliases = get_term_meta($matching_wp_tag->term_id, "aliases", true) ) !== false ? $aliases : array();
+      return new PassleTag($tag, $matching_wp_tag, $matching_wp_tag_aliases);
     }, $tags);
   }
 

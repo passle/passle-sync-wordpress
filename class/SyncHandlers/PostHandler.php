@@ -17,9 +17,27 @@ class PostHandler extends SyncHandlerBase
     Utils::clear_featured_posts();
   }
 
+  protected static function post_sync_all_hook()
+  {
+      do_action("passle_post_sync_all_complete");
+  }
+
+  protected static function post_sync_one_hook(int $entity_id)
+  {
+     do_action("passle_post_sync_one_complete", $entity_id);
+  }
+
   protected static function map_data(array $data, int $entity_id)
   {
+    $tags_with_aliases = array();
     $tags = static::map_tags_and_aliases($data["TagMappings"]);
+    foreach($tags as $tag) {
+      foreach($data["TagMappings"] as $tag_mapping){
+        if($tag_mapping['Tag'] === $tag){
+          array_push($tags_with_aliases, array( $tag => array("aliases" => $tag_mapping["Aliases"])));
+        }
+      }
+    }
     $postarr = [
       "ID" => $entity_id,
       "post_title" => $data["PostTitle"],
@@ -46,6 +64,7 @@ class PostHandler extends SyncHandlerBase
         "post_is_repost" => $data["IsRepost"],
         "post_estimated_read_time" => $data["EstimatedReadTimeInSeconds"],
         "post_tags" => $tags,
+        "post_tags_with_aliases" => $tags_with_aliases,
         "post_tag_group_tags" => $tags,
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
