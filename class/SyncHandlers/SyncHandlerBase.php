@@ -7,7 +7,6 @@ use Passle\PassleSync\Utils\ResourceClassBase;
 use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\Utils\UrlFactory;
 use Passle\PassleSync\Services\OptionsService;
-use Passle\PassleSync\Actions\Resources\PeopleWebhookActions;
 
 abstract class SyncHandlerBase extends ResourceClassBase
 {
