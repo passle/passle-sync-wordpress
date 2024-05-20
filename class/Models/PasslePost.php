@@ -298,7 +298,7 @@ class PasslePost
       $share_views = $this->passle_post["ShareViews"] ?? array();
     }
 
-    $this->share_views = $this->map_share_views($share_views ?? array();
+    $this->share_views = $this->map_share_views($share_views ?? array());
   }
 
   /*
