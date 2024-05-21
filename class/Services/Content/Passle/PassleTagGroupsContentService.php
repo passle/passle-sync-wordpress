@@ -56,8 +56,10 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
 	  ->build();
 	 
 	$all_tag_groups = static::get($url);
-    
-     return $all_tag_groups["TagGroups"];
+    if (isset($all_tag_groups) && is_array($all_tag_groups) && isset($all_tag_groups["TagGroups"])) {
+	  return $all_tag_groups["TagGroups"];
+	}
+	return array();
   }
 
   public static function fetch_tag_mappings_by_passle($passle_shortcode) {
@@ -81,8 +83,13 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
 	     ->build();
 		 
 	   $paged_tag_mappings = static::get($url);
-	   $all_tag_mappings = array_merge($all_tag_mappings, $paged_tag_mappings["TagMappings"]);
-		
+	   if (isset($paged_tag_mappings) && is_array($paged_tag_mappings) && isset($paged_tag_mappings["TagMappings"])) {
+		$all_tag_mappings = array_merge($all_tag_mappings, $paged_tag_mappings["TagMappings"]);   
+	   }
+	   else {
+		break;   
+	   }
+	   
 	   $page_number++;
 	 }
 	 while(count($paged_tag_mappings["TagMappings"]) == $page_size);
