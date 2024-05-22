@@ -11,7 +11,7 @@ use Passle\PassleSync\Services\OptionsService;
 abstract class SyncHandlerBase extends ResourceClassBase
 {
   protected abstract static function map_data(array $data, int $entity_id);
-  
+
   protected abstract static function pre_sync_all_hook();
 
   protected abstract static function post_sync_all_hook();
@@ -137,7 +137,9 @@ abstract class SyncHandlerBase extends ResourceClassBase
     $options = OptionsService::get();
 
     if (empty($postarr["meta_input"])) {
+      remove_filter('content_save_pre', 'wp_filter_post_kses');
       $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
+      add_filter('content_save_pre', 'wp_filter_post_kses');
       static::post_sync_one_hook($post_id);
       return $post_id;
     }
@@ -151,8 +153,12 @@ abstract class SyncHandlerBase extends ResourceClassBase
       unset($postarr["meta_input"][$key]);
     }
 
+    // remove the post sanitizer filter before saving.
+    remove_filter('content_save_pre', 'wp_filter_post_kses');
     // Insert the post
     $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
+    // add the filter back after saving.
+    add_filter('content_save_pre', 'wp_filter_post_kses');
 
     // Create post tags with aliases in the default post_tag taxonomy
     if (!empty($postarr_arrays["post_tags_with_aliases"])) {
