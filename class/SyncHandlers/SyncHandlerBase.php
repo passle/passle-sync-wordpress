@@ -137,7 +137,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
     $options = OptionsService::get();
 
     if (empty($postarr["meta_input"])) {
-      $postarr = static::prevent_content_sanitization($postarr);
+      remove_filter('content_save_pre', 'wp_filter_post_kses');
       $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
       static::post_sync_one_hook($post_id);
       return $post_id;
@@ -152,9 +152,9 @@ abstract class SyncHandlerBase extends ResourceClassBase
       unset($postarr["meta_input"][$key]);
     }
 
-
+    // remove the post sanitizer filter before saving.
+    remove_filter('content_save_pre', 'wp_filter_post_kses');
     // Insert the post
-    $postarr = static::prevent_content_sanitization($postarr);
     $post_id = wp_insert_post($postarr, $wp_error, $fire_after_hooks);
 
     // Create post tags with aliases in the default post_tag taxonomy
@@ -285,12 +285,5 @@ abstract class SyncHandlerBase extends ResourceClassBase
     }
 
     return;
-  }
-
-  public static function prevent_content_sanitization($postarr)
-  {
-    // Remove the default content sanitization to allow hidden field tags
-    remove_filter('content_save_pre', 'wp_filter_post_kses');
-    return $postarr;
   }
 }
