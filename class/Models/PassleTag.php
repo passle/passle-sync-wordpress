@@ -20,7 +20,7 @@ class PassleTag
   private ?object $wp_tag;
 
   /** @internal */
-  public function __construct(string $name, ?object $wp_tag, ?array $aliases = [])
+  public function __construct(string $name, ?object $wp_tag, ?array $aliases = array())
   {
     $this->name = $name;
     $this->wp_tag = $wp_tag;

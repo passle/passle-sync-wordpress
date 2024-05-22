@@ -7,7 +7,6 @@ use Passle\PassleSync\Utils\ResourceClassBase;
 use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\Utils\UrlFactory;
 use Passle\PassleSync\Services\OptionsService;
-use Passle\PassleSync\Actions\Resources\PeopleWebhookActions;
 
 abstract class SyncHandlerBase extends ResourceClassBase
 {
@@ -194,6 +193,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
       $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
       foreach ($taxonomies as $taxonomy) {
+        // Remove all terms for the given taxonomy by setting terms to an empty array
+        wp_set_object_terms($post_id, array(), $taxonomy);
         foreach ($postarr_arrays["post_tag_group_tags"] as $tag) {
           $term = get_term_by("name", $tag, $taxonomy);
           if ($term != null && $term->name && $term->taxonomy) {
