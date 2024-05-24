@@ -96,6 +96,7 @@ class PostHandler extends SyncHandlerBase
     return array_map(fn ($author) => [
       "shortcode" => $author["Shortcode"],
       "name" => $author["Name"],
+      "primary_email_address" => $author["EmailAddress"],
       "image_url" => $author["ImageUrl"],
       "profile_url" => $author["ProfileUrl"],
       "role" => $author["Role"],
