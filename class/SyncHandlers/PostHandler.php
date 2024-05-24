@@ -4,6 +4,7 @@ namespace Passle\PassleSync\SyncHandlers;
 
 use Passle\PassleSync\Models\Resources\PostResource;
 use Passle\PassleSync\SyncHandlers\SyncHandlerBase;
+use Passle\PassleSync\SyncHandlers\AuthorHandler;
 use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\Services\OptionsService;
 use Passle\PassleSync\Services\TaxonomyRegistryService;
@@ -93,14 +94,35 @@ class PostHandler extends SyncHandlerBase
 
   public static function map_authors(array $authors)
   {
-    return array_map(fn ($author) => [
-      "shortcode" => $author["Shortcode"],
-      "name" => $author["Name"],
-      "image_url" => $author["ImageUrl"],
-      "profile_url" => $author["ProfileUrl"],
-      "role" => $author["Role"],
-      "twitter_screen_name" => $author["TwitterScreenName"],
-    ], $authors);
+    $wp_authors = get_posts([
+      "post_type" => PASSLESYNC_AUTHOR_TYPE,
+      "numberposts" => -1
+    ]);
+
+    $authors_to_sync = array();
+    $author_response_models = array_map(function ($author) use ($wp_authors, &$authors_to_sync) { 
+      
+      // trigger author syncronization if there is no Passle author with the given shortcode in WP
+      $author_from_wp = Utils::array_first($wp_authors, fn ($wp_author) => $wp_author->post_name === $author["Shortcode"]);
+      if (empty($author_from_wp) && !empty($author["Shortcode"])) {
+        array_push($authors_to_sync, $author["Shortcode"]);
+      }
+      
+      return [
+        "shortcode" => $author["Shortcode"],
+        "name" => $author["Name"],
+        "image_url" => $author["ImageUrl"],
+        "profile_url" => $author["ProfileUrl"],
+        "role" => $author["Role"],
+        "twitter_screen_name" => $author["TwitterScreenName"]
+      ];
+    }, $authors); 
+
+    if (!empty($authors_to_sync)) {
+      AuthorHandler::sync_many(array_unique($authors_to_sync));
+    }
+    
+    return $author_response_models;
   }
 
   public static function map_author_shortcodes(array $authors)
