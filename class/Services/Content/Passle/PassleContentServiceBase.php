@@ -140,10 +140,14 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       ->path("passlesync/{$resource->name_plural}")
       ->parameters($params)
       ->build();
-
+    
     $response = static::get($url);
-    $data = $response[ucfirst($resource->name_plural)];
-
+    if ($response) {
+      $data = $response[ucfirst($resource->name_plural)];
+    } else {
+      $data = array();
+    }
+    
     static::update_cache($data);
 
     return $data;
