@@ -10,6 +10,7 @@ import PostsTable from "_Components/Organisms/PostsTable/PostsTable";
 import PeopleTable from "_Components/Organisms/PeopleTable/PeopleTable";
 import HealthCheck from "_Components/Organisms/HealthCheck/HealthCheck";
 import { OptionsContextProvider } from "_Contexts/OptionsContext";
+import TagsTable from "_Components/Organisms/TagsTable/TagsTable";
 
 const App = () => {
   return (
@@ -46,6 +47,10 @@ const App = () => {
                             {
                               label: "Health Check",
                               Content: <HealthCheck />,
+                            },
+                            {
+                              label: "Tags",
+                              Content: <TagsTable />,
                             },
                           ]}
                         />
