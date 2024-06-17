@@ -48,7 +48,9 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
       if (!empty($data)) {
         static::create_or_update($data);
-      }
+      } else {
+        error_log('Error fetching data for shortcode: ' . $shortcode);
+      } 
     }
   }
 
