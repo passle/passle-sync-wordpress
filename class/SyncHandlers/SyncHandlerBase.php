@@ -35,10 +35,16 @@ abstract class SyncHandlerBase extends ResourceClassBase
   {
     $resource = static::get_resource_instance();
 
-    $api_entities = call_user_func([$resource->passle_content_service_name, "get_cache"]);
+    $cached_api_entities = call_user_func([$resource->passle_content_service_name, "get_cache"]);
 
     foreach ($shortcodes as $shortcode) {
-      $data = Utils::array_first($api_entities, fn ($entity) => $entity[$resource->get_shortcode_name()] === $shortcode);
+      $data = Utils::array_first($cached_api_entities, fn ($entity) => $entity[$resource->get_shortcode_name()] === $shortcode);
+      
+      // attempt to fetch something from the API if it doesn't exist in cache
+      if (empty($data)) {
+        $api_entities = call_user_func([$resource->passle_content_service_name, "fetch_by_shortcode"], $shortcode);
+        $data = Utils::array_first($api_entities, fn ($entity) => $entity[$resource->get_shortcode_name()] === $shortcode);
+      } 
 
       if (!empty($data)) {
         static::create_or_update($data);
