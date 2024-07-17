@@ -74,7 +74,7 @@ abstract class CptBase extends ResourceClassBase
     $post_permalink_template = static::get_permalink_template();
 
     // Escape special characters in the path
-    $regex = preg_quote($post_permalink_template);
+    $regex = preg_quote($post_permalink_template, "/");
 
     // Replace the template variable with a capture group to extract the shortcode
     // e.g. if we're trying to extract the post shortcode, we want to replace {{PostShortcode}} with (?<shortcode>[a-z0-9]+)
@@ -83,6 +83,10 @@ abstract class CptBase extends ResourceClassBase
     // Replace the remaining template variables with wildcards
     // e.g. {{PassleShortcode}} will be replaced with [a-z0-9\-]+
     $regex = preg_replace("/\\\\{\\\\{[a-z0-9]+\\\\}\\\\}/i", "[a-z0-9\\-]+", $regex, -1, $count);
+
+    // Ensure regex is properly formed and considers leading/trailing slashes
+    $regex = trim($regex, '/'); // Remove leading/trailing slashes to avoid double slashes
+    $regex = '^' . $regex . '/?$'; // Add start and optional end slash
 
     $query = "index.php?post_type={$resource->get_post_type()}&name=\$matches[1]";
 
