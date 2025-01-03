@@ -47,6 +47,12 @@ class Options implements JsonSerializable
     $this->site_url = get_site_url();
   }
 
+  // Added #[\ReturnTypeWillChange] attribute to decorate jsonSerialize method and suppress relevant warnings, 
+  // as an alternative to declaring the following method like : public function jsonSerialize(): mixed
+  // The reason is to maintain backwards compatibility as mixed is supported by PHP 8.1 and later.
+  // Might need to change in the future.
+
+  #[\ReturnTypeWillChange]
   public function jsonSerialize()
   {
     return [
