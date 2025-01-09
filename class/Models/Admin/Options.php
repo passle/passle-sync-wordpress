@@ -31,9 +31,7 @@ class Options implements JsonSerializable
     bool $simulate_remote_hosting,
     bool $include_passle_posts_on_home_page,
     bool $include_passle_posts_on_tag_page,
-    bool $include_passle_tag_groups,
-    string $domain_ext,
-    string $site_url
+    bool $include_passle_tag_groups
   ) {
     $this->passle_api_key = $passle_api_key;
     $this->plugin_api_key = $plugin_api_key;
@@ -45,10 +43,16 @@ class Options implements JsonSerializable
     $this->include_passle_posts_on_home_page = $include_passle_posts_on_home_page;
     $this->include_passle_posts_on_tag_page = $include_passle_posts_on_tag_page;
     $this->include_passle_tag_groups = $include_passle_tag_groups;
-    $this->domain_ext = $domain_ext;
-    $this->site_url = $site_url;
+    $this->domain_ext = PASSLESYNC_DOMAIN_EXT;
+    $this->site_url = get_site_url();
   }
 
+  // Added #[\ReturnTypeWillChange] attribute to decorate jsonSerialize method and suppress relevant warnings, 
+  // as an alternative to declaring the following method like : public function jsonSerialize(): mixed
+  // The reason is to maintain backwards compatibility as mixed is supported by PHP 8.1 and later.
+  // Might need to change in the future.
+
+  #[\ReturnTypeWillChange]
   public function jsonSerialize()
   {
     return [
