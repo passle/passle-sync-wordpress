@@ -43,6 +43,7 @@ class PassleSync
         self::schedule_tag_groups_cache_cleanup();
     } else {
         self::unschedule_tag_groups_cache_cleanup();
+        self::tag_groups_cache_cleanup();
     }
   }
 
