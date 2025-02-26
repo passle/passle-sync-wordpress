@@ -34,7 +34,7 @@ class SettingsController extends ControllerBase
       $params["includePasslePostsOnTagPage"],
       $params["includePassleTagGroups"],
       PASSLESYNC_DOMAIN_EXT,
-      get_site_url(),
+      home_url(),
     );
 
     if (!preg_match("/{{PostShortcode}}/", $options->post_permalink_template)) {
