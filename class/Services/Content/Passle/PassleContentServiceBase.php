@@ -205,7 +205,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
   {
     $options = OptionsService::get();
 
-    $site_url = get_site_url();
+    $site_url = home_url();
     $domain = preg_replace('/^https?:\/\//', '', $site_url);
     $use_https = strpos($site_url, 'https') === 0;
 

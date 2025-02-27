@@ -44,7 +44,7 @@ class Options implements JsonSerializable
     $this->include_passle_posts_on_tag_page = $include_passle_posts_on_tag_page;
     $this->include_passle_tag_groups = $include_passle_tag_groups;
     $this->domain_ext = PASSLESYNC_DOMAIN_EXT;
-    $this->site_url = get_site_url();
+    $this->site_url = home_url();
   }
 
   // Added #[\ReturnTypeWillChange] attribute to decorate jsonSerialize method and suppress relevant warnings, 
