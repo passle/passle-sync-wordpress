@@ -140,10 +140,16 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       ->path("passlesync/{$resource->name_plural}")
       ->parameters($params)
       ->build();
-    
+
     $response = static::get($url);
     if ($response) {
-      $data = $response[ucfirst($resource->name_plural)];
+      try {
+        $data = $response[ucfirst($resource->name_plural)];
+      }
+      catch(Error $e) {
+        error_log('Failed to parse response from the API ' . json_encode(['error' => $e->getMessage()]));
+        $data = array();
+      }
     } else {
       $data = array();
     }

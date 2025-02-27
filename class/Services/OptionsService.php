@@ -15,8 +15,18 @@ class OptionsService
   {
     $default_options = static::get_default_options();
     $saved_options = get_option(PASSLESYNC_OPTIONS_KEY);
+    $saved_options_to_ignore = ["domain_ext", "site_url"];
+    $saved_options_to_ignore_on_domain_change = ["passle_shortcodes", "passle_api_key"];
 
     foreach ($saved_options as $key => $value) {
+      if (in_array($key, $saved_options_to_ignore)) {
+        continue;
+      }
+      // Reset passle shortcodes and api key options when the domain extension changes
+      // between .localhost, .it and .net, as the saved ones won't apply anymore
+      if ($saved_options->domain_ext != $default_options->domain_ext && in_array($key, $saved_options_to_ignore_on_domain_change)) {
+        continue;
+      }
       $default_options->$key = $value;
     }
 
@@ -38,7 +48,7 @@ class OptionsService
 
   private static function get_default_options(): Options
   {
-    return new Options("", wp_generate_uuid4(), [], "p/{{PostShortcode}}/{{PostSlug}}", "u/{{PersonShortcode}}/{{PersonSlug}}", "", true, false, false, false, PASSLESYNC_DOMAIN_EXT, home_url());
+    return new Options("", wp_generate_uuid4(), [], "p/{{PostShortcode}}/{{PostSlug}}", "u/{{PersonShortcode}}/{{PersonSlug}}", "", true, false, false, false);
   }
 
   private static function get_resource_cpts()
