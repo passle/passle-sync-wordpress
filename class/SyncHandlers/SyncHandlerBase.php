@@ -269,7 +269,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
   }
 
 
-  protected static function sync_all_paginated(string $url, int $page_number = 1, array $wp_entities)
+  protected static function sync_all_paginated(string $url, int $page_number, array $wp_entities)
   {
     $resource = static::get_resource_instance();
     $max_pages = 1000; // Maximum number of pages to process
