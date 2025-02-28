@@ -72,6 +72,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
     foreach ($wp_entities as $entity) {
       static::delete($entity->ID);
     }
+
+    static::set_last_synced_page(1);
   }
 
   public static function delete_many(array $shortcodes)
