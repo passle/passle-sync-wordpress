@@ -51,6 +51,7 @@ const SyncSettings = () => {
     setLoading(true);
 
     let includePassleTagGroupsInitialValue = options.includePassleTagGroups;
+    let passleTagGroupsCanUseExistingTaxonomyInitialValue = options.passleTagGroupsCanUseExistingTaxonomy;
 
     try {
       const options = await updateSettings({
@@ -74,10 +75,11 @@ const SyncSettings = () => {
         });
 
         setOptions(options);
-
+        
         // We need to reload the page so the plugin re-initializes when this option changes
         // and settings are subsequently saved
-        if (includePassleTagGroupsInitialValue != includePassleTagGroups) {
+        if (includePassleTagGroupsInitialValue != includePassleTagGroups || 
+           passleTagGroupsCanUseExistingTaxonomyInitialValue != passleTagGroupsCanUseExistingTaxonomy) {
           setTimeout(() => { window.location.reload(); }, 1000);
         }
       } else {

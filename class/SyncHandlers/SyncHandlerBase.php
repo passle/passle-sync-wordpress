@@ -208,18 +208,17 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     // Set post taxonomy terms based on tags
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
-      if ($options->passle_tag_groups_can_use_existing_taxonomy) {
-        $taxonomies = get_taxonomies(array("public" => true, "_builtin" => false));
-      } else {
-        $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
-      }
+      $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
       foreach ($taxonomies as $taxonomy) {
         // Remove all terms for the given taxonomy by setting terms to an empty array
         wp_set_object_terms($post_id, array(), $taxonomy);
         foreach ($postarr_arrays["post_tag_group_tags"] as $tag) {
           $term = get_term_by("name", $tag, $taxonomy);
           if ($term != null && $term->name && $term->taxonomy) {
-            wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
+            $result = wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
+            if (is_wp_error($result)) {
+              error_log("Failed to assign term " .$term->name. " to taxonomy " .$taxonomy. " on post ID: " .$post_id. ". " .$result->get_error_message());
+            }
           }
         }
       }
