@@ -202,7 +202,11 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     // Set post taxonomy terms based on tags
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
-      $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
+      if ($options->passle_tag_groups_can_use_existing_taxonomy) {
+        $taxonomies = get_taxonomies(array("public" => true, "_builtin" => false));
+      } else {
+        $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
+      }
       foreach ($taxonomies as $taxonomy) {
         // Remove all terms for the given taxonomy by setting terms to an empty array
         wp_set_object_terms($post_id, array(), $taxonomy);
