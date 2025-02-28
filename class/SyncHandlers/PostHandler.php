@@ -21,8 +21,7 @@ class PostHandler extends SyncHandlerBase
   protected static function post_sync_all_hook()
   {
     // Reset last synced page for posts
-    $resource = static::get_resource_instance();
-    update_option($resource->last_synced_page_option_name, 1);
+    static::set_last_synced_page(1);
     do_action("passle_post_sync_all_complete");
   }
 
