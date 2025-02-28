@@ -18,6 +18,10 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
   protected abstract static function post_sync_one_hook(int $entity_id);
 
+  protected abstract static function get_last_synced_page();
+
+  protected abstract static function set_last_synced_page(int $page_number);
+
   public static function sync_all()
   {
     static::pre_sync_all_hook();
@@ -68,6 +72,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
     foreach ($wp_entities as $entity) {
       static::delete($entity->ID);
     }
+
+    static::set_last_synced_page(1);
   }
 
   public static function delete_many(array $shortcodes)
@@ -267,11 +273,14 @@ abstract class SyncHandlerBase extends ResourceClassBase
   }
 
 
-  protected static function sync_all_paginated(string $url, int $page_number = 1, array $wp_entities)
+  protected static function sync_all_paginated(string $url, int $page_number, array $wp_entities)
   {
     $resource = static::get_resource_instance();
     $max_pages = 1000; // Maximum number of pages to process
     
+    // If sync all has been interrupted, last synced page will give us the last page of synced data before the interruption
+    $page_number = static::get_last_synced_page();
+
     while ($page_number <= $max_pages) {
 
         $next_url = call_user_func([$resource->passle_content_service_name, "get_next_url"], $url, $page_number);
@@ -289,14 +298,35 @@ abstract class SyncHandlerBase extends ResourceClassBase
         }
 
         // Compare and process the items, update pending entities array
-        $wp_entities = static::compare_items($wp_entities, $response);
+        $wp_entities_to_delete = static::compare_items($wp_entities, $response);
 
+        foreach ($wp_entities as $entity) {
+            if (in_array($entity, $wp_entities_to_delete, true)) {
+                // Only mark as pending deletion if it's in the remove list
+                update_post_meta($entity->ID, '_pending_deletion', true);
+            } else {
+                // If it's NOT in the remove list, unmark it (keep it)
+                delete_post_meta($entity->ID, '_pending_deletion');
+            }
+        }
+
+        static::set_last_synced_page($page_number);
         $page_number += 1;
     }
 
-    // Delete unused entities
-    foreach ($wp_entities as $item) {
-        static::delete($item->ID);
+    // Once sync has completed, reset the last synced page for the given resource to 1
+    static::set_last_synced_page(1);
+
+    // Get all unused entities
+    $wp_entities_to_delete = get_posts([
+        'meta_key'   => '_pending_deletion',
+        'meta_value' => true,
+        'posts_per_page' => -1, 
+    ]);
+
+    // Loop through the unused entities and delete them
+    foreach ($wp_entities_to_delete as $entity) {
+        static::delete($entity->ID);
     }
 
     return;

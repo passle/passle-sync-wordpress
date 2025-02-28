@@ -24,6 +24,7 @@ class PersonResource extends ResourceBase
   const SYNC_HANDLER_NAME = AuthorHandler::class;
   const ADMIN_MODEL_NAME = Person::class;
   const CPT_NAME = PasslePersonCpt::class;
+  const LAST_SYNCED_PAGE_OPTION_NAME = "last_synced_people_page";
 
   public function get_shortcode_name()
   {
