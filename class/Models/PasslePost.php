@@ -335,7 +335,9 @@ class PasslePost
   {
     return array_map(function ($tag) use ($wp_tags) {
       $matching_wp_tag = Utils::array_first($wp_tags, fn ($wp_tag) => html_entity_decode($wp_tag->name) === html_entity_decode($tag)) ?: null;
-      $matching_wp_tag_aliases = ( $aliases = get_term_meta($matching_wp_tag->term_id, "aliases", false) ) !== false ? $aliases : array();
+      $matching_wp_tag_aliases = (!empty($matching_wp_tag) && isset($matching_wp_tag->term_id)) 
+        ? ($aliases = get_term_meta($matching_wp_tag->term_id, "aliases", false)) !== false ? $aliases : array()
+        : array();
       return new PassleTag($tag, $matching_wp_tag, $matching_wp_tag_aliases);
     }, $tags);
   }

@@ -20,12 +20,26 @@ class PostHandler extends SyncHandlerBase
 
   protected static function post_sync_all_hook()
   {
-      do_action("passle_post_sync_all_complete");
+    do_action("passle_post_sync_all_complete");
   }
 
   protected static function post_sync_one_hook(int $entity_id)
   {
-     do_action("passle_post_sync_one_complete", $entity_id);
+    delete_post_meta($entity_id, '_pending_deletion');
+    do_action("passle_post_sync_one_complete", $entity_id);
+  }
+
+  protected static function get_last_synced_page()
+  {
+    $resource = static::get_resource_instance();
+    $last_synced_page = get_option($resource->last_synced_page_option_name);
+    return $last_synced_page !== false ? $last_synced_page : 1;
+  }
+
+  protected static function set_last_synced_page(int $page_number)
+  {
+    $resource = static::get_resource_instance();
+    update_option($resource->last_synced_page_option_name, $page_number);
   }
 
   protected static function map_data(array $data, int $entity_id)
