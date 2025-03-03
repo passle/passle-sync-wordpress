@@ -215,7 +215,10 @@ abstract class SyncHandlerBase extends ResourceClassBase
         foreach ($postarr_arrays["post_tag_group_tags"] as $tag) {
           $term = get_term_by("name", $tag, $taxonomy);
           if ($term != null && $term->name && $term->taxonomy) {
-            wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
+            $result = wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
+            if (is_wp_error($result)) {
+              error_log("Failed to assign term " .$term->name. " to taxonomy " .$taxonomy. " on post ID: " .$post_id. ". " .$result->get_error_message());
+            }
           }
         }
       }

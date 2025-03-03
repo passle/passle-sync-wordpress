@@ -3,12 +3,13 @@
 namespace Passle\PassleSync\Services;
 
 use Passle\PassleSync\Services\Content\Passle\PassleTagGroupsContentService;
+use Passle\PassleSync\Services\OptionsService;
 
 class TaxonomyRegistryService 
 {
     public static function init() 
     {
-        add_action('init', [static::class, "create_taxonomies"]);
+        add_action('init', [static::class, "create_taxonomies"], 20);
     }
 
     private static function get_taxonomy_slug($name) 
@@ -18,6 +19,7 @@ class TaxonomyRegistryService
 
     public static function create_taxonomies() 
     {
+      $options = OptionsService::get();
       $tag_groups = PassleTagGroupsContentService::get_cache();
         
       if (empty($tag_groups)) {
@@ -33,15 +35,19 @@ class TaxonomyRegistryService
         $name = $tag_group["Name"];
         $taxonomy_name = self::get_taxonomy_slug($name);
         
-        if ($name && !taxonomy_exists($name)) {
-          $args = array(
-            "hierarchical" => false,
-            "label" => $name,
-            "show_admin_column" => true,
-            "query_var" => true,
-            "rewrite" => array("slug" => $taxonomy_name)
-          );
-          register_taxonomy($taxonomy_name, array(PASSLESYNC_POST_TYPE), $args);
+        if ($name) {
+          if (!taxonomy_exists($name)) {
+             $args = array(
+              "hierarchical" => false,
+              "label" => $name,
+              "show_admin_column" => true,
+              "query_var" => true,
+              "rewrite" => array("slug" => $taxonomy_name)
+            );
+            register_taxonomy($taxonomy_name, array(PASSLESYNC_POST_TYPE), $args);
+          } else if ($options->passle_tag_groups_can_use_existing_taxonomy) {
+            register_taxonomy_for_object_type($taxonomy_name, PASSLESYNC_POST_TYPE);
+          }
         }
 
         if (!isset($tag_group["Tags"])) {
