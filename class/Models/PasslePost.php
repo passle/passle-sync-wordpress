@@ -192,7 +192,7 @@ class PasslePost
     $this->estimated_read_time_seconds = $this->meta["post_estimated_read_time"][0] ?? 0;
     $this->estimated_read_time_minutes = max(ceil($this->estimated_read_time_seconds / 60), 1) ?? 0;
     $this->image_url = $this->meta["post_image_url"][0] ?? "";
-    $this->featured_item_html = htmlspecialchars_decode($this->meta["post_featured_item_html"][0]) ?? "";
+    $this->featured_item_html = htmlspecialchars_decode($this->meta["post_featured_item_html"][0] ?? "", ENT_QUOTES) ?? "";
     $this->featured_item_position = $this->meta["post_featured_item_position"][0] ?? "";
     $this->featured_item_media_type = $this->meta["post_featured_item_media_type"][0] ?? "";
     $this->featured_item_embed_type = $this->meta["post_featured_item_embed_type"][0] ?? "";

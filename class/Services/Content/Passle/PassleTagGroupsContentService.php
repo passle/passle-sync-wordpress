@@ -48,7 +48,8 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
     return $results;
   }
 
-  public static function fetch_tag_groups_by_passle($passle_shortcode) {
+  public static function fetch_tag_groups_by_passle($passle_shortcode) 
+  {
     $path = "taggroups/$passle_shortcode";
   
     $url = (new UrlFactory())
@@ -62,8 +63,8 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
 	return array();
   }
 
-  public static function fetch_tag_mappings_by_passle($passle_shortcode) {
-    
+  public static function fetch_tag_mappings_by_passle($passle_shortcode) 
+  {
 	$page_number = 1;
 	$page_size = 500;
 	$path = "tagmappings";

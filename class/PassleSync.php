@@ -18,6 +18,7 @@ use Passle\PassleSync\Services\ResourceRegistryService;
 
 use Passle\PassleSync\Services\Content\Passle\PassleTagGroupsContentService;
 use Passle\PassleSync\Services\Content\Passle\PasslePostsContentService;
+use Passle\PassleSync\Services\Content\Passle\PasslePeopleContentService;
 
 class PassleSync
 {
@@ -39,11 +40,24 @@ class PassleSync
 
     $options = OptionsService::get();
 
+    /*
+    *  The following block will help with testing the plugin in various environments.
+    *  It's pointless & confusing to maintain some options in cache between staging/live builds.
+    */
+    if ($options->domain_ext != PASSLESYNC_DOMAIN_EXT) {
+        $options->passle_shortcodes = [];
+        $options->passle_api_key = "";
+        $options->include_passle_tag_groups = false;
+        OptionsService::set($options, false);
+        self::clear_all_caches();
+    }
+
     if ($options->include_passle_tag_groups) {
         TaxonomyRegistryService::init();
         self::schedule_tag_groups_cache_cleanup();
     } else {
         self::unschedule_tag_groups_cache_cleanup();
+        self::clear_tag_groups_cache();
     }
   }
 
@@ -57,6 +71,7 @@ class PassleSync
     flush_rewrite_rules();
     self::reset_entities_marked_for_deletion();
     self::reset_entities_last_synced_page();
+    self::clear_all_caches();
     self::unschedule_tag_groups_cache_cleanup();
   }
 
@@ -76,9 +91,7 @@ class PassleSync
 
   public static function tag_groups_cache_cleanup() 
   {
-    PassleTagGroupsContentService::overwrite_cache(array());
-    // This needs to happen so next time posts sync their tag mappings are updated
-    PasslePostsContentService::overwrite_cache(array());
+    static::clear_tag_groups_cache();
   }
 
   public static function unschedule_tag_groups_cache_cleanup()
@@ -109,6 +122,24 @@ class PassleSync
     foreach($resources as $resource) {
       update_option($resource->last_synced_page_option_name, 1);
     }
+  }
+
+  private static function clear_all_caches()
+  {
+    self::clear_tag_groups_cache();
+    self::clear_people_cache();
+  }
+
+  private static function clear_tag_groups_cache() 
+  { 
+    PassleTagGroupsContentService::overwrite_cache(array());
+    // PasslePostsContentService::overwrite_cache needs to happen so next time posts sync their tag mappings are updated
+    PasslePostsContentService::overwrite_cache(array());
+  }
+
+  private static function clear_people_cache() 
+  {
+    PasslePeopleContentService::overwrite_cache(array());
   }
 }
 
