@@ -14,6 +14,7 @@ use Passle\PassleSync\Services\RewriteService;
 use Passle\PassleSync\Services\TemplateService;
 use Passle\PassleSync\Services\ThemeService;
 use Passle\PassleSync\Services\UpgradeService;
+use Passle\PassleSync\Services\ResourceRegistryService;
 
 use Passle\PassleSync\Services\Content\Passle\PassleTagGroupsContentService;
 use Passle\PassleSync\Services\Content\Passle\PasslePostsContentService;
@@ -68,7 +69,9 @@ class PassleSync
   public static function deactivate()
   {
     flush_rewrite_rules();
-    self::clear_cached_data();
+    self::reset_entities_marked_for_deletion();
+    self::reset_entities_last_synced_page();
+    self::clear_all_caches();
     self::unschedule_tag_groups_cache_cleanup();
   }
 
@@ -90,7 +93,29 @@ class PassleSync
   {
     $timestamp = wp_next_scheduled(self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME);
     if ($timestamp) {
-        wp_unschedule_event($timestamp, self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME);
+      wp_unschedule_event($timestamp, self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME);
+    }
+  }
+
+  public static function reset_entities_marked_for_deletion() 
+  {
+    $wp_entities_to_delete = get_posts([
+      'meta_key'   => '_pending_deletion',
+      'meta_value' => true,
+      'posts_per_page' => -1, 
+    ]);
+
+    foreach ($wp_entities_to_delete as $entity) {
+      delete_post_meta($entity->ID, '_pending_deletion');
+    }
+  }
+
+  public static function reset_entities_last_synced_page()
+  {
+    $resources = ResourceRegistryService::get_all_instances();
+      
+    foreach($resources as $resource) {
+      update_option($resource->last_synced_page_option_name, 1);
     }
   }
 

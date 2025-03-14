@@ -24,4 +24,5 @@ class PostResource extends ResourceBase
   const SYNC_HANDLER_NAME = PostHandler::class;
   const ADMIN_MODEL_NAME = Post::class;
   const CPT_NAME = PasslePostCpt::class;
+  const LAST_SYNCED_PAGE_OPTION_NAME = "last_synced_posts_page";
 }

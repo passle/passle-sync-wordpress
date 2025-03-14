@@ -17,6 +17,7 @@ class ResourceBase
   const SYNC_HANDLER_NAME = "";
   const ADMIN_MODEL_NAME = "";
   const CPT_NAME = "";
+  const LAST_SYNCED_PAGE_OPTION_NAME = "";
 
   public string $name_singular;
   public string $name_plural;
@@ -29,6 +30,7 @@ class ResourceBase
   public string $sync_handler_name;
   public string $admin_model_name;
   public string $cpt_name;
+  public string $last_synced_page_option_name;
 
   final public function __construct()
   {
@@ -43,6 +45,7 @@ class ResourceBase
     if (self::WORDPRESS_CONTENT_SERVICE_NAME === static::WORDPRESS_CONTENT_SERVICE_NAME) throw new UnexpectedValueException("WORDPRESS_CONTENT_SERVICE_NAME const not implemented");
     if (self::ADMIN_MODEL_NAME === static::ADMIN_MODEL_NAME) throw new UnexpectedValueException("ADMIN_MODEL_NAME const not implemented");
     if (self::CPT_NAME === static::CPT_NAME) throw new UnexpectedValueException("CPT_NAME const not implemented");
+    if (self::LAST_SYNCED_PAGE_OPTION_NAME === static::LAST_SYNCED_PAGE_OPTION_NAME) throw new UnexpectedValueException("LAST_SYNCED_PAGE_OPTION_NAME const not implemented");
 
     $this->name_singular = static::NAME_SINGULAR;
     $this->name_plural = static::NAME_PLURAL;
@@ -55,6 +58,7 @@ class ResourceBase
     $this->sync_handler_name = static::SYNC_HANDLER_NAME;
     $this->admin_model_name = static::ADMIN_MODEL_NAME;
     $this->cpt_name = static::CPT_NAME;
+    $this->last_synced_page_option_name = static::LAST_SYNCED_PAGE_OPTION_NAME;
   }
 
   public function get_shortcode_name()
