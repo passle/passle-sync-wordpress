@@ -110,7 +110,7 @@ class PassleSync
       'posts_per_page' => -1, 
     ]);
 
-    foreach ($wp_entities as $entity) {
+    foreach ($wp_entities_to_delete as $entity) {
       delete_post_meta($entity->ID, '_pending_deletion');
     }
   }
