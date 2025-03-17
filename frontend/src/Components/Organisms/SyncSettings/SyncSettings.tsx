@@ -43,15 +43,11 @@ const SyncSettings = () => {
   const [includePassleTagGroups, setIncludePassleTagGroups] = useState(
     options.includePassleTagGroups
   );
-  const [passleTagGroupsCanUseExistingTaxonomy, setPassleTagGroupsCanUseExistingTaxonomy] = useState(
-    options.passleTagGroupsCanUseExistingTaxonomy
-  );
 
   const saveSettings = async (finishLoadingCallback: () => void) => {
     setLoading(true);
 
     let includePassleTagGroupsInitialValue = options.includePassleTagGroups;
-    let passleTagGroupsCanUseExistingTaxonomyInitialValue = options.passleTagGroupsCanUseExistingTaxonomy;
 
     try {
       const options = await updateSettings({
@@ -64,8 +60,7 @@ const SyncSettings = () => {
         simulateRemoteHosting,
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
-        includePassleTagGroups,
-        passleTagGroupsCanUseExistingTaxonomy
+        includePassleTagGroups
       });
 
       if (options) {
@@ -78,8 +73,7 @@ const SyncSettings = () => {
         
         // We need to reload the page so the plugin re-initializes when this option changes
         // and settings are subsequently saved
-        if (includePassleTagGroupsInitialValue != includePassleTagGroups || 
-           passleTagGroupsCanUseExistingTaxonomyInitialValue != passleTagGroupsCanUseExistingTaxonomy) {
+        if (includePassleTagGroupsInitialValue != includePassleTagGroups) {
           setTimeout(() => { window.location.reload(); }, 1000);
         }
       } else {
@@ -195,15 +189,9 @@ const SyncSettings = () => {
           />
           <BoolSettingsInput
             label="Include Passle tag groups"
-            description="Whether to create a custom taxonomy from tag groups defined in Passle. If checked, syncing will create taxonomy terms that correspond to tag groups and include set it on Passle posts based on the tags on each post."
+            description="Whether to create a custom taxonomy from tag groups defined in Passle. If checked, syncing will create taxonomy terms that correspond to tag groups and include set it on Passle posts based on the tags on each post. If you have existing taxonomies with the same name as tag groups defined in Passle, terms in them will be updated and these taxonomies will become available to Passle posts."
             checked={includePassleTagGroups}
             onChange={(e) => setIncludePassleTagGroups(e.target.checked)}
-          />
-          <BoolSettingsInput
-            label="Share existing taxonomies with Passle tag groups"
-            description="If a custom taxonomy with the same name as a tag group defined in Passle already exists, use terms from this taxonomy for Passle posts."
-            checked={passleTagGroupsCanUseExistingTaxonomy}
-            onChange={(e) => setPassleTagGroupsCanUseExistingTaxonomy(e.target.checked)}
           />
         </tbody>
       </table>

@@ -3,7 +3,6 @@
 namespace Passle\PassleSync\Services;
 
 use Passle\PassleSync\Services\Content\Passle\PassleTagGroupsContentService;
-use Passle\PassleSync\Services\OptionsService;
 
 class TaxonomyRegistryService 
 {
@@ -19,7 +18,6 @@ class TaxonomyRegistryService
 
     public static function create_taxonomies() 
     {
-      $options = OptionsService::get();
       $tag_groups = PassleTagGroupsContentService::get_cache();
         
       if (empty($tag_groups)) {
@@ -45,7 +43,7 @@ class TaxonomyRegistryService
               "rewrite" => array("slug" => $taxonomy_name)
             );
             register_taxonomy($taxonomy_name, array(PASSLESYNC_POST_TYPE), $args);
-          } else if ($options->passle_tag_groups_can_use_existing_taxonomy) {
+          } else {
             register_taxonomy_for_object_type($taxonomy_name, PASSLESYNC_POST_TYPE);
           }
         }

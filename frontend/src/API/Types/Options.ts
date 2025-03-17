@@ -9,6 +9,5 @@ export type Options = {
   includePasslePostsOnHomePage: boolean;
   includePasslePostsOnTagPage: boolean;
   includePassleTagGroups: boolean;
-  passleTagGroupsCanUseExistingTaxonomy: boolean;
   domainExt: string;
 };
