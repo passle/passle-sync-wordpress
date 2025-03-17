@@ -86,7 +86,12 @@ class PassleSync
     if (!wp_next_scheduled(self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME)) {
       wp_schedule_event(time(), "hourly", self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME);
     }
-    add_action(self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME, [static::class, "clear_tag_groups_cache"]);
+    add_action(self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME, [static::class, "tag_groups_cache_cleanup"]);
+  }
+
+  public static function tag_groups_cache_cleanup() 
+  {
+    static::clear_tag_groups_cache();
   }
 
   public static function unschedule_tag_groups_cache_cleanup()

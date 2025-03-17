@@ -60,7 +60,7 @@ const SyncSettings = () => {
         simulateRemoteHosting,
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
-        includePassleTagGroups,
+        includePassleTagGroups
       });
 
       if (options) {
@@ -70,7 +70,7 @@ const SyncSettings = () => {
         });
 
         setOptions(options);
-
+        
         // We need to reload the page so the plugin re-initializes when this option changes
         // and settings are subsequently saved
         if (includePassleTagGroupsInitialValue != includePassleTagGroups) {
@@ -189,7 +189,7 @@ const SyncSettings = () => {
           />
           <BoolSettingsInput
             label="Include Passle tag groups"
-            description="Whether to create a custom taxonomy from tag groups defined in Passle. If checked, syncing will create taxonomy terms that correspond to tag groups and include set it on Passle posts based on the tags on each post."
+            description="Whether to create a custom taxonomy from tag groups defined in Passle. If checked, syncing will create taxonomy terms that correspond to tag groups and include set it on Passle posts based on the tags on each post. If you have existing taxonomies with the same name as tag groups defined in Passle, terms in them will be updated and these taxonomies will become available to Passle posts."
             checked={includePassleTagGroups}
             onChange={(e) => setIncludePassleTagGroups(e.target.checked)}
           />

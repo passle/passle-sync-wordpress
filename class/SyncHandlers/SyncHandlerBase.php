@@ -215,7 +215,10 @@ abstract class SyncHandlerBase extends ResourceClassBase
         foreach ($postarr_arrays["post_tag_group_tags"] as $tag) {
           $term = get_term_by("name", $tag, $taxonomy);
           if ($term != null && $term->name && $term->taxonomy) {
-            wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
+            $result = wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
+            if (is_wp_error($result)) {
+              error_log("Failed to assign term " .$term->name. " to taxonomy " .$taxonomy. " on post ID: " .$post_id. ". " .$result->get_error_message());
+            }
           }
         }
       }
@@ -274,8 +277,16 @@ abstract class SyncHandlerBase extends ResourceClassBase
     $resource = static::get_resource_instance();
     $max_pages = 1000; // Maximum number of pages to process
     
+    $last_synced_page = static::get_last_synced_page(); 
+
+    // This means that sync-ing has been kicked off elsewhere and the following while loop is still in progress, so return
+    if ($last_synced_page > 1) {
+        return;
+    }
+
     // If sync all has been interrupted, last synced page will give us the last page of synced data before the interruption
-    $page_number = static::get_last_synced_page();
+    $page_number = $last_synced_page;
+
 
     while ($page_number <= $max_pages) {
 
