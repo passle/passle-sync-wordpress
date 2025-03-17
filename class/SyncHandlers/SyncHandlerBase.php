@@ -277,8 +277,16 @@ abstract class SyncHandlerBase extends ResourceClassBase
     $resource = static::get_resource_instance();
     $max_pages = 1000; // Maximum number of pages to process
     
+    $last_synced_page = static::get_last_synced_page(); 
+
+    // This means that sync-ing has been kicked off elsewhere and the following while loop is still in progress, so return
+    if ($last_synced_page > 1) {
+        return;
+    }
+
     // If sync all has been interrupted, last synced page will give us the last page of synced data before the interruption
-    $page_number = static::get_last_synced_page();
+    $page_number = $last_synced_page;
+
 
     while ($page_number <= $max_pages) {
 
