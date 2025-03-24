@@ -23,10 +23,10 @@ class PostHandler extends SyncHandlerBase
     do_action("passle_post_sync_all_complete");
   }
 
-  protected static function post_sync_one_hook(int $entity_id)
+  protected static function post_sync_one_hook(int $entity_id, array $tag_groups = [])
   {
     delete_post_meta($entity_id, '_pending_deletion');
-    do_action("passle_post_sync_one_complete", $entity_id);
+    do_action("passle_post_sync_one_complete", $entity_id, $tag_groups);
   }
 
   protected static function get_last_synced_page()
