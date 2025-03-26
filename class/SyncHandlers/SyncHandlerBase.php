@@ -7,6 +7,7 @@ use Passle\PassleSync\Utils\ResourceClassBase;
 use Passle\PassleSync\Utils\Utils;
 use Passle\PassleSync\Utils\UrlFactory;
 use Passle\PassleSync\Services\OptionsService;
+use Passle\PassleSync\Actions\QueueJobAction;
 
 abstract class SyncHandlerBase extends ResourceClassBase
 {
@@ -25,12 +26,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
   public static function sync_all()
   {
     static::pre_sync_all_hook();
- 
-    $resource = static::get_resource_instance();
 
-    $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
-
-    static::batch_sync_all($wp_entities);
+    static::batch_sync_all();
 
     static::post_sync_all_hook();
   }
@@ -65,9 +62,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
   public static function delete_all()
   {
-    $resource = static::get_resource_instance();
-
-    $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
+    $wp_entities = static::get_wp_entities();
 
     foreach ($wp_entities as $entity) {
       static::delete($entity->ID);
@@ -78,9 +73,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
   public static function delete_many(array $shortcodes)
   {
-    $resource = static::get_resource_instance();
-
-    $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"], $shortcodes);
+    $wp_entities = static::get_wp_entities($shortcodes);
 
     foreach ($wp_entities as $entity) {
       static::delete($entity->ID);
@@ -90,6 +83,15 @@ abstract class SyncHandlerBase extends ResourceClassBase
   public static function delete_one(string $shortcode)
   {
     static::delete_many([$shortcode]);
+  }
+
+  private static function get_wp_entities(array $shortcodes = [])
+  {
+    $resource = static::get_resource_instance();
+
+    $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"], $shortcodes);
+
+    return $wp_entities;
   }
 
   private static function compare_items(array $wp_entities, array $api_entities)
@@ -246,17 +248,17 @@ abstract class SyncHandlerBase extends ResourceClassBase
     return basename($url);
   }
 
-  protected static function batch_sync_all(array $wp_entities)
+  protected static function batch_sync_all()
   {
     $passle_shortcodes = OptionsService::get()->passle_shortcodes;
 
     foreach ($passle_shortcodes as &$passle_shortcode) {
-      static::sync_all_by_passle($passle_shortcode, $wp_entities);
+      static::sync_all_by_passle($passle_shortcode);
     }
   }
 
 
-  public static function sync_all_by_passle(string $passle_shortcode, array $wp_entities)
+  public static function sync_all_by_passle(string $passle_shortcode)
   {
     $resource = static::get_resource_instance();
 
@@ -268,74 +270,90 @@ abstract class SyncHandlerBase extends ResourceClassBase
       ])
       ->build();
 
-    static::sync_all_paginated($url, 1, $wp_entities);
+    static::sync_all_paginated($url, 1);
   }
 
 
-  protected static function sync_all_paginated(string $url, int $page_number, array $wp_entities)
+  protected static function sync_all_paginated(string $url, int $page_number)
   {
     $resource = static::get_resource_instance();
-    $max_pages = 1000; // Maximum number of pages to process
-    
-    $last_synced_page = static::get_last_synced_page(); 
 
-    // This means that sync-ing has been kicked off elsewhere and the following while loop is still in progress, so return
-    if ($last_synced_page > 1) {
-        return;
-    }
+    $last_synced_page = static::get_last_synced_page(); 
+    error_log("last synced page: " . $last_synced_page);
 
     // If sync all has been interrupted, last synced page will give us the last page of synced data before the interruption
     $page_number = $last_synced_page;
 
+    $next_url = call_user_func([$resource->passle_content_service_name, "get_next_url"], $url, 1);
+    $response = call_user_func([$resource->passle_content_service_name, "get"], $url);
+    error_log("Is set in response: " .isset($response[ucfirst($resource->name_plural)]));
+    // Validate the API response
+    if (!isset($response[ucfirst($resource->name_plural)])) {
+      throw new Exception("Failed to get data from the API", 500);
+    }
 
+    $max_pages = ceil($response["TotalCount"]/$response["PageSize"]);
+    error_log("max pages: " . $max_pages);
     while ($page_number <= $max_pages) {
 
         $next_url = call_user_func([$resource->passle_content_service_name, "get_next_url"], $url, $page_number);
-        $response = call_user_func([$resource->passle_content_service_name, "get"], $next_url);
-
-        // Validate the API response
-        if (!isset($response[ucfirst($resource->name_plural)])) {
-            throw new Exception("Failed to get data from the API", 500);
-        }
-
-        $response = $response[ucfirst($resource->name_plural)];
         
-        if (empty($response)) {
-            break; // No more items
-        }
+        QueueJobAction::execute("passle_{$resource->name_plural}_sync_page", [$next_url, $page_number, $max_pages], $resource->get_schedule_group_name());
 
-        // Compare and process the items, update pending entities array
-        $wp_entities_to_delete = static::compare_items($wp_entities, $response);
-
-        foreach ($wp_entities as $entity) {
-            if (in_array($entity, $wp_entities_to_delete, true)) {
-                // Only mark as pending deletion if it's in the remove list
-                update_post_meta($entity->ID, '_pending_deletion', true);
-            } else {
-                // If it's NOT in the remove list, unmark it (keep it)
-                delete_post_meta($entity->ID, '_pending_deletion');
-            }
-        }
-
-        static::set_last_synced_page($page_number);
         $page_number += 1;
     }
 
-    // Once sync has completed, reset the last synced page for the given resource to 1
-    static::set_last_synced_page(1);
+    return;
+  }
 
-    // Get all unused entities
-    $wp_entities_to_delete = get_posts([
+  public static function sync_page(string $url, int $page_number, int $total_pages) {
+
+      $resource = static::get_resource_instance();
+
+      $response = call_user_func([$resource->passle_content_service_name, "get"], $url);
+
+      // Validate the API response
+      if (!isset($response[ucfirst($resource->name_plural)])) {
+        throw new Exception("Failed to get data from the API", 500);
+      }
+
+      $response = $response[ucfirst($resource->name_plural)];
+        
+      if (empty($response)) {
+        return; // No more items
+      }
+
+      $wp_entities = static::get_wp_entities();
+
+      // Compare and process the items, update pending entities array
+      $wp_entities_to_delete = static::compare_items($wp_entities, $response);
+
+      foreach ($wp_entities as $entity) {
+        if (in_array($entity, $wp_entities_to_delete, true)) {
+          // Only mark as pending deletion if it's in the remove list
+          update_post_meta($entity->ID, '_pending_deletion', true);
+        } else {
+          // If it's NOT in the remove list, unmark it (keep it)
+          delete_post_meta($entity->ID, '_pending_deletion');
+        }
+      }
+
+      if ($page_number < $total_pages) {
+        static::set_last_synced_page($page_number);
+      } else {
+        static::set_last_synced_page(1);
+      }
+
+      // Get all unused entities
+      $wp_entities_to_delete = get_posts([
         'meta_key'   => '_pending_deletion',
         'meta_value' => true,
         'posts_per_page' => -1, 
-    ]);
+      ]);
 
-    // Loop through the unused entities and delete them
-    foreach ($wp_entities_to_delete as $entity) {
+      // Loop through the unused entities and delete them
+      foreach ($wp_entities_to_delete as $entity) {
         static::delete($entity->ID);
-    }
-
-    return;
+      }
   }
 }
