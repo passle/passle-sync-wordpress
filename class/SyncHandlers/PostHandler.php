@@ -53,6 +53,19 @@ class PostHandler extends SyncHandlerBase
         }
       }
     }
+
+    $tag_groups = $data["TagGroups"];
+    $tag_groups_with_aliases = array();
+    foreach($tag_groups as $tag_group) {
+        $tag_group_name = $tag_group["Name"];
+        $tag_group_tags = static::map_tags_and_aliases($tag_group["TagMappings"]);
+        $tag_group_json = json_encode([
+          "Name" => $tag_group_name,
+          "Tags" => $tag_group_tags
+        ]);
+        $tag_groups_with_aliases[] = $tag_group_json != false ? $tag_group_json : json_encode(array());
+    }
+
     $postarr = [
       "ID" => $entity_id,
       "post_title" => $data["PostTitle"],
@@ -81,6 +94,7 @@ class PostHandler extends SyncHandlerBase
         "post_tags" => $tags,
         "post_tags_with_aliases" => $tags_with_aliases,
         "post_tag_group_tags" => $tags,
+        "post_tag_groups" => $tag_groups_with_aliases,
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
         "post_featured_item_position" => $data["FeaturedItemPosition"],

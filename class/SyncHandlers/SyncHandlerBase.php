@@ -143,6 +143,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
       $entity_id = $existing_entities[0]->ID;
     }
 
+
     $postarr = static::map_data($data, $entity_id);
 
     static::insert_post($postarr, true);
@@ -212,6 +213,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
       $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
       foreach ($taxonomies as $taxonomy) {
+        $tags = [];
         // Remove all terms for the given taxonomy by setting terms to an empty array
         wp_set_object_terms($post_id, array(), $taxonomy);
         foreach ($postarr_arrays["post_tag_group_tags"] as $tag) {
@@ -266,7 +268,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
       ->path("passlesync/{$resource->name_plural}")
       ->parameters([
         "PassleShortcode" => $passle_shortcode,
-        "ItemsPerPage" => "100"
+        "ItemsPerPage" => "100",
+        "IncludeTagGroups" => "true"
       ])
       ->build();
 
