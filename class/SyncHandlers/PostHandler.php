@@ -63,7 +63,7 @@ class PostHandler extends SyncHandlerBase
           "Name" => $tag_group_name,
           "Tags" => $tag_group_tags
         ]);
-        $tag_groups_with_aliases[] = $tag_group_json != false ? $tag_group_json_string : json_encode(array());
+        $tag_groups_with_aliases[] = $tag_group_json != false ? $tag_group_json : json_encode(array());
     }
 
     $postarr = [
