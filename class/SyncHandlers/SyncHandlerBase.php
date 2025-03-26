@@ -16,7 +16,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
   protected abstract static function post_sync_all_hook();
 
-  protected abstract static function post_sync_one_hook(int $entity_id, array $tag_groups = []);
+  protected abstract static function post_sync_one_hook(int $entity_id);
 
   protected abstract static function get_last_synced_page();
 
@@ -141,6 +141,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
       $entity_id = $existing_entities[0]->ID;
     }
 
+
     $postarr = static::map_data($data, $entity_id);
 
     static::insert_post($postarr, true);
@@ -207,7 +208,6 @@ abstract class SyncHandlerBase extends ResourceClassBase
     unset($postarr_arrays["post_tags_with_aliases"]);
 
     // Set post taxonomy terms based on tags
-    $tag_groups = [];
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
       $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
       foreach ($taxonomies as $taxonomy) {
@@ -220,17 +220,9 @@ abstract class SyncHandlerBase extends ResourceClassBase
             $result = wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
             if (is_wp_error($result)) {
               error_log("Failed to assign term " .$term->name. " to taxonomy " .$taxonomy. " on post ID: " .$post_id. ". " .$result->get_error_message());
-            } else {
-              $tags[] = html_entity_decode($term->name);
             }
           }
         }
-        $taxonomy_object = get_taxonomy($taxonomy);
-        $taxonomy_label = $taxonomy_object ? $taxonomy_object->label : $taxonomy; // fall back to slug
-        $tag_groups[] = [
-          "Name"=> $taxonomy_label,
-          "Tags"=> $tags
-        ];
       }
     }
     unset($postarr_arrays["post_tag_group_tags"]);
@@ -246,7 +238,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     $postarr["ID"] = $post_id;
 
-    static::post_sync_one_hook($post_id, $tag_groups);
+    static::post_sync_one_hook($post_id);
 
     return $postarr;
   }
@@ -274,7 +266,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
       ->path("passlesync/{$resource->name_plural}")
       ->parameters([
         "PassleShortcode" => $passle_shortcode,
-        "ItemsPerPage" => "100"
+        "ItemsPerPage" => "100",
+        "IncludeTagGroups" => "true"
       ])
       ->build();
 

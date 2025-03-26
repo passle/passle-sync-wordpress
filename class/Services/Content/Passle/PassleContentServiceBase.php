@@ -94,12 +94,9 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     
     $parameters = array(
       "PassleShortcode" => $passle_shortcode,
-      "ItemsPerPage" => "100"
+      "ItemsPerPage" => "100",
+      "IncludeTagGroups" => "true"
     );
-
-    if ($options->include_passle_tag_groups) {
-        $parameters["IncludeTagGroups"] = "true";
-    }
 
     $url = (new UrlFactory())
         ->path($path)
@@ -128,12 +125,9 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     $options = OptionsService::get();
 
     $params = [
-      $resource->get_api_parameter_shortcode_name() => join(",", $entity_shortcodes)
+      $resource->get_api_parameter_shortcode_name() => join(",", $entity_shortcodes),
+      "IncludeTagGroups" => "true"
     ];
-
-    if ($options->include_passle_tag_groups) {
-        $params["IncludeTagGroups"] = "true";
-    }
 
     $factory = new UrlFactory();
     $url = $factory

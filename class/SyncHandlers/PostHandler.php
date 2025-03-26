@@ -23,10 +23,10 @@ class PostHandler extends SyncHandlerBase
     do_action("passle_post_sync_all_complete");
   }
 
-  protected static function post_sync_one_hook(int $entity_id, array $tag_groups = [])
+  protected static function post_sync_one_hook(int $entity_id)
   {
     delete_post_meta($entity_id, '_pending_deletion');
-    do_action("passle_post_sync_one_complete", $entity_id, $tag_groups);
+    do_action("passle_post_sync_one_complete", $entity_id);
   }
 
   protected static function get_last_synced_page()
@@ -53,6 +53,19 @@ class PostHandler extends SyncHandlerBase
         }
       }
     }
+
+    $tag_groups = $data["TagGroups"];
+    $tag_groups_with_aliases = array();
+    foreach($tag_groups as $tag_group) {
+        $tag_group_name = $tag_group["Name"];
+        $tag_group_tags = static::map_tags_and_aliases($tag_group["TagMappings"]);
+        $tag_group_json = json_encode([
+          "Name" => $tag_group_name,
+          "Tags" => $tag_group_tags
+        ]);
+        $tag_groups_with_aliases[] = $tag_group_json != false ? $tag_group_json_string : json_encode(array());
+    }
+
     $postarr = [
       "ID" => $entity_id,
       "post_title" => $data["PostTitle"],
@@ -81,6 +94,7 @@ class PostHandler extends SyncHandlerBase
         "post_tags" => $tags,
         "post_tags_with_aliases" => $tags_with_aliases,
         "post_tag_group_tags" => $tags,
+        "post_tag_groups" => $tag_groups_with_aliases,
         "post_image_url" => $data["ImageUrl"],
         "post_featured_item_html" => $data["FeaturedItemHtml"],
         "post_featured_item_position" => $data["FeaturedItemPosition"],

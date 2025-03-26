@@ -52,7 +52,9 @@ class PasslePost
    * @var PassleTag[]|null
    */
   public ?array $tags;
-  /** A boolean value showing whether this post is a repost of an original post. */
+  /** A list of tag groups where post tags belong. */
+  public ?array $tag_groups;
+    /** A boolean value showing whether this post is a repost of an original post. */
   public bool $is_repost;
   /** An integer showing the estimated time to read the post, in seconds. */
   public int $estimated_read_time_seconds;
@@ -134,6 +136,7 @@ class PasslePost
         'number' => PHP_INT_MAX, // To retrieve all tags
       ));
       $this->initialize_tags($all_wp_tags);
+      $this->initialize_tag_groups($all_wp_tags);
     }
 
     $this->initialize_share_views();
@@ -188,6 +191,7 @@ class PasslePost
     $this->total_likes = $this->meta["post_total_likes"][0] ?? 0;
     $this->date = date_create($this->wp_post->post_date ?? "now");
     $this->tags = $this->meta["post_tags"] ?? [];
+    $this->tag_groups = $this->meta["post_tag_groups"] ?? [];
     $this->is_repost = $this->meta["post_is_repost"][0] ?? false;
     $this->estimated_read_time_seconds = $this->meta["post_estimated_read_time"][0] ?? 0;
     $this->estimated_read_time_minutes = max(ceil($this->estimated_read_time_seconds / 60), 1) ?? 0;
@@ -218,6 +222,7 @@ class PasslePost
     $this->total_likes = $this->passle_post["TotalLikes"] ?? 0;
     $this->date = $this->initialize_passle_date($this->passle_post["PublishedDate"] ?? "now");
     $this->tags = $this->passle_post["Tags"] ?? [];
+    $this->tag_groups = $this->passle_post["TagGroups"] ?? [];
     $this->is_repost = $this->passle_post["IsRepost"] ?? false;
     $this->estimated_read_time_seconds = $this->passle_post["EstimatedReadTimeSeconds"] ?? 0;
     $this->estimated_read_time_minutes = max(ceil($this->estimated_read_time_seconds / 60), 1) ?? 0;
@@ -288,6 +293,23 @@ class PasslePost
     }
 
     $this->tags = $this->map_tags($tags ?? array(), $wp_tags && is_array($wp_tags) ? $wp_tags : array());
+  }
+
+  private function initialize_tag_groups(array $wp_tags)
+  {
+    if (isset($this->meta)) {
+      $tag_groups = isset($this->meta["post_tag_groups"]) ? $this->meta["post_tag_groups"] : array();
+    } else {
+      $tag_groups = $this->passle_post["TagGroups"];
+    }
+
+    $this->tag_groups = array_map(function($tag_group) use ($wp_tags) {
+        $decoded_tag_group = json_decode($tag_group);
+        return [
+          "name" => $decoded_tag_group->Name,
+          "tags" => $this->map_tags($decoded_tag_group->Tags ?? array(), $wp_tags && is_array($wp_tags) ? $wp_tags : array())
+        ];
+    }, $tag_groups);
   }
 
   private function initialize_share_views()
