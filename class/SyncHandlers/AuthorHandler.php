@@ -17,7 +17,7 @@ class AuthorHandler extends SyncHandlerBase
     do_action("passle_author_sync_all_complete");
   }
 
-  protected static function post_sync_one_hook(int $entity_id, array $tag_groups = [])
+  protected static function post_sync_one_hook(int $entity_id)
   { 
     delete_post_meta($entity_id, '_pending_deletion');
     do_action("passle_author_sync_one_complete", $entity_id);
