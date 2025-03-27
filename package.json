@@ -1,7 +1,7 @@
 {
   "name": "passle-sync-wordpress",
   "description": "Passle Sync is a plugin for Wordpress which syncs your [Passle](https://home.passle.net/) posts and authors into your Wordpress instance.",
-  "version": "2.2.2",
+  "version": "2.3.0",
   "main": "index.js",
   "directories": {
     "doc": "docs"
