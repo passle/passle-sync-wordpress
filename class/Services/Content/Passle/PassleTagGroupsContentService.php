@@ -23,6 +23,13 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
 
   public static function overwrite_cache(array $data)
   {
+	// update_option will fail if we try to update it with the same value as it's current value
+    // so we check to suppress the error log in this case
+    $existing_value = get_option(self::TAG_GROUPS_CACHE_KEY, null);
+    if ($existing_value === $data) {
+      return;
+    }
+
     $success = update_option(self::TAG_GROUPS_CACHE_KEY, $data, false);
 
     if (!$success) {

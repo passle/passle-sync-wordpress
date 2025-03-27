@@ -27,6 +27,13 @@ abstract class PassleContentServiceBase extends ResourceClassBase
   {
     $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
 
+    // update_option will fail if we try to update it with the same value as it's current value
+    // so we check to suppress the error log in this case
+    $existing_value = get_option($cache_storage_key, array());
+    if ($existing_value === $data) {
+      return;
+    }
+
     $success = update_option($cache_storage_key, $data, false);
 
     if (!$success) {

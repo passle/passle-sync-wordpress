@@ -57,7 +57,6 @@ class PassleSync
         self::schedule_tag_groups_cache_cleanup();
     } else {
         self::unschedule_tag_groups_cache_cleanup();
-        self::clear_tag_groups_cache();
     }
   }
 
@@ -99,6 +98,7 @@ class PassleSync
     $timestamp = wp_next_scheduled(self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME);
     if ($timestamp) {
       wp_unschedule_event($timestamp, self::TAG_GROUPS_CACHE_CLEAN_EVENT_NAME);
+      self::clear_tag_groups_cache();
     }
   }
 
