@@ -30,17 +30,18 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
       return;
     }
 
-	// update_option will fail if we try to update it with the same value as it's current value
-    // so we check to suppress the error log in this case
-    $existing_items = static::get_cached_items($cache_storage_key);
-
-    if ($existing_items === $data) {
-      return;
-    }
-
 	$chunks = array_chunk($data, 50);
 
     foreach ($chunks as $index => $chunk) {
+
+	  // update_option will fail if we try to update it with the same value as it's current value
+      // so we check to suppress the error log in this case
+      $existing_items = get_option("{$cache_storage_key}_{$index}", false);
+
+      if ($existing_items === $chunk) {
+        continue;
+      }
+
       $success = update_option("{$cache_storage_key}_{$index}", $chunk, false);
       
       if (!$success) {
