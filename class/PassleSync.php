@@ -132,14 +132,14 @@ class PassleSync
 
   private static function clear_tag_groups_cache() 
   { 
-    PassleTagGroupsContentService::overwrite_cache(array());
+    PassleTagGroupsContentService::overwrite_cache(null);
     // PasslePostsContentService::overwrite_cache needs to happen so next time posts sync their tag mappings are updated
-    PasslePostsContentService::overwrite_cache(array());
+    PasslePostsContentService::overwrite_cache(null);
   }
 
   private static function clear_people_cache() 
   {
-    PasslePeopleContentService::overwrite_cache(array());
+    PasslePeopleContentService::overwrite_cache(null);
   }
 }
 

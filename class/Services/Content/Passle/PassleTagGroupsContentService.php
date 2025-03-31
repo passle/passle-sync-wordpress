@@ -12,7 +12,7 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
   
   public static function get_cache()
   {
-    $items = get_option(self::TAG_GROUPS_CACHE_KEY);
+    $items = static::get_cached_items(self::TAG_GROUPS_CACHE_KEY);
 
     if (gettype($items) != "array" || count($items) == 0 || reset($items) == null) {
       $items = self::fetch_tag_groups();
@@ -21,19 +21,31 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
     return $items;
   }
 
-  public static function overwrite_cache(array $data)
+  public static function overwrite_cache(?array $data)
   {
-	// update_option will fail if we try to update it with the same value as it's current value
-    // so we check to suppress the error log in this case
-    $existing_value = get_option(self::TAG_GROUPS_CACHE_KEY, null);
-    if ($existing_value === $data) {
+	$cache_storage_key = self::TAG_GROUPS_CACHE_KEY;
+
+	if ($data == null) {
+      static::clear_cached_items($cache_storage_key);
       return;
     }
 
-    $success = update_option(self::TAG_GROUPS_CACHE_KEY, $data, false);
+	// update_option will fail if we try to update it with the same value as it's current value
+    // so we check to suppress the error log in this case
+    $existing_items = static::get_cached_items($cache_storage_key);
 
-    if (!$success) {
-      error_log('Failed to overwrite cache: ' . self::TAG_GROUPS_CACHE_KEY);
+    if ($existing_items === $data) {
+      return;
+    }
+
+	$chunks = array_chunk($data, 50);
+
+    foreach ($chunks as $index => $chunk) {
+      $success = update_option("{$cache_storage_key}_{$index}", $chunk, false);
+      
+      if (!$success) {
+        error_log("Failed to overwrite cache: {$cache_storage_key}_{$index}");
+      }
     }
   }
 

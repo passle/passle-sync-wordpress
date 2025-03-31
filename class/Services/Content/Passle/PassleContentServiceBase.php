@@ -14,7 +14,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
   {
     $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
 
-    $items = get_option($cache_storage_key);
+    $items = static::get_cached_items($cache_storage_key);
 
     if (gettype($items) != "array" || count($items) == 0 || reset($items) == null) {
       $items = static::fetch_all();
@@ -23,28 +23,38 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     return $items;
   }
 
-  public static function overwrite_cache(array $data)
+  public static function overwrite_cache(?array $data)
   {
     $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
 
-    // update_option will fail if we try to update it with the same value as it's current value
-    // so we check to suppress the error log in this case
-    $existing_value = get_option($cache_storage_key, array());
-    if ($existing_value === $data) {
+    if ($data == null) {
+      static::clear_cached_items($cache_storage_key);
       return;
     }
 
-    $success = update_option($cache_storage_key, $data, false);
+    // update_option will fail if we try to update it with the same value as it's current value
+    // so we check to suppress the error log in this case
+    $existing_items = static::get_cached_items($cache_storage_key);
 
-    if (!$success) {
-      error_log('Failed to overwrite cache: ' . $cache_storage_key);
+    if ($existing_items === $data) {
+      return;
+    }
+
+    $chunks = array_chunk($data, 50);
+
+    foreach ($chunks as $index => $chunk) {
+      $success = update_option("{$cache_storage_key}_{$index}", $chunk, false);
+      
+      if (!$success) {
+        error_log("Failed to overwrite cache: {$cache_storage_key}_{$index}");
+      }
     }
   }
 
   public static function update_cache(array $data)
   {
     $shortcode_prop = static::get_resource_instance()->get_shortcode_name();
-    $existing_items = static::get_cache();
+    $existing_items = static::get_cached_items();
 
     foreach ($data as $item) {
       $exists = false;
@@ -233,5 +243,32 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     $data = json_decode($body, true);
 
     return $data;
+  }
+
+  public static function get_cached_items(string $cache_storage_key)
+  {
+    $items = array();
+    $index = 0;
+    while (($chunk = get_option("{$cache_storage_key}_{$index}", false)) !== false) {
+      if (!is_array($chunk)) {
+        break; // Prevents corruption if an unexpected value is encountered
+      }
+      $items = array_merge($items, $chunk);
+      $index++;
+    }
+
+    return $items;
+  }
+
+  public static function clear_cached_items(string $cache_storage_key)
+  {
+    $index = 0;
+    while (($chunk = get_option("{$cache_storage_key}_{$index}", false)) !== false) {
+      if ($chunk === array()) {
+        break;  // Prevents infinite loop when resetting to empty arrays
+      }
+      delete_option("{$cache_storage_key}_{$index}", array(), false);
+      $index++;
+    }
   }
 }
