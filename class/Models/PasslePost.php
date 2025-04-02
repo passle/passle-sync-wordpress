@@ -308,7 +308,7 @@ class PasslePost
     if (isset($this->meta)) {
       $tag_groups = isset($this->meta["post_tag_groups"]) ? $this->meta["post_tag_groups"] : array();
     } else {
-      $tag_groups = $this->passle_post["TagGroups"];
+      $tag_groups = $this->passle_post["TagGroups"] ?? array();
     }
 
     $this->tag_groups = [];
