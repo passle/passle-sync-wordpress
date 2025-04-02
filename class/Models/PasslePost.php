@@ -131,10 +131,18 @@ class PasslePost
     }
 
     if ($this->load_tags) {
-      $all_wp_tags = get_tags(array(
-        'hide_empty' => false,   // To include tags with no posts
-        'number' => PHP_INT_MAX, // To retrieve all tags
-      ));
+      $all_wp_tags = [];
+      do {
+        $tags_batch = get_tags(array(
+          'hide_empty' => false,
+          'number' => $batch_size,
+          'offset' => $offset,
+        ));
+
+        // Merge the retrieved batch with the main array
+        $all_wp_tags = array_merge($all_wp_tags, $tags_batch);
+        $offset += $batch_size;
+      } while (count($tags_batch) === $batch_size); // Stop if less than $batch_size is returned
       $this->initialize_tags($all_wp_tags);
       $this->initialize_tag_groups($all_wp_tags);
     }
@@ -303,13 +311,15 @@ class PasslePost
       $tag_groups = $this->passle_post["TagGroups"];
     }
 
-    $this->tag_groups = array_map(function($tag_group) use ($wp_tags) {
-        $decoded_tag_group = json_decode($tag_group);
-        return [
-          "name" => $decoded_tag_group->Name,
-          "tags" => $this->map_tags($decoded_tag_group->Tags ?? array(), $wp_tags && is_array($wp_tags) ? $wp_tags : array())
-        ];
-    }, $tag_groups);
+    $this->tag_groups = [];
+    foreach ((array) $tag_groups as $tag_group) {
+      $decoded_tag_group = json_decode($tag_group, true) ?? [];
+      $this->tag_groups[] = [
+        "name" => $decoded_tag_group["Name"] ?? "",
+        "tags" => $this->map_tags($decoded_tag_group["Tags"] ?? [], $wp_tags)
+      ];
+      unset($decoded_tag_group); // Free memory
+    }
   }
 
   private function initialize_share_views()
