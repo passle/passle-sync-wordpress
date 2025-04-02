@@ -29,9 +29,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
  
     $resource = static::get_resource_instance();
 
-    $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
-
-    static::batch_sync_all($wp_entities);
+    static::batch_sync_all();
 
     static::post_sync_all_hook();
   }
@@ -249,17 +247,17 @@ abstract class SyncHandlerBase extends ResourceClassBase
     return basename($url);
   }
 
-  protected static function batch_sync_all(array $wp_entities)
+  protected static function batch_sync_all()
   {
     $passle_shortcodes = OptionsService::get()->passle_shortcodes;
 
     foreach ($passle_shortcodes as &$passle_shortcode) {
-      static::sync_all_by_passle($passle_shortcode, $wp_entities);
+      static::sync_all_by_passle($passle_shortcode);
     }
   }
 
 
-  public static function sync_all_by_passle(string $passle_shortcode, array $wp_entities)
+  public static function sync_all_by_passle(string $passle_shortcode)
   {
     $resource = static::get_resource_instance();
 
@@ -272,11 +270,11 @@ abstract class SyncHandlerBase extends ResourceClassBase
       ])
       ->build();
 
-    static::sync_all_paginated($url, 1, $wp_entities);
+    static::sync_all_paginated($url, 1);
   }
 
 
-  protected static function sync_all_paginated(string $url, int $page_number, array $wp_entities)
+  protected static function sync_all_paginated(string $url, int $page_number)
   {
     $resource = static::get_resource_instance();
 
