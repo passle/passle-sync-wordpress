@@ -300,16 +300,16 @@ class PasslePost
     if (isset($this->meta)) {
       $tag_groups = isset($this->meta["post_tag_groups"]) ? $this->meta["post_tag_groups"] : array();
     } else {
-      $tag_groups = $this->passle_post["TagGroups"];
+      $tag_groups = $this->passle_post["TagGroups"] ?? array();
     }
 
     $this->tag_groups = array_map(function($tag_group) use ($wp_tags) {
-        $decoded_tag_group = json_decode($tag_group);
+        $decoded_tag_group = json_decode($tag_group, true) ?? array();
         return [
-          "name" => $decoded_tag_group->Name,
-          "tags" => $this->map_tags($decoded_tag_group->Tags ?? array(), $wp_tags && is_array($wp_tags) ? $wp_tags : array())
+          "name" => $decoded_tag_group["Name"] ?? "",
+          "tags" => $this->map_tags($decoded_tag_group["Tags"] ?? array(), $wp_tags && is_array($wp_tags) ? $wp_tags : array())
         ];
-    }, $tag_groups);
+    }, (array) $tag_groups);
   }
 
   private function initialize_share_views()
