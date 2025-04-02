@@ -132,6 +132,8 @@ class PasslePost
 
     if ($this->load_tags) {
       $all_wp_tags = [];
+      $offset = 0;
+      $batch_size = 100;
       do {
         $tags_batch = get_tags(array(
           'hide_empty' => false,
