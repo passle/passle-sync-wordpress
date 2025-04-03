@@ -308,8 +308,6 @@ abstract class SyncHandlerBase extends ResourceClassBase
   public static function sync_page(string $url, int $page_number, int $total_pages) 
   {
       $resource = static::get_resource_instance();
-      $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
-      
       $response = call_user_func([$resource->passle_content_service_name, "get"], $url);
 
       // Validate the API response
@@ -323,6 +321,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
         return; // No more items
       }
 
+      $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
+      
       // Compare and process the items, update pending entities array
       $wp_entities_to_delete = static::compare_items($wp_entities, $response);
 
