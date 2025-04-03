@@ -54,8 +54,9 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
   public static function update_cache(array $data)
   {
+    $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
     $shortcode_prop = static::get_resource_instance()->get_shortcode_name();
-    $existing_items = static::get_cached_items();
+    $existing_items = static::get_cached_items($cache_storage_key);
 
     foreach ($data as $item) {
       $exists = false;
