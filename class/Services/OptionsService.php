@@ -16,7 +16,7 @@ class OptionsService
 
   public static function get(): Options
   {
-    return get_option(PASSLESYNC_OPTIONS_KEY);
+    return get_option(PASSLESYNC_OPTIONS_KEY, static::get_default_options());
   }
 
   public static function set(Options $options, bool $create_rewrite_rules = true)
