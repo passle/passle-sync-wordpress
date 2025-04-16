@@ -208,18 +208,27 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
     // Set post taxonomy terms based on tags
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
-      $taxonomies = get_taxonomies(array("object_type" => array(PASSLESYNC_POST_TYPE), "public" => true, "_builtin" => false));
+      $all_taxonomies = get_taxonomies(['public' => true, '_builtin' => false], 'objects');
+      $taxonomies = [];
+
+      foreach ($all_taxonomies as $name => $tax) {
+        if (in_array(PASSLESYNC_POST_TYPE, $tax->object_type)) {
+          $taxonomies[$name] = $tax;
+        }
+      }
+
       foreach ($taxonomies as $taxonomy) {
-        $tags = [];
-        // Remove all terms for the given taxonomy by setting terms to an empty array
-        wp_set_object_terms($post_id, array(), $taxonomy);
+        wp_set_object_terms($post_id, array(), $taxonomy->name); // Clear terms
+
         foreach ($postarr_arrays["post_tag_group_tags"] as $tag) {
-          $term = get_term_by("name", $tag, $taxonomy);
-          if ($term != null && $term->name && $term->taxonomy) {
-            $result = wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
-            if (is_wp_error($result)) {
-              error_log("Failed to assign term " .$term->name. " to taxonomy " .$taxonomy. " on post ID: " .$post_id. ". " .$result->get_error_message());
-            }
+          $term = get_term_by("name", $tag, $taxonomy->name);
+          if (!$term || !isset($term->name, $term->taxonomy)) {
+            continue;
+          }
+
+          $result = wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
+          if (is_wp_error($result)) {
+            error_log("Failed to assign term '{$term->name}' to taxonomy '{$taxonomy->name}' on post ID {$post_id}: {$result->get_error_message()}");
           }
         }
       }
