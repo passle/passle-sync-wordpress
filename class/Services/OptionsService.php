@@ -16,7 +16,14 @@ class OptionsService
 
   public static function get(): Options
   {
-    return get_option(PASSLESYNC_OPTIONS_KEY, static::get_default_options());
+    $cached_options = get_option(PASSLESYNC_OPTIONS_KEY, static::get_default_options());
+    // This is needed as options contain home_url and causes annoying issues when migrating from different environments
+    // with the site_url property still holding the value from the old environment
+    if ($cached_options->site_url != home_url()) {
+        $cached_options->site_url = home_url();
+        update_option(PASSLESYNC_OPTIONS_KEY, $cached_options);
+    }
+    return $cached_options;
   }
 
   public static function set(Options $options, bool $create_rewrite_rules = true)
