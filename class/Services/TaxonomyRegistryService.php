@@ -34,7 +34,7 @@ class TaxonomyRegistryService
         $taxonomy_name = self::get_taxonomy_slug($name);
         
         if ($name) {
-          if (!taxonomy_exists($name)) {
+          if (!taxonomy_exists($taxonomy_name)) {
              $args = array(
               "hierarchical" => false,
               "label" => $name,
