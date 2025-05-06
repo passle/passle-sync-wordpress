@@ -4,6 +4,7 @@ namespace Passle\PassleSync\Utils;
 
 class Utils
 {
+  private const PASSLE_SYNC_CACHE_KEY = "passlesync_posts_cache";
   static function array_select(array $array, string $key)
   {
     // TODO: Check if $key is set 
@@ -53,6 +54,32 @@ class Utils
   {
     delete_metadata("post", 0, "post_is_featured_on_passle_page", "", true);
     delete_metadata("post", 0, "post_is_featured_on_post_page", "", true);
+    self::clear_featured_posts_cache();
+  }
+
+  static function clear_featured_posts_cache()
+  {
+    $cached_posts = get_option(self::PASSLE_SYNC_CACHE_KEY);
+    $featured_posts = array_filter($cached_posts, function ($post) {
+      if ((isset($post['IsFeaturedOnPasslePage']) && $post['IsFeaturedOnPasslePage'] == true)
+        || (isset($post['IsFeaturedOnPostPage']) && $post['IsFeaturedOnPostPage'] == true)
+      ) {
+        return true;
+      }
+      return false;
+    });
+
+    if ($featured_posts) {
+      foreach ($featured_posts as &$post) {
+        if (isset($post['IsFeaturedOnPasslePage'])) {
+          $post['IsFeaturedOnPasslePage'] = false;
+        }
+        if (isset($post['IsFeaturedOnPostPage'])) {
+          $post['IsFeaturedOnPostPage'] = false;
+        }
+      }
+      update_option(self::PASSLE_SYNC_CACHE_KEY, $cached_posts);
+    }
   }
 
   static function get_HTML_decoded_wp_tag_names()
