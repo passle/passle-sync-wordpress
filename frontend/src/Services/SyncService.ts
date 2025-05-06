@@ -1,5 +1,6 @@
 import { Options } from "_API/Types/Options";
 import { PaginatedResponse } from "_API/Types/PaginatedResponse";
+import { Tag } from "_API/Types/Tag";
 import { get, post } from "./ApiService";
 
 export const getAll = async <T>(
@@ -40,3 +41,6 @@ export const deleteOne = async (
 
 export const updateSettings = async (data: object) =>
   post<Options>("/settings/update", data);
+
+export const getTagData = async () => 
+  get<Tag[]>("/tags");

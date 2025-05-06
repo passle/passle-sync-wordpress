@@ -4,12 +4,14 @@ namespace Passle\PassleSync\Services;
 
 use Passle\PassleSync\Controllers\SettingsController;
 use Passle\PassleSync\Controllers\WebhookController;
+use Passle\PassleSync\Controllers\TagsController;
 
 class RouteRegistryService
 {
   const NON_RESOURCE_CONTROLLERS = [
     SettingsController::class,
     WebhookController::class,
+    TagsController::class,
   ];
 
   public static function init()
