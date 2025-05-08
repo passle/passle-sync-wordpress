@@ -175,6 +175,31 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
   }
 
   /**
+  * Creates an associative array with keys equal to a tag
+  * and values equal to the mappings of these tags as an array of strings.
+  *
+  * @param array<int, array{Tag: string, Label: string, Aliases: string[], LastUpdated: string?}> $tag_mappings
+  * @return array<int, array<string, array{Aliases: string[]}>> Associative array of tags mapped to tag mappings
+  *  
+  * e.g:
+  * For tag mappings like:
+  * [{ "Tag": "tagA", "Label": "", "Aliases": ["tagA_alias"], "LastUpdated": "" }]
+  * The output should be:
+  * [{ "tagA": { "Aliases": ["tagA_alias"] } }]
+  *
+  */
+  public static function create_tag_to_aliases_map(array $tag_mappings)
+  {
+	if ($tag_mappings == null) {
+		return array();
+	}
+
+	$tag_to_aliases_map = array_map(function($tag_mapping) { return array($tag_mapping["Tag"] => array("Aliases" => $tag_mapping["Aliases"]));}, $tag_mappings);
+
+	return $tag_to_aliases_map;
+  }
+
+  /**
   *  Extracts all tags from tag groups into a flat array.
   *
   * @param array<int, array{Name: string, Tags: string[]}> $tag_groups
@@ -182,7 +207,6 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
   */
   private static function get_tags_from_tag_groups(array $tag_groups) 
   {
-	
     if ($tag_groups == null || empty($tag_groups)) {
       return array();
 	}
@@ -218,7 +242,7 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
   /**
   * Modifies the tag group in place by replacing a specific tag with its aliases.
   *
-  * @param array $tag_group   Associative array with a key 'Tags' that is an array of strings; modified by reference.
+  * @param array $tag_group    Associative array with a key 'Tags' that is an array of strings; modified by reference.
   * @param string $tag         The tag to replace.
   * @param string[] $tag_aliases Aliases to replace the tag with.
   * @return void
