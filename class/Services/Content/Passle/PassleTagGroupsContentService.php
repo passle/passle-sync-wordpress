@@ -200,7 +200,7 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
   }
 
   /**
-  *  Extracts all tags from tag groups into a flat array.
+  * Extracts all tags from tag groups into a flat array.
   *
   * @param array<int, array{Name: string, Tags: string[]}> $tag_groups
   * @return string[] Flattened list of all tags
@@ -217,7 +217,7 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
   }
 
   /**
-  *  Extracts tag aliases for a given tag from a given array of tag mappings.
+  * Extracts tag aliases for a given tag from a given array of tag mappings.
   *
   * @param string $tag
   * @param array<int, array{Tag: string, Label: string, Aliases: string[], LastUpdated: string}> $tag_mappings
