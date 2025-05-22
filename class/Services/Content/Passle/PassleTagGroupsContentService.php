@@ -35,17 +35,19 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
     foreach ($chunks as $index => $chunk) {
 
 	  // update_option will fail if we try to update it with the same value as it's current value
-      // so we check to suppress the error log in this case
       $existing_items = get_option("{$cache_storage_key}_{$index}", false);
 
       if ($existing_items === $chunk) {
+		error_log("No need to overwrite Tag groups cache key {$cache_storage_key}_{$index}. Existing value is the same as the new value.");
         continue;
       }
 
       $success = update_option("{$cache_storage_key}_{$index}", $chunk, false);
       
       if (!$success) {
-        error_log("Failed to overwrite cache: {$cache_storage_key}_{$index}");
+		$existing_items_json = json_encode($existing_items);
+		$chunk_json = json_encode($chunk);
+        error_log("Failed to overwrite cache: {$cache_storage_key}_{$index}. Existing value: { $existing_items_json }. New value: { $chunk_json }");
       }
     }
   }
@@ -118,47 +120,141 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
      return $all_tag_mappings;
   }
   
-  public static function create_tag_groups_with_tag_aliases($tag_groups, $tag_mappings)
+  /**
+  * Modifies tag groups, using tag mappings so the resulting tag groups contain the original tags
+  * if a tag has no aliases or the aliases if an original tag has aliases.
+  *
+  * Each TagGroup should be an associative array with the following keys:
+  *  - 'Name': string, the name of the tag group.
+  *  - 'Tags': string[], an array of tags.
+  *
+  * Each TagMapping should be an associative array with the following keys:
+  *  - 'Tag': string, the name of the tag.
+  *  - 'Label': string, the label of the tag.
+  *  - 'Aliases': string[], an array of aliases.
+  *  - 'LastUpdated': string, an ISO date string.
+  *
+  * @param array<int, array{Name: string, Tags: string[]}> $tag_groups
+  * @param array<int, array{Tag: string, Label: string, Aliases: string[], LastUpdated: string}> $tag_mappings
+  * @return array<int, array{Name: string, Tags: string[]}> List of tag groups with original tags or aliases 
+  *
+  * e.g:
+  * 
+  * For $tag_groups like:
+  * [{ "Name": "Tag Group A", "Tags": ["tagA", "tagB"] }]
+  * And $tag_mappings like:
+  * [{ "Tag": "tagA", "Label": "", "Aliases": ["tagA_alias"], "LastUpdated": "" }]
+  * The output should be:
+  * [{ "Name": "Tag Group A", "Tags": ["tagA_alias", "tagB"] }]
+  *
+  */
+  public static function create_tag_groups_with_tag_aliases(array $tag_groups, array $tag_mappings) 
   {
-	if ($tag_groups == null) {
-	  return $tag_groups;
-	}
-	
-	$tags = array_merge(...array_map(function($tag_group) { return $tag_group["Tags"]; }, $tag_groups));	
+	$tags = static::get_tags_from_tag_groups($tag_groups);
 
-	if(empty($tags)) {
+	if (empty($tags)) {
 	  return $tag_groups;
 	}
-	
-    $wp_tag_names = Utils::get_HTML_decoded_wp_tag_names();
-	
+
 	foreach($tags as $tag) {
-		
-	  $tag_aliases = array_reduce($tag_mappings, function($carry, $tag_mapping) use ($tag) { 
-	    if ($tag_mapping["Tag"] == $tag) {
-	      $carry = $tag_mapping["Aliases"];	
-		}
-		return $carry;
-	  }, []);
+      $tag_aliases = static::get_tag_aliases_from_tag_mappings($tag, $tag_mappings);
 
-	  if (!empty($tag_aliases) && count(array_intersect($tag_aliases, $wp_tag_names)) != 0) {		
-		
-		$tag_groups_that_contain_tag = array_filter($tag_groups, function($tag_group) use ($tag) { 
-			return in_array($tag, $tag_group["Tags"]); 
-		});
-			
-		foreach($tag_groups as &$tag_group) {
-			$tag_index = array_search($tag, $tag_group["Tags"]);
-			if ($tag_index !== false) {
-				$modified_tags = array_map(function($tag_group_tag) use ($tag, $tag_aliases) { 
-					return $tag_group_tag === $tag ? $tag_aliases : [$tag_group_tag];
-				}, $tag_group["Tags"]);
-				$tag_group["Tags"] = array_unique(array_merge(...$modified_tags), SORT_STRING);
-			}				
-		}
+	  if(empty($tag_aliases)) {
+        continue;
 	  }
+
+	  foreach($tag_groups as &$tag_group) {
+	    if (in_array($tag, $tag_group["Tags"], true)) {
+		  static::modify_tag_group_with_aliases($tag_group, $tag, $tag_aliases);
+		}				
+	  }
+	  unset($tag_group); // clear tag_group reference
 	}
 
 	return $tag_groups;
+  }
+
+  /**
+  * Creates an associative array with keys equal to a tag
+  * and values equal to the mappings of these tags as an array of strings.
+  *
+  * @param array<int, array{Tag: string, Label: string, Aliases: string[], LastUpdated: string?}> $tag_mappings
+  * @return array<int, array<string, array{Aliases: string[]}>> Associative array of tags mapped to tag mappings
+  *  
+  * e.g:
+  * For tag mappings like:
+  * [{ "Tag": "tagA", "Label": "", "Aliases": ["tagA_alias"], "LastUpdated": "" }]
+  * The output should be:
+  * [{ "tagA": { "Aliases": ["tagA_alias"] } }]
+  *
+  */
+  public static function create_tag_to_aliases_map(array $tag_mappings)
+  {
+	if ($tag_mappings == null) {
+		return array();
+	}
+
+	$tag_to_aliases_map = array_map(function($tag_mapping) { return array($tag_mapping["Tag"] => array("Aliases" => $tag_mapping["Aliases"]));}, $tag_mappings);
+
+	return $tag_to_aliases_map;
+  }
+
+  /**
+  * Extracts all tags from tag groups into a flat array.
+  *
+  * @param array<int, array{Name: string, Tags: string[]}> $tag_groups
+  * @return string[] Flattened list of all tags
+  */
+  private static function get_tags_from_tag_groups(array $tag_groups) 
+  {
+    if ($tag_groups == null || empty($tag_groups)) {
+      return array();
+	}
+
+	$tags = array_merge(...array_map(function($tag_group) { return $tag_group["Tags"]; }, $tag_groups));
+
+	return $tags;
+  }
+
+  /**
+  * Extracts tag aliases for a given tag from a given array of tag mappings.
+  *
+  * @param string $tag
+  * @param array<int, array{Tag: string, Label: string, Aliases: string[], LastUpdated: string}> $tag_mappings
+  * @return string[] The aliases of the given tag
+  */
+  private static function get_tag_aliases_from_tag_mappings(string $tag, array $tag_mappings) 
+  {
+	if (empty($tag_mappings)) {
+	  return array();
+	}
+
+    $tag_aliases = array_reduce($tag_mappings, function($carry, $tag_mapping) use ($tag) { 
+	  if ($tag_mapping["Tag"] == $tag) {
+	    $carry = $tag_mapping["Aliases"];	
+	  }
+	  return $carry;
+	}, []);
+
+	return $tag_aliases;
+  }
+
+  /**
+  * Modifies the tag group in place by replacing a specific tag with its aliases.
+  *
+  * @param array $tag_group    Associative array with a key 'Tags' that is an array of strings; modified by reference.
+  * @param string $tag         The tag to replace.
+  * @param string[] $tag_aliases Aliases to replace the tag with.
+  * @return void
+  */
+  private static function modify_tag_group_with_aliases(array &$tag_group, string $tag, array $tag_aliases) 
+  {
+	  $tag_index = array_search($tag, $tag_group["Tags"]);
+	  if ($tag_index !== false) {
+	    $modified_tags = array_map(function($tag_group_tag) use ($tag, $tag_aliases) { 
+		  return $tag_group_tag === $tag ? $tag_aliases : [$tag_group_tag];
+		}, $tag_group["Tags"]);
+		$tag_group["Tags"] = array_unique(array_merge(...$modified_tags), SORT_STRING);
+	  }
   }
 }
