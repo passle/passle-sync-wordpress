@@ -41,13 +41,16 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       $existing_items = get_option("{$cache_storage_key}_{$index}", false);
 
       if ($existing_items === $chunk) {
+        error_log("No need to overwrite Tag groups cache key {$cache_storage_key}_{$index}. Existing value is the same as the new value.");
         continue;
       }
 
       $success = update_option("{$cache_storage_key}_{$index}", $chunk, false);
       
       if (!$success) {
-        error_log("Failed to overwrite cache: {$cache_storage_key}_{$index}");
+        $existing_items_json = json_encode($existing_items);
+		$chunk_json = json_encode($chunk);
+        error_log("Failed to overwrite cache: {$cache_storage_key}_{$index}.  Existing value: { $existing_items_json }. New value: { $chunk_json }");
       }
     }
   }
