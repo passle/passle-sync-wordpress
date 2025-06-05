@@ -5,6 +5,11 @@ namespace Passle\PassleSync\Controllers;
 use \WP_REST_Request;
 use Passle\PassleSync\Models\Admin\Options;
 use Passle\PassleSync\Services\OptionsService;
+
+use Passle\PassleSync\Services\Content\Passle\PassleTagGroupsContentService;
+use Passle\PassleSync\Services\Content\Passle\PasslePostsContentService;
+use Passle\PassleSync\Services\Content\Passle\PasslePeopleContentService;
+
 use WP_Error;
 
 class SettingsController extends ControllerBase
@@ -12,6 +17,7 @@ class SettingsController extends ControllerBase
   public static function init()
   {
     static::register_route("/settings/update", "POST", "update_api_settings");
+    static::register_route("/settings/clear-cache", "POST", "clear_plugin_cache");
   }
 
   public static function update_api_settings(WP_REST_Request $request)
@@ -58,6 +64,13 @@ class SettingsController extends ControllerBase
     OptionsService::set($options);
 
     return $options;
+  }
+
+  public static function clear_plugin_cache() 
+  {
+    PassleTagGroupsContentService::overwrite_cache(null);
+    PasslePostsContentService::overwrite_cache(null);
+    PasslePeopleContentService::overwrite_cache(null);
   }
 
   private static function validate_permalink_template_uniqueness(Options $options)

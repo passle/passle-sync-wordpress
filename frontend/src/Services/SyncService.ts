@@ -40,3 +40,6 @@ export const deleteOne = async (
 
 export const updateSettings = async (data: object) =>
   post<Options>("/settings/update", data);
+
+export const clearCache = async () => 
+  post<void>("/settings/clear-cache");
