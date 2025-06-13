@@ -175,10 +175,10 @@ abstract class SyncHandlerBase extends ResourceClassBase
     add_filter('content_save_pre', 'wp_filter_post_kses');
 
     // Create post tags with aliases in the default post_tag taxonomy
-    if (!empty($postarr_arrays["post_tags_with_aliases"])) {
-      foreach ($postarr_arrays["post_tags_with_aliases"] as $tag_data) {
+    if (!empty($postarr_arrays["post_tag_to_aliases_map"])) {
+      foreach ($postarr_arrays["post_tag_to_aliases_map"] as $tag_data) {
         foreach($tag_data as $tag_name => $tag_info){
-          $aliases = isset($tag_info['aliases']) ? $tag_info['aliases'] : array();
+          $aliases = isset($tag_info['Aliases']) ? $tag_info['Aliases'] : array();
           // Check if the tag already exists
           $existing_term = get_term_by('name', $tag_name, 'post_tag');
           if ($existing_term === false) {
@@ -204,7 +204,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
         }
       }
     }
-    unset($postarr_arrays["post_tags_with_aliases"]);
+    unset($postarr_arrays["post_tag_to_aliases_map"]);
 
     // Set post taxonomy terms based on tags
     if (!empty($postarr_arrays["post_tag_group_tags"]) && $options->include_passle_tag_groups) {
