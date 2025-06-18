@@ -51,7 +51,8 @@ const SyncSettings = () => {
     setLoading(true);
 
     let includePassleTagGroupsInitialValue = options.includePassleTagGroups;
-
+    let turnOffDebugLoggingInitialValue = options.turnOffDebugLogging;
+    
     try {
       const options = await updateSettings({
         passleApiKey,
@@ -76,8 +77,8 @@ const SyncSettings = () => {
         setOptions(options);
         
         // We need to reload the page so the plugin re-initializes when this option changes
-        // and settings are subsequently saved
-        if (includePassleTagGroupsInitialValue != includePassleTagGroups) {
+          // and settings are subsequently saved
+          if (includePassleTagGroupsInitialValue != includePassleTagGroups || turnOffDebugLoggingInitialValue != turnOffDebugLogging) {
           setTimeout(() => { window.location.reload(); }, 1000);
         }
       } else {
