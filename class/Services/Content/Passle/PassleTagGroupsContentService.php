@@ -23,6 +23,8 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
 
   public static function overwrite_cache(?array $data)
   {
+	$options = OptionsService::get();
+
 	$cache_storage_key = self::TAG_GROUPS_CACHE_KEY;
 
 	if ($data == null) {
@@ -38,8 +40,8 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
       $existing_items = get_option("{$cache_storage_key}_{$index}", false);
 
       if ($existing_items === $chunk) {
-		error_log("No need to overwrite Tag groups cache key {$cache_storage_key}_{$index}. Existing value is the same as the new value.");
-        continue;
+		write_log("No need to overwrite Tag groups cache key {$cache_storage_key}_{$index}. Existing value is the same as the new value.", !$options->turn_off_debug_logging);
+		continue;
       }
 
       $success = update_option("{$cache_storage_key}_{$index}", $chunk, false);
@@ -47,8 +49,8 @@ class PassleTagGroupsContentService extends PassleContentServiceBase
       if (!$success) {
 		$existing_items_json = json_encode($existing_items);
 		$chunk_json = json_encode($chunk);
-        error_log("Failed to overwrite cache: {$cache_storage_key}_{$index}. Existing value: { $existing_items_json }. New value: { $chunk_json }");
-      }
+        write_log("Failed to overwrite cache: {$cache_storage_key}_{$index}. Existing value: { $existing_items_json }. New value: { $chunk_json }", !$options->turn_off_debug_logging);
+	  }
     }
   }
 

@@ -43,6 +43,9 @@ const SyncSettings = () => {
   const [includePassleTagGroups, setIncludePassleTagGroups] = useState(
     options.includePassleTagGroups
   );
+  const [turnOffDebugLogging, setTurnOffDebugLogging] = useState(
+    options.turnOffDebugLogging
+  );
 
   const saveSettings = async (finishLoadingCallback: () => void) => {
     setLoading(true);
@@ -60,7 +63,8 @@ const SyncSettings = () => {
         simulateRemoteHosting,
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
-        includePassleTagGroups
+        includePassleTagGroups,
+        turnOffDebugLogging
       });
 
       if (options) {
@@ -192,6 +196,12 @@ const SyncSettings = () => {
             description="Whether to create a custom taxonomy from tag groups defined in Passle. If checked, syncing will create taxonomy terms that correspond to tag groups and include set it on Passle posts based on the tags on each post. If you have existing taxonomies with the same name as tag groups defined in Passle, terms in them will be updated and these taxonomies will become available to Passle posts."
             checked={includePassleTagGroups}
             onChange={(e) => setIncludePassleTagGroups(e.target.checked)}
+          />
+          <BoolSettingsInput
+            label="Turn off DEBUG logs"
+            description="If checked, the plugin won't log errors in debug.log. Please uncheck to help with debuging."
+            checked={turnOffDebugLogging}
+            onChange={(e) => setTurnOffDebugLogging(e.target.checked)}
           />
         </tbody>
       </table>

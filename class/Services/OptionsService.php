@@ -17,6 +17,11 @@ class OptionsService
   public static function get(): Options
   {
     $cached_options = get_option(PASSLESYNC_OPTIONS_KEY, static::get_default_options());
+    
+    if (!isset($cached_options->turn_off_debug_logging)) {
+      $cached_options->turn_off_debug_logging = false; 
+    }
+
     // This is needed as options contain home_url and causes annoying issues when migrating from different environments
     // with the site_url property still holding the value from the old environment
     if ($cached_options->site_url != home_url()) {
@@ -43,7 +48,7 @@ class OptionsService
 
   private static function get_default_options(): Options
   {
-    return new Options("", wp_generate_uuid4(), [], "p/{{PostShortcode}}/{{PostSlug}}", "u/{{PersonShortcode}}/{{PersonSlug}}", "", true, false, false, false);
+    return new Options("", wp_generate_uuid4(), [], "p/{{PostShortcode}}/{{PostSlug}}", "u/{{PersonShortcode}}/{{PersonSlug}}", "", true, false, false, false, false);
   }
 
   private static function get_resource_cpts()

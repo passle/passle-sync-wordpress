@@ -9,8 +9,10 @@ if (!function_exists("dd")) {
 }
 
 if (!function_exists("write_log")) {
-  function write_log($log)
+  function write_log($log, $debug = true)
   {
+    if (!$debug) return;
+
     if (is_array($log) || is_object($log)) {
       error_log(print_r($log, true));
     } else {
