@@ -43,15 +43,15 @@ const SyncSettings = () => {
   const [includePassleTagGroups, setIncludePassleTagGroups] = useState(
     options.includePassleTagGroups
   );
-  const [turnOffDebugLogging, setTurnOffDebugLogging] = useState(
-    options.turnOffDebugLogging
+  const [enableDebugLogging, setEnableDebugLogging] = useState(
+    options.enableDebugLogging
   );
 
   const saveSettings = async (finishLoadingCallback: () => void) => {
     setLoading(true);
 
     let includePassleTagGroupsInitialValue = options.includePassleTagGroups;
-    let turnOffDebugLoggingInitialValue = options.turnOffDebugLogging;
+    let enableDebugLoggingInitialValue = options.enableDebugLogging;
     
     try {
       const options = await updateSettings({
@@ -65,7 +65,7 @@ const SyncSettings = () => {
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
         includePassleTagGroups,
-        turnOffDebugLogging
+        enableDebugLogging
       });
 
       if (options) {
@@ -78,7 +78,7 @@ const SyncSettings = () => {
         
         // We need to reload the page so the plugin re-initializes when this option changes
           // and settings are subsequently saved
-          if (includePassleTagGroupsInitialValue != includePassleTagGroups || turnOffDebugLoggingInitialValue != turnOffDebugLogging) {
+        if (includePassleTagGroupsInitialValue != includePassleTagGroups || enableDebugLoggingInitialValue != enableDebugLogging) {
           setTimeout(() => { window.location.reload(); }, 1000);
         }
       } else {
@@ -199,10 +199,10 @@ const SyncSettings = () => {
             onChange={(e) => setIncludePassleTagGroups(e.target.checked)}
           />
           <BoolSettingsInput
-            label="Turn off DEBUG logs"
-            description="If checked, the plugin won't log errors in debug.log. Please uncheck to help with debuging."
-            checked={turnOffDebugLogging}
-            onChange={(e) => setTurnOffDebugLogging(e.target.checked)}
+            label="Enable DEBUG logs"
+            description="If disabled, the plugin won't log errors in debug.log. Please enable to help with debugging."
+            checked={enableDebugLogging}
+            onChange={(e) => setEnableDebugLogging(e.target.checked)}
           />
         </tbody>
       </table>
