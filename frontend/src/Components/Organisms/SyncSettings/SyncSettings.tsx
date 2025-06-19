@@ -43,12 +43,16 @@ const SyncSettings = () => {
   const [includePassleTagGroups, setIncludePassleTagGroups] = useState(
     options.includePassleTagGroups
   );
+  const [enableDebugLogging, setEnableDebugLogging] = useState(
+    options.enableDebugLogging
+  );
 
   const saveSettings = async (finishLoadingCallback: () => void) => {
     setLoading(true);
 
     let includePassleTagGroupsInitialValue = options.includePassleTagGroups;
-
+    let enableDebugLoggingInitialValue = options.enableDebugLogging;
+    
     try {
       const options = await updateSettings({
         passleApiKey,
@@ -60,7 +64,8 @@ const SyncSettings = () => {
         simulateRemoteHosting,
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
-        includePassleTagGroups
+        includePassleTagGroups,
+        enableDebugLogging
       });
 
       if (options) {
@@ -72,8 +77,8 @@ const SyncSettings = () => {
         setOptions(options);
         
         // We need to reload the page so the plugin re-initializes when this option changes
-        // and settings are subsequently saved
-        if (includePassleTagGroupsInitialValue != includePassleTagGroups) {
+          // and settings are subsequently saved
+        if (includePassleTagGroupsInitialValue != includePassleTagGroups || enableDebugLoggingInitialValue != enableDebugLogging) {
           setTimeout(() => { window.location.reload(); }, 1000);
         }
       } else {
@@ -192,6 +197,12 @@ const SyncSettings = () => {
             description="Whether to create a custom taxonomy from tag groups defined in Passle. If checked, syncing will create taxonomy terms that correspond to tag groups and include set it on Passle posts based on the tags on each post. If you have existing taxonomies with the same name as tag groups defined in Passle, terms in them will be updated and these taxonomies will become available to Passle posts."
             checked={includePassleTagGroups}
             onChange={(e) => setIncludePassleTagGroups(e.target.checked)}
+          />
+          <BoolSettingsInput
+            label="Enable DEBUG logs"
+            description="If disabled, the plugin won't log errors in debug.log. Please enable to help with debugging."
+            checked={enableDebugLogging}
+            onChange={(e) => setEnableDebugLogging(e.target.checked)}
           />
         </tbody>
       </table>
