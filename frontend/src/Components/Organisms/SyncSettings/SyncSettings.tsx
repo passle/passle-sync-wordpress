@@ -6,7 +6,8 @@ import BoolSettingsInput from "_Components/Molecules/SettingsInput/BoolSettingsI
 import TextSettingsInput from "_Components/Molecules/SettingsInput/TextSettingsInput";
 import { PassleDataContext } from "_Contexts/PassleDataContext";
 import useOptions from "_Hooks/useOptions";
-import { updateSettings } from "_Services/SyncService";
+import { updateSettings, clearCache } from "_Services/SyncService";
+import styles from "./SyncSettings.module.scss";
 
 const SyncSettings = () => {
   const { setLoading } = useContext(PassleDataContext);
@@ -96,6 +97,16 @@ const SyncSettings = () => {
 
     setLoading(false);
     if (finishLoadingCallback) finishLoadingCallback();
+  };
+
+  const clearCacheClick = async () => {
+      setLoading(true);
+
+      await clearCache();
+
+      setTimeout(() => { window.location.reload(); }, 1000);
+
+      setLoading(false);
   };
 
   return (
@@ -207,11 +218,17 @@ const SyncSettings = () => {
         </tbody>
       </table>
 
-      <p className="submit">
+      <p className={styles.SettingsActions}>
         <Button
           content="Save Changes"
           onClick={saveSettings}
           loadingContent={"Saving..."}
+        />
+        <Button
+          variant="secondary"
+          content="Clear Cache"
+          onClick={clearCacheClick}
+          loadingContent={"Clearing cache..."}
         />
       </p>
     </div>
