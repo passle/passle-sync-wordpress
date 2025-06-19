@@ -33,7 +33,7 @@ class SettingsController extends ControllerBase
       $params["includePasslePostsOnHomePage"],
       $params["includePasslePostsOnTagPage"],
       $params["includePassleTagGroups"],
-      $params["turnOffDebugLogging"]
+      $params["enableDebugLogging"]
     );
 
     if (!preg_match("/{{PostShortcode}}/", $options->post_permalink_template)) {

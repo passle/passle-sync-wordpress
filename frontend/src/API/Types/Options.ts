@@ -9,6 +9,6 @@ export type Options = {
   includePasslePostsOnHomePage: boolean;
   includePasslePostsOnTagPage: boolean;
   includePassleTagGroups: boolean;
-  turnOffDebugLogging: boolean;
+  enableDebugLogging: boolean;
   domainExt: string;
 };

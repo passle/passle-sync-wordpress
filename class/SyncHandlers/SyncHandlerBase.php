@@ -54,7 +54,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
       if (!empty($data)) {
         static::create_or_update($data);
       } else {
-        write_log('Error fetching data for shortcode: ' . $shortcode, !$options->turn_off_debug_logging);
+        write_log('Error fetching data for shortcode: ' . $shortcode, $options->enable_debug_logging);
       } 
     }
   }
@@ -195,7 +195,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
                 update_term_meta($term['term_id'], 'aliases', $aliases);
               }
             } else {
-              write_log('Error creating tag: ' . $term->get_error_message(), !$options->turn_off_debug_logging);
+              write_log('Error creating tag: ' . $term->get_error_message(), $options->enable_debug_logging);
             }
           } else {
             // If the tag already exists, update its custom field (aliases)
@@ -230,7 +230,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
           $result = wp_set_object_terms($post_id, $term->name, $term->taxonomy, true);
           if (is_wp_error($result)) {
-            write_log("Failed to assign term '{$term->name}' to taxonomy '{$taxonomy->name}' on post ID {$post_id}: {$result->get_error_message()}", !$options->turn_off_debug_logging);
+            write_log("Failed to assign term '{$term->name}' to taxonomy '{$taxonomy->name}' on post ID {$post_id}: {$result->get_error_message()}", $options->enable_debug_logging);
           }
         }
       }
