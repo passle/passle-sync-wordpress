@@ -1,0 +1,11 @@
+.SettingsActions {
+    display: flex;
+    align-items: flex-start;
+    flex-direction: row;
+    margin: 20px 0 5px;
+    padding: 1.5em 0;
+}
+
+button + button {
+    margin-left: 7px !important;
+}

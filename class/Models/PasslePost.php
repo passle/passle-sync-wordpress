@@ -207,9 +207,9 @@ class PasslePost
     $this->estimated_read_time_minutes = max(ceil($this->estimated_read_time_seconds / 60), 1) ?? 0;
     $this->image_url = $this->meta["post_image_url"][0] ?? "";
     $this->featured_item_html = htmlspecialchars_decode($this->meta["post_featured_item_html"][0] ?? "", ENT_QUOTES) ?? "";
-    $this->featured_item_position = $this->meta["post_featured_item_position"][0] ?? "";
-    $this->featured_item_media_type = $this->meta["post_featured_item_media_type"][0] ?? "";
-    $this->featured_item_embed_type = $this->meta["post_featured_item_embed_type"][0] ?? "";
+    $this->featured_item_position = $this->meta["post_featured_item_position"][0] ?? 0;
+    $this->featured_item_media_type = $this->meta["post_featured_item_media_type"][0] ?? 0;
+    $this->featured_item_embed_type = $this->meta["post_featured_item_embed_type"][0] ?? 0;
     $this->featured_item_embed_provider = $this->meta["post_featured_item_embed_provider"][0] ?? "";
     $this->excerpt = $this->wp_post->post_excerpt ?? "";
     $this->opens_in_new_tab = $this->meta["post_opens_in_new_tab"][0] ?? false;
@@ -238,9 +238,9 @@ class PasslePost
     $this->estimated_read_time_minutes = max(ceil($this->estimated_read_time_seconds / 60), 1) ?? 0;
     $this->image_url = $this->passle_post["ImageUrl"] ?? "";
     $this->featured_item_html = htmlspecialchars_decode($this->passle_post["FeaturedItemHtml"] ?? "");
-    $this->featured_item_position = $this->passle_post["FeaturedItemPosition"] ?? "";
-    $this->featured_item_media_type = $this->passle_post["FeaturedItemMediaType"] ?? "";
-    $this->featured_item_embed_type = $this->passle_post["FeaturedItemEmbedType"] ?? "";
+    $this->featured_item_position = $this->passle_post["FeaturedItemPosition"] ?? 0;
+    $this->featured_item_media_type = $this->passle_post["FeaturedItemMediaType"] ?? 0;
+    $this->featured_item_embed_type = $this->passle_post["FeaturedItemEmbedType"] ?? 0;
     $this->featured_item_embed_provider = $this->passle_post["FeaturedItemEmbedProvider"] ?? "";
     $this->excerpt = $this->passle_post["ContentTextSnippet"] ?? "";
     $this->opens_in_new_tab = $this->passle_post["OpensInNewTab"] ?? false;

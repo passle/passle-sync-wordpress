@@ -6,7 +6,8 @@ import BoolSettingsInput from "_Components/Molecules/SettingsInput/BoolSettingsI
 import TextSettingsInput from "_Components/Molecules/SettingsInput/TextSettingsInput";
 import { PassleDataContext } from "_Contexts/PassleDataContext";
 import useOptions from "_Hooks/useOptions";
-import { updateSettings } from "_Services/SyncService";
+import { updateSettings, clearCache } from "_Services/SyncService";
+import styles from "./SyncSettings.module.scss";
 
 const SyncSettings = () => {
   const { setLoading } = useContext(PassleDataContext);
@@ -43,12 +44,16 @@ const SyncSettings = () => {
   const [includePassleTagGroups, setIncludePassleTagGroups] = useState(
     options.includePassleTagGroups
   );
+  const [enableDebugLogging, setEnableDebugLogging] = useState(
+    options.enableDebugLogging
+  );
 
   const saveSettings = async (finishLoadingCallback: () => void) => {
     setLoading(true);
 
     let includePassleTagGroupsInitialValue = options.includePassleTagGroups;
-
+    let enableDebugLoggingInitialValue = options.enableDebugLogging;
+    
     try {
       const options = await updateSettings({
         passleApiKey,
@@ -60,7 +65,8 @@ const SyncSettings = () => {
         simulateRemoteHosting,
         includePasslePostsOnHomePage,
         includePasslePostsOnTagPage,
-        includePassleTagGroups
+        includePassleTagGroups,
+        enableDebugLogging
       });
 
       if (options) {
@@ -72,8 +78,8 @@ const SyncSettings = () => {
         setOptions(options);
         
         // We need to reload the page so the plugin re-initializes when this option changes
-        // and settings are subsequently saved
-        if (includePassleTagGroupsInitialValue != includePassleTagGroups) {
+          // and settings are subsequently saved
+        if (includePassleTagGroupsInitialValue != includePassleTagGroups || enableDebugLoggingInitialValue != enableDebugLogging) {
           setTimeout(() => { window.location.reload(); }, 1000);
         }
       } else {
@@ -91,6 +97,16 @@ const SyncSettings = () => {
 
     setLoading(false);
     if (finishLoadingCallback) finishLoadingCallback();
+  };
+
+  const clearCacheClick = async () => {
+      setLoading(true);
+
+      await clearCache();
+
+      setTimeout(() => { window.location.reload(); }, 1000);
+
+      setLoading(false);
   };
 
   return (
@@ -193,14 +209,26 @@ const SyncSettings = () => {
             checked={includePassleTagGroups}
             onChange={(e) => setIncludePassleTagGroups(e.target.checked)}
           />
+          <BoolSettingsInput
+            label="Enable DEBUG logs"
+            description="If disabled, the plugin won't log errors in debug.log. Please enable to help with debugging."
+            checked={enableDebugLogging}
+            onChange={(e) => setEnableDebugLogging(e.target.checked)}
+          />
         </tbody>
       </table>
 
-      <p className="submit">
+      <p className={styles.SettingsActions}>
         <Button
           content="Save Changes"
           onClick={saveSettings}
           loadingContent={"Saving..."}
+        />
+        <Button
+          variant="secondary"
+          content="Clear Cache"
+          onClick={clearCacheClick}
+          loadingContent={"Clearing cache..."}
         />
       </p>
     </div>
