@@ -315,12 +315,13 @@ class PasslePost
 
     $this->tag_groups = [];
     foreach ((array) $tag_groups as $tag_group) {
-      $decoded_tag_group = json_decode($tag_group, true) ?? [];
+      $unserialized_tag_group = maybe_unserialize($tag_group);
+      $unserialized_tag_group = is_array($unserialized_tag_group) ? $unserialized_tag_group : [];
       $this->tag_groups[] = [
-        "name" => $decoded_tag_group["Name"] ?? "",
-        "tags" => $this->map_tags($decoded_tag_group["Tags"] ?? [], $wp_tags)
+        "name" => $unserialized_tag_group["Name"] ?? "",
+        "tags" => $this->map_tags($unserialized_tag_group["Tags"] ?? [], $wp_tags)
       ];
-      unset($decoded_tag_group); // Free memory
+      unset($unserialized_tag_group); // Free memory
     }
   }
 
