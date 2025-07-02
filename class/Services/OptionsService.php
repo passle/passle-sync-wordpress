@@ -28,6 +28,15 @@ class OptionsService
         $cached_options->site_url = home_url();
         update_option(PASSLESYNC_OPTIONS_KEY, $cached_options);
     }
+
+    if (!isset($cached_options->include_passle_tag_groups)) {
+        $cached_options->include_passle_tag_groups = false;
+    }
+
+    if (!isset($cached_options->enable_debug_logging)) {
+        $cached_options->enable_debug_logging = true;
+    }
+
     return $cached_options;
   }
 
