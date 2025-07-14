@@ -25,8 +25,6 @@ abstract class PassleContentServiceBase extends ResourceClassBase
 
   public static function overwrite_cache(?array $data)
   {
-    $options = OptionsService::get();
-
     $cache_storage_key = static::get_resource_instance()->get_cache_storage_key();
 
     if ($data == null) {
@@ -43,7 +41,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       $existing_items = get_option("{$cache_storage_key}_{$index}", false);
 
       if ($existing_items === $chunk) {
-        write_log("No need to overwrite Tag groups cache key {$cache_storage_key}_{$index}. Existing value is the same as the new value.", $options->enable_debug_logging);
+        write_log("No need to overwrite Tag groups cache key {$cache_storage_key}_{$index}. Existing value is the same as the new value.");
         continue;
       }
 
@@ -52,7 +50,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
       if (!$success) {
         $existing_items_json = json_encode($existing_items);
 		$chunk_json = json_encode($chunk);
-        write_log("Failed to overwrite cache: {$cache_storage_key}_{$index}.  Existing value: { $existing_items_json }. New value: { $chunk_json }", $options->enable_debug_logging);
+        write_log("Failed to overwrite cache: {$cache_storage_key}_{$index}.  Existing value: { $existing_items_json }. New value: { $chunk_json }");
       }
     }
   }
@@ -91,7 +89,6 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     if (in_array(true, array_map(function ($r) {
       return is_wp_error($r);
     }, $results))) {
-      dd($results);
       throw new Exception("Failed to get data from the API", 500);
     }
 
@@ -146,7 +143,6 @@ abstract class PassleContentServiceBase extends ResourceClassBase
   public static function fetch_multiple_by_shortcode(array $entity_shortcodes)
   {
     $resource = static::get_resource_instance();
-    $options = OptionsService::get();
 
     $params = [
       $resource->get_api_parameter_shortcode_name() => join(",", $entity_shortcodes),
@@ -165,7 +161,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
         $data = $response[ucfirst($resource->name_plural)];
       }
       catch(Error $e) {
-        write_log('Failed to parse response from the API ' . json_encode(['error' => $e->getMessage()]), $options->enable_debug_logging);
+        write_log('Failed to parse response from the API ' . json_encode(['error' => $e->getMessage()]));
         $data = array();
       }
     } else {
