@@ -118,7 +118,18 @@ class PasslePost
     $this->load_tags = $options["load_tags"];
 
     if (gettype($wp_post) === "object") {
-      $this->wp_post = $wp_post;
+     /**
+      * Relevanssi (and other plugins) sometimes pass "raw" post objects.
+      * These may not be fully-initialized WP_Post objects.
+      * Instead, they may be plain stdClass objects or partial post representations with $post->filter = 'raw'.
+      * Trying to treat them like full WP_Post objects may result in fatal errors.
+      * Hence this check and wrapping with WP_Post if needed.
+      */
+      if (isset($wp_post->filter) && $wp_post->filter === "raw") {
+        $this->wp_post = new WP_Post($wp_post);
+      } else {
+        $this->wp_post = $wp_post;
+      }
       $this->meta = get_post_meta($wp_post->ID);
       $this->initialize_wp_post();
     } else {
