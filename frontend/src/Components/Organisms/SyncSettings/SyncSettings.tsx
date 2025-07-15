@@ -117,8 +117,9 @@ const SyncSettings = () => {
       <table className="form-table">
         <tbody>
           <TextSettingsInput
-            label="Passle API Key"
+            label="Passle API Key *"
             value={passleApiKey}
+            description="* This setting be overriden using a global constant called PASSLESYNC_PASSLE_API_KEY equal to your Passle API Key. Please don't use this setting if you have defined such a constant."
             onChange={(e) => setPassleApiKey(e.target.value)}
           />
           <TextSettingsInput
