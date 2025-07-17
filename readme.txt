@@ -4,7 +4,7 @@ Tags: passle, sync
 Requires at least: 5.8.2
 Tested up to: 6.8
 Requires PHP: 7.0
-Stable tag: 2.4
+Stable tag: 3.0
 License: MIT
 License URI: https://github.com/passle/passle-sync-wordpress/blob/master/LICENSE
 
