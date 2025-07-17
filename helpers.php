@@ -1,11 +1,7 @@
 <?php
 
-// Define this in wp-config.php on dev/staging: define( 'PASSLE_SYNC_DEV_MODE', true );
-if (!defined('PASSLE_SYNC_DEV_MODE')) {
-  define( 'PASSLE_SYNC_DEV_MODE', false ); // default
-}
+if (defined('PASSLE_SYNC_DEV_MODE') && PASSLE_SYNC_DEV_MODE) {
 
-if (PASSLE_SYNC_DEV_MODE) {
   if ( !function_exists('write_log')) {
     /**
     * Logs debug messages to a private log file.
