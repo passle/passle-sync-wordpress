@@ -223,7 +223,7 @@ abstract class PassleContentServiceBase extends ResourceClassBase
     $domain = preg_replace('/^https?:\/\//', '', $site_url);
     $use_https = strpos($site_url, 'https') === 0;
 
-    $api_key = defined("PASSLESYNC_PASSLE_API_KEY") ? PASSLESYNC_PASSLE_API_KEY : options->passle_api_key;
+    $api_key = defined("PASSLESYNC_PASSLE_API_KEY") ? PASSLESYNC_PASSLE_API_KEY : $options->passle_api_key;
 
     $headers = [
       "apiKey" => $api_key,
