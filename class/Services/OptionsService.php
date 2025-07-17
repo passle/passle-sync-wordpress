@@ -18,10 +18,6 @@ class OptionsService
   {
     $cached_options = get_option(PASSLESYNC_OPTIONS_KEY, static::get_default_options());
     
-    if (!isset($cached_options->enable_debug_logging)) {
-      $cached_options->enable_debug_logging = true; 
-    }
-
     // This is needed as options contain home_url and causes annoying issues when migrating from different environments
     // with the site_url property still holding the value from the old environment
     if ($cached_options->site_url != home_url()) {
@@ -31,10 +27,6 @@ class OptionsService
 
     if (!isset($cached_options->include_passle_tag_groups)) {
         $cached_options->include_passle_tag_groups = false;
-    }
-
-    if (!isset($cached_options->enable_debug_logging)) {
-        $cached_options->enable_debug_logging = true;
     }
 
     return $cached_options;
