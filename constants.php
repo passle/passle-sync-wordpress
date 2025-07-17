@@ -23,4 +23,4 @@ passle_constants("DEFAULT_AVATAR_URL", "https://images.passle.net/200x200/assets
 passle_constants("ASSET_MANIFEST", plugin_dir_path(__FILE__) . "/frontend/dist/asset-manifest.json");
 passle_constants("DEFAULT_PROFILE_IMAGE", "http://s3.amazonaws.com/passle-public/fb_passle_app_250.png");
 passle_constants("INCLUDE_PASSLE_POST_FEATURED_ITEM_STYLES", true);
-passle_constants("DEV_MODE", false);
+passle_constants("DEBUG_MODE", false);
