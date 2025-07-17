@@ -1,7 +1,6 @@
 <?php
 
-if (defined('PASSLE_SYNC_DEV_MODE') && PASSLE_SYNC_DEV_MODE) {
-
+if (PASSLESYNC_DEBUG_MODE) {
   if ( !function_exists('write_log')) {
     /**
     * Logs debug messages to a private log file.
@@ -9,7 +8,7 @@ if (defined('PASSLE_SYNC_DEV_MODE') && PASSLE_SYNC_DEV_MODE) {
     * @param mixed  $data     The data to log.
     * @param string $context  Optional context label.
     */
-    function write_log( $data, $context = 'debug' ) {
+    function write_log( $data, $context = 'passlesync' ) {
       $log_dir  = WP_CONTENT_DIR . '/passle-sync-logs';
       $log_file = $log_dir . '/debug.log';
       $htaccess = $log_dir . '/.htaccess';

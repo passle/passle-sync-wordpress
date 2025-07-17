@@ -84,7 +84,7 @@ class ThemeService
     }
 
     $featured_item_styles = "";
-    if ($featured_item !== "") {
+    if ($featured_item !== "" && PASSLESYNC_INCLUDE_PASSLE_POST_FEATURED_ITEM_STYLES) {
       $featured_item_styles = '
         <style>
           .featured-item--video,
