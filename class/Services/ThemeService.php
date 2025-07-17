@@ -94,26 +94,23 @@ class ThemeService
           .featured-item--embed.legacy {
             margin-bottom: 20px;
           }
-          .featured-item--video, .featured-item--audio, .featured-item--embed.legacy {
-            width: 640px;
-            padding-bottom: min(56.25%, 480px);
+          .featured-item--video, 
+          .featured-item--audio, 
+          .featured-item--embed.legacy {
+            height: auto;
+            padding-bottom: 56.25%;
             position: relative;
           }
-          .featured-item--video .psl-media-player-iframe-container,
-          .featured-item--audio .psl-media-player-iframe-container,
-          .featured-item--embed.legacy .psl-media-player-iframe-container {
+          .featured-item--video #psl-media-player-iframe,
+          .featured-item--audio #psl-media-player-iframe,
+          .featured-item--embed.legacy #psl-media-player-iframe {
             position: absolute;
             left: 0;
             top: 0;
             bottom: 0;
             right: 0;
-          }
-          .featured-item--video .psl-media-player-iframe-container iframe,
-          .featured-item--audio .psl-media-player-iframe-container iframe,
-          .featured-item--embed.legacy .psl-media-player-iframe-container iframe{
-            max-width: 640px;
-            height: 100%;
             width: 100%;
+            height: 100%;
           }
         </style>
       ';
