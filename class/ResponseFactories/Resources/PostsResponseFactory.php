@@ -15,7 +15,7 @@ class PostsResponseFactory extends ResourceResponseFactoryBase
   protected static function filter_entities_before_pagination(array $entities)
   {
     usort($entities, fn ($a, $b) => $b["publishedDate"] <=> $a["publishedDate"]);
-    array_walk($entities, fn (&$key) => $key["publishedDate"] = date("d/m/Y H:i", $key["publishedDate"]));
+    array_walk($entities, fn (&$key) => $key["publishedDate"] = gmdate("d/m/Y H:i", $key["publishedDate"]));
 
     return $entities;
   }

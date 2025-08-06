@@ -38,8 +38,7 @@ class SettingsController extends ControllerBase
       $params["simulateRemoteHosting"],
       $params["includePasslePostsOnHomePage"],
       $params["includePasslePostsOnTagPage"],
-      $params["includePassleTagGroups"],
-      $params["enableDebugLogging"]
+      $params["includePassleTagGroups"]
     );
 
     if (!preg_match("/{{PostShortcode}}/", $options->post_permalink_template)) {

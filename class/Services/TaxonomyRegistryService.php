@@ -3,7 +3,6 @@
 namespace Passle\PassleSync\Services;
 
 use Passle\PassleSync\Services\Content\Passle\PassleTagGroupsContentService;
-use Passle\PassleSync\Services\OptionsService;
 
 class TaxonomyRegistryService 
 {
@@ -19,7 +18,6 @@ class TaxonomyRegistryService
 
     public static function create_taxonomies() 
     {
-      $options = OptionsService::get();
       $tag_groups = PassleTagGroupsContentService::get_cache();
         
       if (empty($tag_groups)) {
@@ -68,7 +66,7 @@ class TaxonomyRegistryService
             );
                 
             if (is_wp_error($term)) {
-              write_log("Error creating term " . $tag . ": " . $term->get_error_message() . PHP_EOL, $options->enable_debug_logging); 
+              write_log("Error creating term " . $tag . ": " . $term->get_error_message() . PHP_EOL); 
             }
           }
         }

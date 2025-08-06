@@ -17,7 +17,6 @@ class Options implements JsonSerializable
   public bool $include_passle_posts_on_home_page;
   public bool $include_passle_posts_on_tag_page;
   public bool $include_passle_tag_groups;
-  public bool $enable_debug_logging;
   public string $domain_ext;
   public string $site_url;
 
@@ -32,8 +31,7 @@ class Options implements JsonSerializable
     bool $simulate_remote_hosting,
     bool $include_passle_posts_on_home_page,
     bool $include_passle_posts_on_tag_page,
-    bool $include_passle_tag_groups,
-    bool $enable_debug_logging
+    bool $include_passle_tag_groups
   ) {
     $this->passle_api_key = $passle_api_key;
     $this->plugin_api_key = $plugin_api_key;
@@ -45,7 +43,6 @@ class Options implements JsonSerializable
     $this->include_passle_posts_on_home_page = $include_passle_posts_on_home_page;
     $this->include_passle_posts_on_tag_page = $include_passle_posts_on_tag_page;
     $this->include_passle_tag_groups = $include_passle_tag_groups;
-    $this->enable_debug_logging = $enable_debug_logging;
     $this->domain_ext = PASSLESYNC_DOMAIN_EXT;
     $this->site_url = home_url();
   }
@@ -69,7 +66,6 @@ class Options implements JsonSerializable
       "includePasslePostsOnHomePage" => isset($this->include_passle_posts_on_home_page) ? $this->include_passle_posts_on_home_page : false,
       "includePasslePostsOnTagPage" => isset($this->include_passle_posts_on_tag_page) ? $this->include_passle_posts_on_tag_page : false,
       "includePassleTagGroups" => isset($this->include_passle_tag_groups) ? $this->include_passle_tag_groups : false,
-      "enableDebugLogging" => isset($this->enable_debug_logging) ? $this->enable_debug_logging: true,
       "domainExt" => $this->domain_ext,
       "siteUrl" => $this->site_url,
     ];

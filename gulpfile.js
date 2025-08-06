@@ -51,8 +51,6 @@ const buildZip = (cb) => {
     "!gulpfile.js",
     "!**/package.json",
     "!**/package-lock.json",
-    "!composer.json",
-    "!composer.lock",
     "!phpdoc.xml",
     "!build{,/**}",
   ]);
