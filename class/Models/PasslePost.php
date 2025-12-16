@@ -64,12 +64,12 @@ class PasslePost
   public string $image_url;
   /** The HTML content for the post's featured media. */
   public string $featured_item_html;
-  /** An integer showing where the featured media is shown in the post. Values are: 0 - None; 1 - At the bottom of the post; 2 - At the top of the post; 3 - In the post’s header. */
-  public int $featured_item_position;
-  /** An integer showing what type of media the post's featured media is. 0 - None; 1 - Image; 2 - Video; 3 - Audio; 4 - Embedded link / item; 5 - Font; 6 - Document. */
-  public int $featured_item_media_type;
-  /** An integer showing what type of embed the post's embedded item is, if the featured media is of type '4 - Embedded link / item'. 0 - None; 1 - Photo; 2 - Video; 3 - Link; 4 - Rich. */
-  public int $featured_item_embed_type;
+  /** A value showing where the featured media is shown in the post. Values are: 0 - None; 1 - At the bottom of the post; 2 - At the top of the post; 3 - In the post’s header. */
+  public int|string $featured_item_position;
+  /** An value showing what type of media the post's featured media is. 0 - None; 1 - Image; 2 - Video; 3 - Audio; 4 - Embedded link / item; 5 - Font; 6 - Document. */
+  public int|string $featured_item_media_type;
+  /** An value showing what type of embed the post's embedded item is, if the featured media is of type '4 - Embedded link / item'. 0 - None; 1 - Photo; 2 - Video; 3 - Link; 4 - Rich. */
+  public int|string $featured_item_embed_type;
   /** A string showing what provider the embedded item came from, if the featured media is of type '4 - Embedded link / item'. */
   public string $featured_item_embed_provider;
   /** The first few lines of the post. */
