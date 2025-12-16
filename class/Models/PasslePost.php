@@ -4,8 +4,9 @@ namespace Passle\PassleSync\Models;
 
 use DateTime;
 use Passle\PassleSync\SyncHandlers\PostHandler;
-use WP_Post;
 use Passle\PassleSync\Utils\Utils;
+use WP_Post;
+use stdClass;
 
 /**
  * This class provides a simple interface for accessing properties of
@@ -64,12 +65,12 @@ class PasslePost
   public string $image_url;
   /** The HTML content for the post's featured media. */
   public string $featured_item_html;
-  /** An integer showing where the featured media is shown in the post. Values are: 0 - None; 1 - At the bottom of the post; 2 - At the top of the post; 3 - In the post’s header. */
-  public int $featured_item_position;
-  /** An integer showing what type of media the post's featured media is. 0 - None; 1 - Image; 2 - Video; 3 - Audio; 4 - Embedded link / item; 5 - Font; 6 - Document. */
-  public int $featured_item_media_type;
-  /** An integer showing what type of embed the post's embedded item is, if the featured media is of type '4 - Embedded link / item'. 0 - None; 1 - Photo; 2 - Video; 3 - Link; 4 - Rich. */
-  public int $featured_item_embed_type;
+  /** A value showing where the featured media is shown in the post. Values are: 0 - None; 1 - At the bottom of the post; 2 - At the top of the post; 3 - In the post’s header. */
+  public int|string $featured_item_position;
+  /** An value showing what type of media the post's featured media is. 0 - None; 1 - Image; 2 - Video; 3 - Audio; 4 - Embedded link / item; 5 - Font; 6 - Document. */
+  public int|string $featured_item_media_type;
+  /** An value showing what type of embed the post's embedded item is, if the featured media is of type '4 - Embedded link / item'. 0 - None; 1 - Photo; 2 - Video; 3 - Link; 4 - Rich. */
+  public int|string $featured_item_embed_type;
   /** A string showing what provider the embedded item came from, if the featured media is of type '4 - Embedded link / item'. */
   public string $featured_item_embed_provider;
   /** The first few lines of the post. */
@@ -97,7 +98,7 @@ class PasslePost
   /** 
    * Construct a new instance of the `PasslePost` class from the Wordpress post object.
    * 
-   * @param WP_Post $wp_post The Wordpress post object.
+   * @param WP_Post|array|null $wp_post The WordPress post object.
    * @param array $options {
    *    Optional. Array containing options to be used when constructing the class.
    *    
@@ -107,17 +108,14 @@ class PasslePost
    * }
    * @return void
    */
-  public function __construct($wp_post, array $options = array())
+  public function __construct(WP_Post|array|null $wp_post = null, array $options = array())
   {
     $options = wp_parse_args($options, [
       "load_authors" => true,
       "load_tags" => true,
     ]);
 
-    $this->load_authors = $options["load_authors"];
-    $this->load_tags = $options["load_tags"];
-
-    if (gettype($wp_post) === "object") {
+    if (is_object($wp_post)) {
      /**
       * Relevanssi (and other plugins) sometimes pass "raw" post objects.
       * These may not be fully-initialized WP_Post objects.
@@ -125,17 +123,25 @@ class PasslePost
       * Trying to treat them like full WP_Post objects may result in fatal errors.
       * Hence this check and wrapping with WP_Post if needed.
       */
-      if (isset($wp_post->filter) && $wp_post->filter === "raw") {
+      if ($wp_post instanceof WP_Post) {
+        $this->wp_post = $wp_post;
+      } elseif ($wp_post instanceof stdClass && ($wp_post->filter ?? '') === "raw") {
         $this->wp_post = new WP_Post($wp_post);
       } else {
-        $this->wp_post = $wp_post;
+        return;
       }
+
       $this->meta = get_post_meta($wp_post->ID);
       $this->initialize_wp_post();
-    } else {
+    } elseif (is_array($wp_post)) {
       $this->passle_post = $wp_post;
       $this->initialize_passle_post();
+    } else {
+      return;
     }
+
+    $this->load_authors = $options["load_authors"];
+    $this->load_tags = $options["load_tags"];
 
     if ($this->load_authors) {
       $this->initialize_authors();
