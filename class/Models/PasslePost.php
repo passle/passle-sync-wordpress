@@ -148,20 +148,11 @@ class PasslePost
     }
 
     if ($this->load_tags) {
-      $all_wp_tags = [];
-      $offset = 0;
-      $batch_size = 100;
-      do {
-        $tags_batch = get_tags(array(
-          'hide_empty' => false,
-          'number' => $batch_size,
-          'offset' => $offset,
-        ));
-
-        // Merge the retrieved batch with the main array
-        $all_wp_tags = array_merge($all_wp_tags, $tags_batch);
-        $offset += $batch_size;
-      } while (count($tags_batch) === $batch_size); // Stop if less than $batch_size is returned
+      // Load all tags in a single query while caching term meta (caching here is critical for sites with a lot of tags)
+      $all_wp_tags = get_tags([
+        'hide_empty' => false,
+        'update_term_meta_cache' => true,
+      ]);
       $this->initialize_tags($all_wp_tags);
       $this->initialize_tag_groups($all_wp_tags);
     }
