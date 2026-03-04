@@ -148,20 +148,11 @@ class PasslePost
     }
 
     if ($this->load_tags) {
-      $all_wp_tags = [];
-      $offset = 0;
-      $batch_size = 100;
-      do {
-        $tags_batch = get_tags(array(
-          'hide_empty' => false,
-          'number' => $batch_size,
-          'offset' => $offset,
-        ));
-
-        // Merge the retrieved batch with the main array
-        $all_wp_tags = array_merge($all_wp_tags, $tags_batch);
-        $offset += $batch_size;
-      } while (count($tags_batch) === $batch_size); // Stop if less than $batch_size is returned
+      // Load all tags in a single query while caching term meta (caching here is critical for sites with a lot of tags)
+      $all_wp_tags = get_tags([
+        'hide_empty' => false,
+        'update_term_meta_cache' => true,
+      ]);
       $this->initialize_tags($all_wp_tags);
       $this->initialize_tag_groups($all_wp_tags);
     }
@@ -385,11 +376,33 @@ class PasslePost
 
   private function map_tags(array $tags, array $wp_tags)
   {
-    return array_map(function ($tag) use ($wp_tags) {
-      $matching_wp_tag = Utils::array_first($wp_tags, fn ($wp_tag) => html_entity_decode($wp_tag->name) === html_entity_decode($tag)) ?: null;
-      $matching_wp_tag_aliases = (!empty($matching_wp_tag) && isset($matching_wp_tag->term_id)) 
-        ? ($aliases = get_term_meta($matching_wp_tag->term_id, "aliases", false)) !== false ? $aliases : array()
-        : array();
+    if (empty($wp_tags)) {
+      return array_map(fn($tag) => new PassleTag($tag, null, []), $tags);
+    }
+
+    // Build lookup table once
+    $tag_lookup = [];
+
+    foreach ($wp_tags as $wp_tag) {
+      $decoded_name = html_entity_decode($wp_tag->name);
+      $tag_lookup[$decoded_name] = $wp_tag;
+    }
+
+    return array_map(function ($tag) use ($tag_lookup) {
+
+      $decoded_tag = html_entity_decode($tag);
+      $matching_wp_tag = $tag_lookup[$decoded_tag] ?? null;
+
+      $matching_wp_tag_aliases = [];
+
+      if ($matching_wp_tag && isset($matching_wp_tag->term_id)) {
+        // This will now hit the primed meta cache
+        $matching_wp_tag_aliases = get_term_meta(
+          $matching_wp_tag->term_id,
+          'aliases',
+          false
+        ) ?: [];
+      }
       return new PassleTag($tag, $matching_wp_tag, $matching_wp_tag_aliases);
     }, $tags);
   }
