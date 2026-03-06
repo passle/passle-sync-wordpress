@@ -95,6 +95,9 @@ class PasslePost
 
   private array $passle_post;
 
+  private array $wp_tag_lookup = [];
+  private array $alias_cache = [];
+
   /** 
    * Construct a new instance of the `PasslePost` class from the Wordpress post object.
    * 
@@ -148,10 +151,17 @@ class PasslePost
     }
 
     if ($this->load_tags) {
-      // Load all tags in a single query while caching term meta (caching here is critical for sites with a lot of tags)
-      $all_wp_tags = get_tags([
+      // Load only post tag names from Wordpress via the default post_tag taxonomy
+      // instead of loading all wp tags here
+      $post_tag_names = isset($this->meta)
+        ? ($this->meta["post_tags"] ?? [])
+        : ($this->passle_post["Tags"] ?? []);
+
+      $all_wp_tags = get_terms([
+        'taxonomy' => 'post_tag',
+        'name__in' => $post_tag_names,
         'hide_empty' => false,
-        'update_term_meta_cache' => true,
+        'update_term_meta_cache' => false,
       ]);
       $this->initialize_tags($all_wp_tags);
       $this->initialize_tag_groups($all_wp_tags);
@@ -303,32 +313,66 @@ class PasslePost
   }
 
   private function initialize_tags(array $wp_tags)
-  {
-    if (isset($this->meta)) {
-      $tags = isset($this->meta["post_tags"]) ? $this->meta["post_tags"] : array();
+  {   
+    if (isset($this->meta["post_tags"])) {
+      $tags = $this->meta["post_tags"] ?? [];
     } else {
-      $tags = $this->passle_post["Tags"];
+      $tags = $this->passle_post["Tags"] ?? [];
     }
 
-    $this->tags = $this->map_tags($tags ?? array(), $wp_tags && is_array($wp_tags) ? $wp_tags : array());
+    if (empty($tags)) {
+      $this->tags = [];
+      return;
+    }
+
+    foreach ($wp_tags as $wp_tag) {
+      $this->wp_tag_lookup[html_entity_decode($wp_tag->name)] = $wp_tag;
+    }
+
+    // Map tags in batches. This will only make a difference to posts with more than 50 tags
+    $batch_size = 50;
+    $tags_chunks = array_chunk($tags, $batch_size);
+
+    $mapped_tags = [];
+    foreach ($tags_chunks as $chunk) {
+      $chunk_wp_tags = array_filter($wp_tags, fn($t) => in_array(html_entity_decode($t->name), $chunk, true));
+      $mapped_tags = array_merge($mapped_tags, $this->map_tags($chunk, $chunk_wp_tags));
+    }
+
+    $this->tags = $mapped_tags;
   }
 
   private function initialize_tag_groups(array $wp_tags)
   {
-    if (isset($this->meta)) {
-      $tag_groups = isset($this->meta["post_tag_groups"]) ? $this->meta["post_tag_groups"] : array();
+    if (isset($this->meta["post_tag_groups"])) {
+      $tag_groups = $this->meta["post_tag_groups"] ?? [];
     } else {
-      $tag_groups = $this->passle_post["TagGroups"] ?? array();
+      $tag_groups = $this->passle_post["TagGroups"] ?? [];
     }
 
     $this->tag_groups = [];
+
     foreach ((array) $tag_groups as $tag_group) {
       $unserialized_tag_group = maybe_unserialize($tag_group);
       $unserialized_tag_group = is_array($unserialized_tag_group) ? $unserialized_tag_group : [];
+
+      $group_tags = $unserialized_tag_group["Tags"] ?? [];
+
+      // Batch tags for this group
+      $batch_size = 20;
+      $tags_chunks = array_chunk($group_tags, $batch_size);
+
+      $mapped_group_tags = [];
+      foreach ($tags_chunks as $chunk) {
+        $chunk_wp_tags = array_filter($wp_tags, fn($t) => in_array(html_entity_decode($t->name), $chunk, true));
+        $mapped_group_tags = array_merge($mapped_group_tags, $this->map_tags($chunk, $chunk_wp_tags));
+      }
+
       $this->tag_groups[] = [
         "name" => $unserialized_tag_group["Name"] ?? "",
-        "tags" => $this->map_tags($unserialized_tag_group["Tags"] ?? [], $wp_tags)
+        "tags" => $mapped_group_tags
       ];
+
       unset($unserialized_tag_group); // Free memory
     }
   }
@@ -374,37 +418,58 @@ class PasslePost
     return array_map(fn ($author) => new PassleAuthor($author), $authors);
   }
 
-  private function map_tags(array $tags, array $wp_tags)
-  {
-    if (empty($wp_tags)) {
-      return array_map(fn($tag) => new PassleTag($tag, null, []), $tags);
+  private function map_tags(array $tags) {
+
+    if (empty($tags)) {
+      return [];
     }
 
-    // Build lookup table once
-    $tag_lookup = [];
+    $term_ids_to_query = [];
 
-    foreach ($wp_tags as $wp_tag) {
-      $decoded_name = html_entity_decode($wp_tag->name);
-      $tag_lookup[$decoded_name] = $wp_tag;
-    }
-
-    return array_map(function ($tag) use ($tag_lookup) {
+    foreach ($tags as $tag) {
 
       $decoded_tag = html_entity_decode($tag);
-      $matching_wp_tag = $tag_lookup[$decoded_tag] ?? null;
 
-      $matching_wp_tag_aliases = [];
-
-      if ($matching_wp_tag && isset($matching_wp_tag->term_id)) {
-        // This will now hit the primed meta cache
-        $matching_wp_tag_aliases = get_term_meta(
-          $matching_wp_tag->term_id,
-          'aliases',
-          false
-        ) ?: [];
+      if (!isset($this->wp_tag_lookup[$decoded_tag])) {
+        continue;
       }
-      return new PassleTag($tag, $matching_wp_tag, $matching_wp_tag_aliases);
-    }, $tags);
+
+      $term_id = $this->wp_tag_lookup[$decoded_tag]->term_id;
+
+      if (!array_key_exists($term_id, $this->alias_cache)) {
+        $term_ids_to_query[] = $term_id;
+      }
+    }
+
+    $term_ids_to_query = array_unique($term_ids_to_query);
+
+    if (!empty($term_ids_to_query)) {
+
+        // WordPress bulk loads term meta
+        update_termmeta_cache($term_ids_to_query);
+
+        foreach ($term_ids_to_query as $term_id) {
+          $this->alias_cache[$term_id] = get_term_meta($term_id, 'aliases', false);
+        }
+    }
+
+    $result = [];
+
+    foreach ($tags as $tag) {
+
+        $decoded_tag = html_entity_decode($tag);
+        $wp_tag = $this->wp_tag_lookup[$decoded_tag] ?? null;
+
+        $aliases = [];
+
+        if ($wp_tag) {
+          $aliases = $this->alias_cache[$wp_tag->term_id] ?? [];
+        }
+
+        $result[] = new PassleTag($tag, $wp_tag, $aliases);
+    }
+
+    return $result;
   }
 
   private function map_share_views(array $share_views)
