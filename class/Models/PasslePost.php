@@ -96,7 +96,7 @@ class PasslePost
   private array $passle_post;
 
   private array $wp_tag_lookup = [];
-  private array $alias_cache = [];
+  private static array $alias_cache = [];
 
   /** 
    * Construct a new instance of the `PasslePost` class from the Wordpress post object.
@@ -329,17 +329,12 @@ class PasslePost
       $this->wp_tag_lookup[html_entity_decode($wp_tag->name)] = $wp_tag;
     }
 
-    // Map tags in batches. This will only make a difference to posts with more than 50 tags
-    $batch_size = 50;
-    $tags_chunks = array_chunk($tags, $batch_size);
-
-    $mapped_tags = [];
-    foreach ($tags_chunks as $chunk) {
-      $chunk_wp_tags = array_filter($wp_tags, fn($t) => in_array(html_entity_decode($t->name), $chunk, true));
-      $mapped_tags = array_merge($mapped_tags, $this->map_tags($chunk, $chunk_wp_tags));
+    // Build lookup for all WP_Term objects by decoded name
+    foreach ($wp_tags as $wp_tag) {
+      $this->wp_tag_lookup[html_entity_decode($wp_tag->name)] = $wp_tag;
     }
 
-    $this->tags = $mapped_tags;
+    $this->tags = $this->map_tags($tags);
   }
 
   private function initialize_tag_groups(array $wp_tags)
@@ -358,19 +353,9 @@ class PasslePost
 
       $group_tags = $unserialized_tag_group["Tags"] ?? [];
 
-      // Batch tags for this group
-      $batch_size = 20;
-      $tags_chunks = array_chunk($group_tags, $batch_size);
-
-      $mapped_group_tags = [];
-      foreach ($tags_chunks as $chunk) {
-        $chunk_wp_tags = array_filter($wp_tags, fn($t) => in_array(html_entity_decode($t->name), $chunk, true));
-        $mapped_group_tags = array_merge($mapped_group_tags, $this->map_tags($chunk, $chunk_wp_tags));
-      }
-
       $this->tag_groups[] = [
         "name" => $unserialized_tag_group["Name"] ?? "",
-        "tags" => $mapped_group_tags
+        "tags" => $this->map_tags($group_tags)
       ];
 
       unset($unserialized_tag_group); // Free memory
@@ -424,49 +409,27 @@ class PasslePost
       return [];
     }
 
-    $term_ids_to_query = [];
-
-    foreach ($tags as $tag) {
-
-      $decoded_tag = html_entity_decode($tag);
-
-      if (!isset($this->wp_tag_lookup[$decoded_tag])) {
-        continue;
-      }
-
-      $term_id = $this->wp_tag_lookup[$decoded_tag]->term_id;
-
-      if (!array_key_exists($term_id, $this->alias_cache)) {
-        $term_ids_to_query[] = $term_id;
-      }
-    }
-
-    $term_ids_to_query = array_unique($term_ids_to_query);
-
-    if (!empty($term_ids_to_query)) {
-
-        // WordPress bulk loads term meta
-        update_termmeta_cache($term_ids_to_query);
-
-        foreach ($term_ids_to_query as $term_id) {
-          $this->alias_cache[$term_id] = get_term_meta($term_id, 'aliases', false);
-        }
-    }
-
     $result = [];
 
     foreach ($tags as $tag) {
 
-        $decoded_tag = html_entity_decode($tag);
-        $wp_tag = $this->wp_tag_lookup[$decoded_tag] ?? null;
+      $decoded_tag = html_entity_decode($tag);
+      $wp_tag = $this->wp_tag_lookup[$decoded_tag] ?? null;
 
-        $aliases = [];
+      $aliases = [];
 
-        if ($wp_tag) {
-          $aliases = $this->alias_cache[$wp_tag->term_id] ?? [];
+      if ($wp_tag) {
+        $term_id = $wp_tag->term_id;
+
+        // Use static cache to avoid multiple DB queries for the same term
+        if (!array_key_exists($term_id, self::$alias_cache)) {
+          self::$alias_cache[$term_id] = get_term_meta($term_id, 'aliases', true) ?: [];
         }
 
-        $result[] = new PassleTag($tag, $wp_tag, $aliases);
+        $aliases = self::$alias_cache[$term_id];
+      }
+
+      $result[] = new PassleTag($tag, $wp_tag, $aliases);
     }
 
     return $result;
