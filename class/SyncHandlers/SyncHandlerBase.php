@@ -66,11 +66,25 @@ abstract class SyncHandlerBase extends ResourceClassBase
   {
     $resource = static::get_resource_instance();
 
-    $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
+    $paged = 1;
+    $per_page = 50;
 
-    foreach ($wp_entities as $entity) {
-      static::delete($entity->ID);
-    }
+    do {
+
+        $wp_entities = call_user_func(
+            [$resource->wordpress_content_service_name, "fetch_entities"],
+            [],
+            $paged,
+            $per_page
+        );
+
+        foreach ($wp_entities as $entity) {
+            static::delete($entity->ID);
+        }
+
+        $paged++;
+
+    } while (!empty($wp_entities));
 
     static::set_last_synced_page(1);
   }
