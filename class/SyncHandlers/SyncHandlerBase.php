@@ -267,7 +267,8 @@ abstract class SyncHandlerBase extends ResourceClassBase
 
   protected static function extract_slug_from_url(string $url)
   {
-    return basename($url);
+    $path = parse_url($url, PHP_URL_PATH);
+    return basename($path ?? $url);
   }
 
   protected static function batch_sync_all()
