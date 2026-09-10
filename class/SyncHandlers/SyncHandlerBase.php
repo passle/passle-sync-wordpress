@@ -109,7 +109,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
   {
     $resource = static::get_resource_instance();
     $resource_shortcode_name = $resource->get_shortcode_name();
-    $meta_shortcode_name = "{$resource->name_singular}_shortcode";
+    $meta_shortcode_name = $resource->get_meta_shortcode_name();
 
     $passle_shortcodes = Utils::array_select($api_entities, $resource_shortcode_name);
     $existing_shortcodes = array_map(function ($item) use ($meta_shortcode_name) {
