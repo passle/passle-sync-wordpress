@@ -11,22 +11,36 @@ use Passle\PassleSync\Actions\QueueJobAction;
 
 abstract class SyncHandlerBase extends ResourceClassBase
 {
+  /** Maps one raw Passle API record + the WP post ID it corresponds to (0 if new) into a wp_insert_post()-shaped array. */
   protected abstract static function map_data(array $data, int $entity_id);
 
+  /** Runs once, before a sync_all() run starts syncing any Passle shortcode. */
   protected abstract static function pre_sync_all_hook();
 
+  /** Runs once, after a sync_all() run has finished syncing every configured Passle shortcode. */
   protected abstract static function post_sync_all_hook();
 
+  /** Runs after a single entity has been inserted/updated in WP, e.g. to fire a completion action. */
   protected abstract static function post_sync_one_hook(int $entity_id);
 
+  /** Returns the page number a paginated sync should resume from (1 if there's no sync in progress). */
   protected abstract static function get_last_synced_page();
 
+  /** Persists progress through a paginated sync so it can resume if interrupted. */
   protected abstract static function set_last_synced_page(int $page_number);
 
+  /**
+   * Runs after every item on one page has been created/updated during a paginated sync.
+   * Used by PostHandler to accumulate this run's results for deletion reconciliation once
+   * every page has completed; a no-op for resources (like authors) that don't reconcile deletions.
+   */
+  protected abstract static function post_page_sync_hook(string $url, array $api_entities, int $page_number, int $total_pages);
+
+  /** Entry point for a full sync: runs the pre-hook, syncs every configured Passle shortcode, then the post-hook. */
   public static function sync_all()
   {
     static::pre_sync_all_hook();
- 
+
     $resource = static::get_resource_instance();
 
     static::batch_sync_all();
@@ -34,6 +48,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
     static::post_sync_all_hook();
   }
 
+  /** Syncs specific shortcodes on demand (e.g. from a SYNC_POST/SYNC_AUTHOR webhook), using the API cache first and falling back to a live API call. */
   public static function sync_many(array $shortcodes)
   {
     $resource = static::get_resource_instance();
@@ -57,11 +72,13 @@ abstract class SyncHandlerBase extends ResourceClassBase
     }
   }
 
+  /** Convenience wrapper for syncing a single shortcode. */
   public static function sync_one(string $shortcode)
   {
     static::sync_many([$shortcode]);
   }
 
+  /** Deletes every WP entity of this type, fetched in batches. Used for a full reset (e.g. plugin deactivation), not part of routine syncing. */
   public static function delete_all()
   {
     $resource = static::get_resource_instance();
@@ -89,6 +106,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
     static::set_last_synced_page(1);
   }
 
+  /** Deletes the WP entities matching the given shortcodes. Force-deletes, so only call it for entities confirmed gone at the source (e.g. a DELETE webhook). */
   public static function delete_many(array $shortcodes)
   {
     $resource = static::get_resource_instance();
@@ -100,46 +118,19 @@ abstract class SyncHandlerBase extends ResourceClassBase
     }
   }
 
+  /** Convenience wrapper for deleting a single shortcode - the DELETE_POST/DELETE_AUTHOR webhook path. */
   public static function delete_one(string $shortcode)
   {
     static::delete_many([$shortcode]);
   }
 
-  private static function compare_items(array $wp_entities, array $api_entities)
-  {
-    $resource = static::get_resource_instance();
-    $resource_shortcode_name = $resource->get_shortcode_name();
-    $meta_shortcode_name = $resource->get_meta_shortcode_name();
-
-    $passle_shortcodes = Utils::array_select($api_entities, $resource_shortcode_name);
-    $existing_shortcodes = array_map(function ($item) use ($meta_shortcode_name) {
-      // post_shortcode can be an array. We need to return the string value
-      return is_array($item->{$meta_shortcode_name}) ? $item->{$meta_shortcode_name}[0] : $item->{$meta_shortcode_name};
-    }, $wp_entities);
-    $all_shortcodes = array_unique(array_merge($passle_shortcodes, $existing_shortcodes));
-
-    // Items
-    $shortcodes_pending = array_filter($existing_shortcodes, fn ($shortcode) => !in_array($shortcode, $passle_shortcodes));
-    $shortcodes_to_sync = array_filter($all_shortcodes, fn ($shortcode) => !in_array($shortcode, $shortcodes_pending));
-
-    // Add/update
-    $items_to_sync = array_filter($api_entities, fn ($item) => in_array($item[$resource_shortcode_name], $shortcodes_to_sync));
-    foreach ($items_to_sync as $item) {
-      static::create_or_update($item);
-    }
-
-    return array_filter($wp_entities, function ($item) use ($meta_shortcode_name, $shortcodes_pending) {
-      // post_shortcode can be an array. We need to use the string value to check if it is inside $shortcodes_pending
-      $shortcode = is_array($item->{$meta_shortcode_name}) ? $item->{$meta_shortcode_name}[0] : $item->{$meta_shortcode_name};
-      return in_array($shortcode, $shortcodes_pending);
-    });
-  }
-
+  /** Force-deletes (bypasses trash) a single WP post by ID. */
   protected static function delete(int $id)
   {
     return wp_delete_post($id, true);
   }
 
+  /** Looks up any existing WP entity for this data's shortcode, then inserts or updates it accordingly. */
   protected static function create_or_update(array $data)
   {
     $resource = static::get_resource_instance();
@@ -160,6 +151,11 @@ abstract class SyncHandlerBase extends ResourceClassBase
     static::insert_post($postarr, true);
   }
 
+  /**
+   * Wraps wp_insert_post() to handle meta_input values wp_insert_post() can't take directly:
+   * array-valued meta (stored via add_post_meta() per item), post_tag terms with alias handling,
+   * and tag-group taxonomy terms. Falls back to a plain wp_insert_post() when there's no array meta to handle.
+   */
   protected static function insert_post(array $postarr, $wp_error = \false, $fire_after_hooks = \true)
   {
     $options = OptionsService::get();
@@ -265,12 +261,14 @@ abstract class SyncHandlerBase extends ResourceClassBase
     return $postarr;
   }
 
+  /** Pulls the last path segment (e.g. a slug) out of a Passle-supplied URL. */
   protected static function extract_slug_from_url(string $url)
   {
     $path = parse_url($url, PHP_URL_PATH);
     return basename($path ?? $url);
   }
 
+  /** Loops over every Passle shortcode configured in plugin options and syncs each one. */
   protected static function batch_sync_all()
   {
     $passle_shortcodes = OptionsService::get()->passle_shortcodes;
@@ -281,6 +279,7 @@ abstract class SyncHandlerBase extends ResourceClassBase
   }
 
 
+  /** Builds the API list URL for one Passle shortcode and kicks off paginated syncing for it. */
   public static function sync_all_by_passle(string $passle_shortcode)
   {
     $resource = static::get_resource_instance();
@@ -298,6 +297,11 @@ abstract class SyncHandlerBase extends ResourceClassBase
   }
 
 
+  /**
+   * Works out how many pages the API has for this URL and queues one async
+   * `passle_{plural}_sync_page` job per page (each processed by sync_page() below),
+   * resuming from get_last_synced_page() if a previous run was interrupted.
+   */
   protected static function sync_all_paginated(string $url, int $page_number)
   {
     $resource = static::get_resource_instance();
@@ -329,7 +333,13 @@ abstract class SyncHandlerBase extends ResourceClassBase
     return;
   }
 
-  public static function sync_page(string $url, int $page_number, int $total_pages) 
+  /**
+   * The per-page worker queued by sync_all_paginated(): fetches this page, validates the
+   * response is complete (throwing - which Action Scheduler records as a failed job - if
+   * it's missing or truncated), creates/updates every item, runs post_page_sync_hook(),
+   * and advances (or, on the last page, resets) the sync-resume checkpoint.
+   */
+  public static function sync_page(string $url, int $page_number, int $total_pages)
   {
       $resource = static::get_resource_instance();
       $response = call_user_func([$resource->passle_content_service_name, "get"], $url);
@@ -339,43 +349,34 @@ abstract class SyncHandlerBase extends ResourceClassBase
         throw new Exception("Failed to get data from the API", 500);
       }
 
-      $response = $response[ucfirst($resource->name_plural)];
-        
-      if (empty($response)) {
-        return; // No more items
-      }
+      $items = $response[ucfirst($resource->name_plural)];
 
-      $wp_entities = call_user_func([$resource->wordpress_content_service_name, "fetch_entities"]);
-      
-      // Compare and process the items, update pending entities array
-      $wp_entities_to_delete = static::compare_items($wp_entities, $response);
+      // A page that comes back with fewer items than its own TotalCount/PageSize imply is
+      // truncated (e.g. an upstream glitch), not a legitimately short last page. Throwing here
+      // - rather than silently continuing - surfaces the failure the same way a hard API error
+      // does, and (via post_page_sync_hook) keeps that page out of any run's completed-page count.
+      if (isset($response["TotalCount"], $response["PageSize"]) && $response["PageSize"] > 0) {
+        $items_before_this_page = $response["PageSize"] * ($page_number - 1);
+        $expected_count = max(0, min($response["PageSize"], $response["TotalCount"] - $items_before_this_page));
 
-      foreach ($wp_entities as $entity) {
-        if (in_array($entity, $wp_entities_to_delete, true)) {
-          // Only mark as pending deletion if it's in the remove list
-          update_post_meta($entity->ID, '_pending_deletion', true);
-        } else {
-          // If it's NOT in the remove list, unmark it (keep it)
-          delete_post_meta($entity->ID, '_pending_deletion');
+        if (count($items) < $expected_count) {
+          throw new Exception(
+            "Passle sync: page {$page_number} of {$total_pages} for {$resource->name_plural} returned " . count($items) . " item(s), expected {$expected_count}.",
+            500
+          );
         }
       }
+
+      foreach ($items as $item) {
+        static::create_or_update($item);
+      }
+
+      static::post_page_sync_hook($url, $items, $page_number, $total_pages);
 
       if ($page_number < $total_pages) {
         static::set_last_synced_page($page_number);
       } else {
         static::set_last_synced_page(1);
-      }
-
-      // Get all unused entities
-      $wp_entities_to_delete = get_posts([
-        'meta_key'   => '_pending_deletion',
-        'meta_value' => true,
-        'posts_per_page' => -1, 
-      ]);
-
-      // Loop through the unused entities and delete them
-      foreach ($wp_entities_to_delete as $entity) {
-        static::delete($entity->ID);
       }
   }
 }
