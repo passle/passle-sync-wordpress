@@ -74,6 +74,13 @@ class AuthorHandler extends SyncHandlerBase
       ]
     ];
 
+    if ($entity_id) {
+      $existing_post = get_post($entity_id);
+      if ($existing_post) {
+        $postarr["post_date"] = $existing_post->post_date;
+      }
+    }
+
     return $postarr;
   }
 
