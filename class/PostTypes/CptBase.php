@@ -73,22 +73,50 @@ abstract class CptBase extends ResourceClassBase
     $template_variable = $resource->get_permalink_template_variable();
     $post_permalink_template = static::get_permalink_template();
 
-    // Escape special characters in the path
-    $regex = preg_quote($post_permalink_template, "/");
+    // Split template into path and query string components — rewrite rules only match the path
+    $template_parts = explode('?', $post_permalink_template, 2);
+    $path_template = $template_parts[0];
+    $query_string_template = isset($template_parts[1]) ? $template_parts[1] : '';
 
-    // Replace the template variable with a capture group to extract the shortcode
-    // e.g. if we're trying to extract the post shortcode, we want to replace {{PostShortcode}} with (?<shortcode>[a-z0-9]+)
-    $regex = preg_replace("/\\\\{\\\\{" . $template_variable . "\\\\}\\\\}/i", "([a-z0-9]+)", $regex);
+    // Escape special characters in the path only
+    $regex = preg_quote($path_template, "/");
 
-    // Replace the remaining template variables with wildcards
-    // e.g. {{PassleShortcode}} will be replaced with [a-z0-9\-]+
-    $regex = preg_replace("/\\\\{\\\\{[a-z0-9]+\\\\}\\\\}/i", "[a-z0-9\\-]+", $regex, -1, $count);
+    if (strpos($path_template, '{{' . $template_variable . '}}') !== false) {
+      // Shortcode is in the path — capture it and route directly via name
+      $regex = preg_replace("/\\\\{\\\\{" . $template_variable . "\\\\}\\\\}/i", "([a-z0-9]+)", $regex);
+      $regex = preg_replace("/\\\\{\\\\{[a-z0-9]+\\\\}\\\\}/i", "[a-z0-9\\-]+", $regex, -1);
+      $regex = trim($regex, '/');
+      $regex = '^' . $regex . '/?$';
+      $query = "index.php?post_type={$resource->get_post_type()}&name=\$matches[1]";
+    } else {
+      // Shortcode is in the query string — match path as wildcard and resolve via request filter
+      $regex = preg_replace("/\\\\{\\\\{[a-z0-9]+\\\\}\\\\}/i", "[a-z0-9\\-]+", $regex, -1);
+      $regex = trim($regex, '/');
+      $regex = '^' . $regex . '/?$';
+      $query = "index.php?post_type={$resource->get_post_type()}";
 
-    // Ensure regex is properly formed and considers leading/trailing slashes
-    $regex = trim($regex, '/'); // Remove leading/trailing slashes to avoid double slashes
-    $regex = '^' . $regex . '/?$'; // Add start and optional end slash
+      // Extract the query param name holding the shortcode (e.g. "postid" from "postid={{PostShortcode}}")
+      if (preg_match('/([a-z0-9_]+)=\{\{' . $template_variable . '\}\}/i', $query_string_template, $param_matches)) {
+        $shortcode_param = $param_matches[1];
+        $post_type = $resource->get_post_type();
 
-    $query = "index.php?post_type={$resource->get_post_type()}&name=\$matches[1]";
+        // Register the param so WordPress doesn't strip it from the query string
+        add_filter('query_vars', function ($vars) use ($shortcode_param) {
+          $vars[] = $shortcode_param;
+          return $vars;
+        });
+
+        // Translate e.g. postid=vp4yj4 → name=vp4yj4 (post_name is stored as the shortcode)
+        add_filter('request', function ($query_vars) use ($shortcode_param, $post_type) {
+          if (!empty($query_vars[$shortcode_param])) {
+            $query_vars['post_type'] = $post_type;
+            $query_vars['name'] = $query_vars[$shortcode_param];
+            unset($query_vars[$shortcode_param]);
+          }
+          return $query_vars;
+        });
+      }
+    }
 
     // Remove existing rewrite rules that match query
     global $wp_rewrite;
