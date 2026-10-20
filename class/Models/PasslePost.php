@@ -400,6 +400,9 @@ class PasslePost
       return $post_author;
     }, $author_shortcodes ?? array());
 
+    // Skip authors whose shortcode matches neither a synced author nor the post's author data
+    $authors = array_values(array_filter($authors));
+
     return array_map(fn ($author) => new PassleAuthor($author), $authors);
   }
 
