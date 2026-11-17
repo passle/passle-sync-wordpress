@@ -47,6 +47,21 @@ class Options implements JsonSerializable
     $this->site_url = home_url();
   }
 
+  /**
+   * site_url is excluded from serialization so the stored option never contains the site's URL.
+   * Otherwise a plain-text search/replace of the URL during a site migration changes the serialized
+   * string lengths, corrupting the option. It's always derived from home_url() instead.
+   */
+  public function __sleep()
+  {
+    return array_keys(array_diff_key(get_object_vars($this), ["site_url" => true]));
+  }
+
+  public function __wakeup()
+  {
+    $this->site_url = home_url();
+  }
+
   // Added #[\ReturnTypeWillChange] attribute to decorate jsonSerialize method and suppress relevant warnings, 
   // as an alternative to declaring the following method like : public function jsonSerialize(): mixed
   // The reason is to maintain backwards compatibility as mixed is supported by PHP 8.1 and later.
@@ -67,7 +82,7 @@ class Options implements JsonSerializable
       "includePasslePostsOnTagPage" => isset($this->include_passle_posts_on_tag_page) ? $this->include_passle_posts_on_tag_page : false,
       "includePassleTagGroups" => isset($this->include_passle_tag_groups) ? $this->include_passle_tag_groups : false,
       "domainExt" => $this->domain_ext,
-      "siteUrl" => $this->site_url,
+      "siteUrl" => home_url(),
     ];
   }
 }
