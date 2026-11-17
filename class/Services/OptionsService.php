@@ -17,12 +17,14 @@ class OptionsService
   public static function get(): Options
   {
     $cached_options = get_option(PASSLESYNC_OPTIONS_KEY, static::get_default_options());
-    
-    // This is needed as options contain home_url and causes annoying issues when migrating from different environments
-    // with the site_url property still holding the value from the old environment
-    if ($cached_options->site_url != home_url()) {
-        $cached_options->site_url = home_url();
-        update_option(PASSLESYNC_OPTIONS_KEY, $cached_options);
+
+    // If the stored options can't be unserialized, get_option returns false. This could happen on sites whose
+    // options were stored with the site URL in them (before site_url was excluded from serialization) and were
+    // then migrated with a plain-text search/replace. Fall back to the defaults rather than throwing a fatal error.
+    if (!($cached_options instanceof Options)) {
+      write_log("Could not unserialize the " . PASSLESYNC_OPTIONS_KEY . " option. Falling back to default options.");
+      $cached_options = static::get_default_options();
+      update_option(PASSLESYNC_OPTIONS_KEY, $cached_options);
     }
 
     if (!isset($cached_options->include_passle_tag_groups)) {
